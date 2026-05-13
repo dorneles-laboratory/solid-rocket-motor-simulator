@@ -78,3 +78,4 @@ docker-compose down
 * `/engine`: Código-fonte do motor de simulação (Spring Boot).
 * `/ui`: Código-fonte da interface do usuário (React/Tauri).
 * `docker-compose.yml`: Orquestração do banco de dados local.
+* `README.md`: Documentação do projeto.
