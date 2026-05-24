@@ -1,0 +1,35 @@
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  flex-shrink: 0;
+  border: none;
+  border-top: 1px solid var(--sidebar-border);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.toggleButton:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.icon {
+  width: 0.875rem;
+  height: 0.875rem;
+
+  transition: transform 0.2s;
+}
+
+.collapsed {
+  transform: rotate(-90deg);
+}
+
+.expanded {
+  transform: rotate(90deg);
+}

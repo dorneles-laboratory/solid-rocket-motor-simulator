@@ -1,0 +1,20 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  margin-bottom: 0.25rem;
+  padding-inline: 0.5rem;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgb(from var(--muted-foreground) r g b / 0.6);
+}
+
+.sectionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}

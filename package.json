@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "@types/node": "^25.7.0"
+  },
+  "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "lucide-react": "^1.16.0"
   }
 }

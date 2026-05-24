@@ -1,0 +1,56 @@
+.navItem {
+  display: flex;
+  height: 2rem;
+  width: 100%;
+  align-items: center;
+  gap: 0.625rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 4px;
+  transition: background-color 150ms ease, color 150ms ease;
+  color: var(--muted-foreground);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.navItem:not(.navItemActive):hover {
+  background-color: var(--muted);
+  color: var(--foreground);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 1px 1px rgb(0 0 0 / 0.1);
+  border-radius: 4px;
+}
+
+.navItemActive {
+  background-color: color-mix(in srgb, var(--primary), transparent 90%);
+  color: var(--primary);
+}
+
+.navItemCollapsed {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navItemIndented {
+  padding-left: 1.5rem;
+}
+
+.navItemIcon {
+  flex-shrink: 0;
+}
+
+.navItemLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tooltipContent {
+  border-radius: 0;
+  font-size: 0.75rem;
+}

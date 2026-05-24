@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: srm-tau_db
+    container_name: srm_db
     restart: always
 
     environment:
@@ -10,9 +10,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PORT: ${POSTGRES_PORT}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - srm-tau-data:/var/lib/postgresql/data
+      - srm-data:/var/lib/postgresql/data
 
 volumes:
-  srm-tau-data:
+  srm-data:
