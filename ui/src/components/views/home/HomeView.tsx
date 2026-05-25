@@ -4,7 +4,7 @@ import rocketMotor from "../../../assets/rocket-motor.png"
 
 export default function HomeView() {
   return (
-    <main className={styles.home_container}>
+    <main className={styles.home_view}>
       <header className={styles.header}>
         <p className={styles.header_text}>Bem-vindo!</p>
       </header>
