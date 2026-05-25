@@ -1,4 +1,4 @@
-import { FilePlus2, FolderOpen, FlaskConical, BookOpen, Settings, Home, FolderPlus, Layers, Gauge, LayoutDashboard, FileText, Flame, Database, Shield } from "lucide-react"
+import { FolderOpen, FlaskConical, BookOpen, Settings, Home, FolderPlus, Layers, Gauge, LayoutDashboard, FileText, Flame, Database, Shield } from "lucide-react"
 import { SidebarHeader } from "./sidebar-header"
 import NavGroup from "./sidebar-group"
 import NavItem from "./sidebar-item"
