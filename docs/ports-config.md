@@ -15,8 +15,8 @@ O arquivo `.env` **deve ser colocado na raiz da sua pasta de frontend (ex: dentr
 Exemplo utilizando portas livres alternativas:
 
 ```env
-VITE_PORT=1422
-VITE_HMR_PORT=1423
+VITE_PORT=
+VITE_HMR_PORT=
 
 ```
 

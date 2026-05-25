@@ -1,0 +1,13 @@
+.root_layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--background);
+  padding: 2rem;
+}
