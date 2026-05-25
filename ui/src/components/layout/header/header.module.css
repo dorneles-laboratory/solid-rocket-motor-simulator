@@ -1,0 +1,18 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar);
+  width: 100%;
+  padding: 0.5rem 1rem;
+}
+
+.header_text {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--muted-foreground);
+}
