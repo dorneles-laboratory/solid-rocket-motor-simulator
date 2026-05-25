@@ -1,4 +1,4 @@
-.propellants_container {
+.propellants_view {
   display: flex;
   flex-direction: column;
   gap: 16px;
