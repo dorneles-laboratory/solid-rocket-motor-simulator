@@ -1,4 +1,4 @@
-.documents_container {
+.documents_view {
   display: flex;
   flex-direction: column;
   gap: 16px;
