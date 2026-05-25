@@ -13,7 +13,7 @@ interface SidebarProps {
   activeView: string
 }
 
-export default function AppSidebar({collapsed, onToggle, onNavigate, activeView="home"}: SidebarProps) {
+export default function Sidebar({collapsed, onToggle, onNavigate, activeView="home"}: SidebarProps) {
   return (
     <aside className={`
       ${styles.sidebar}
