@@ -1,4 +1,4 @@
-import styles from "./Documents.module.css"
+import styles from "./DocumentsView.module.css"
 
 export default function Documents() {
   return (

@@ -1,4 +1,4 @@
-import styles from "./Settings.module.css"
+import styles from "./SettingsView.module.css"
 
 export default function Settings() {
   return (

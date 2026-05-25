@@ -1,4 +1,4 @@
-import styles from "./Propellants.module.css"
+import styles from "./PropellantsView.module.css"
 
 export default function PropellantsView() {
   return (
