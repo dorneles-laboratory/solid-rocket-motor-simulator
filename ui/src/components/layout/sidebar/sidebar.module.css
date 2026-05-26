@@ -39,3 +39,20 @@
   overflow-y: auto;
   padding: 0.5rem;
 }
+
+/* --- SCROLLBAR --- */
+.navigation::-webkit-scrollbar,
+.navigationCollapsed::-webkit-scrollbar {
+  width: 4px; 
+}
+
+.navigation::-webkit-scrollbar-track,
+.navigationCollapsed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navigation::-webkit-scrollbar-thumb,
+.navigationCollapsed::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 10px;
+}

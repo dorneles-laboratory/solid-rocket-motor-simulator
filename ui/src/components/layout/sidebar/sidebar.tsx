@@ -1,5 +1,21 @@
-import { FolderOpen, FlaskConical, BookOpen, Settings, Home, FolderPlus, Layers, Gauge, LayoutDashboard, FileText, Flame, Database, Shield } from "lucide-react"
 import { SidebarHeader } from "./sidebar-header"
+
+import { 
+  Home as IconHome, 
+  FolderPlus as IconPlus, 
+  FolderOpen as IconFolder, 
+  LayoutDashboard as IconDashboard,
+  Shapes as IconGeometry,
+  Gauge as IconBoundary,
+  FileText as IconReports,
+  Layers as IconStructural,
+  Cog as IconMotors,
+  Flame as IconThermal,
+  BookOpen as IconDocuments,
+  Settings as IconSettings,
+  FlaskConical as IconPropellants,
+} from "lucide-react";
+
 import NavGroup from "./sidebar-group"
 import NavItem from "./sidebar-item"
 import SidebarThemeToggle from "./sidebar-theme-toggle"
@@ -29,7 +45,7 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
         }>
 
         <NavItem
-            icon={<Home className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconHome className={styles.icon} strokeWidth={1.5} />}
             label="Início"
             collapsed={collapsed}
             onClick={() => onNavigate("home")}
@@ -39,14 +55,14 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
         {/* PROJETO Section */}
         <NavGroup title="Projeto" collapsed={collapsed}>
           <NavItem
-            icon={<FolderPlus className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconPlus className={styles.icon} strokeWidth={1.5} />}
             label="Novo Projeto"
             collapsed={collapsed}
             onClick={() => onNavigate("new-project")}
             active={activeView === "new-project"}
           />
           <NavItem
-            icon={<FolderOpen className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconFolder className={styles.icon} strokeWidth={1.5} />}
             label="Abrir Projeto"
             collapsed={collapsed}
             onClick={() => onNavigate("open-project")}
@@ -57,14 +73,14 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
         {/* PROJETO ATUAL Section */}
         <NavGroup title="Projeto Atual" collapsed={collapsed}>
           <NavItem
-            icon={<LayoutDashboard className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconDashboard className={styles.icon} strokeWidth={1.5} />}
             label="Dashboard"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard")}
             active={activeView === "dashboard"}
           />
           <NavItem
-            icon={<Layers className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconGeometry className={styles.icon} strokeWidth={1.5} />}
             label="Editor de Geometria"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard/geometry-editor")}
@@ -72,7 +88,7 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             indent
           />
           <NavItem
-            icon={<Gauge className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconBoundary className={styles.icon} strokeWidth={1.5} />}
             label="Condições de Contorno"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard/boundary-conditions")}
@@ -80,7 +96,7 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             indent
           />
           <NavItem
-            icon={<FileText className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconReports className={styles.icon} strokeWidth={1.5} />}
             label="Relatórios / Exportação"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard/reports")}
@@ -92,28 +108,28 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
         {/* BIBLIOTECA Section */}
         <NavGroup title="Biblioteca" collapsed={collapsed}>
           <NavItem
-            icon={<FlaskConical className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconPropellants className={styles.icon} strokeWidth={1.5} />}
             label="Propelentes"
             collapsed={collapsed}
             onClick={() => onNavigate("propellants")}
             active={activeView === "propellants"}
           />
           <NavItem
-            icon={<Shield className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconStructural className={styles.icon} strokeWidth={1.5} />}
             label="Materiais Estruturais"
             collapsed={collapsed}
             onClick={() => onNavigate("structural-materials")}
             active={activeView === "structural-materials"}
           />
           <NavItem
-            icon={<Flame className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconThermal className={styles.icon} strokeWidth={1.5} />}
             label="Materiais Térmicos"
             collapsed={collapsed}
             onClick={() => onNavigate("thermal-materials")}
             active={activeView === "thermal-materials"}
           />
           <NavItem
-            icon={<Database className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconMotors className={styles.icon} strokeWidth={1.5} />}
             label="Motores Comerciais"
             collapsed={collapsed}
             onClick={() => onNavigate("commercial-motors")}
@@ -124,14 +140,14 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
         {/* SISTEMA Section */}
         <NavGroup title="Sistema" collapsed={collapsed}>
           <NavItem
-            icon={<BookOpen className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconDocuments className={styles.icon} strokeWidth={1.5} />}
             label="Documentação"
             collapsed={collapsed}
             onClick={() => onNavigate("documents")}
             active={activeView === "documents"}
           />
           <NavItem
-            icon={<Settings className={styles.icon} strokeWidth={1.5} />}
+            icon={<IconSettings className={styles.icon} strokeWidth={1.5} />}
             label="Configurações"
             collapsed={collapsed}
             onClick={() => onNavigate("settings")}
