@@ -1,0 +1,7 @@
+.documents_view {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  height: 100%;
+  width: 100%;
+}

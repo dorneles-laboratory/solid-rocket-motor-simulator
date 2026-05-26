@@ -8,7 +8,6 @@ interface NavItemProps {
   onClick?: () => void
   active?: boolean
   indent?: boolean
-  disabled?: boolean
 }
 
 export default function NavItem({
@@ -18,7 +17,6 @@ export default function NavItem({
   onClick,
   active,
   indent,
-  disabled
 }: NavItemProps) {
   const buttonClassName = [
     styles.navItem,
@@ -30,7 +28,7 @@ export default function NavItem({
     .join(" ");
 
   const button = (
-    <button onClick={onClick} className={buttonClassName} disabled={disabled}>
+    <button onClick={onClick} className={buttonClassName}>
       <span className={styles.navItemIcon}>
         {icon}
       </span>

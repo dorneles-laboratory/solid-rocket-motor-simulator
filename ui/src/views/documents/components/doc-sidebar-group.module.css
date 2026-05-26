@@ -1,0 +1,19 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.group_title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  padding-left: 0.5rem;
+}
+
+.group_content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
