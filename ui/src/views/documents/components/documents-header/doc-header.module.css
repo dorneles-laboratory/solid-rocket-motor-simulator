@@ -6,8 +6,7 @@
   width: 100%;
   flex-shrink: 0;
   padding: 0.5rem 1rem;
-  background: var(--sidebar);
-  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--background);
 }
 
 .header_content {
