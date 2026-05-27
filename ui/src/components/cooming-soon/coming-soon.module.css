@@ -10,7 +10,6 @@
 .rocket_image {
   width: 18rem;
   height: auto;
-  user-select: none;
   pointer-events: none;
 }
 
