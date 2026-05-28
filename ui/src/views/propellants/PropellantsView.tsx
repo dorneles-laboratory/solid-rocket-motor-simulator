@@ -51,6 +51,21 @@ export default function PropellantsView() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/propellants/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setPropellants((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        console.error("Erro ao deletar propelente:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Erro ao deletar propelente:", error);
+    }
+  };
+
   const handleModalSuccess = (savedPropellant: Propellant, isEdit: boolean) => {
     if (isEdit) {
       setPropellants((prev) => 
@@ -141,7 +156,7 @@ export default function PropellantsView() {
                 >
                   <Pencil className={styles.actionIcon} strokeWidth={1.5} />
                 </Button>
-                <Button variant="ghost" size="sm" className={`${styles.actionButton} ${styles.deleteButton}`} onClick={() => alert("Funcionalidade de exclusão ainda não implementada")}>
+                <Button variant="ghost" size="sm" className={`${styles.actionButton} ${styles.deleteButton}`} onClick={() => handleDelete(prop.id)}>
                   <Trash2 className={styles.deleteIcon} strokeWidth={1.5} />
                 </Button>
               </div>

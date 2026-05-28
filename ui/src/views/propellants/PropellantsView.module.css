@@ -164,12 +164,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  opacity: 0;
   transition: opacity 0.2s;
-}
-
-.tableRow:hover .actions {
-  opacity: 1;
 }
 
 .actionButton {

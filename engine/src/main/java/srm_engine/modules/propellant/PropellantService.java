@@ -26,7 +26,7 @@ public class PropellantService {
     return repository.findById(id);
   }
 
-  public java.util.Optional<Propellant> update(UUID id, Propellant updated) {
+  public Propellant update(UUID id, Propellant updated) {
     return repository.findById(id).map(existing -> {
       existing.setName(updated.getName());
       existing.setDensity(updated.getDensity());

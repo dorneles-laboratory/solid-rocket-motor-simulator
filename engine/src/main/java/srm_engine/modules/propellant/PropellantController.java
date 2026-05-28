@@ -37,8 +37,8 @@ public class PropellantController {
 
   @PutMapping("/{id}")
   public ResponseEntity<Propellant> update(@PathVariable UUID id, @RequestBody Propellant propellant) {
-    Propellant updatedPropellant = propellantService.update(id, propellant);
-    return ResponseEntity.ok(updatedPropellant).orElse(ResponseEntity.notFound().build());
+    Propellant updatedPropellant = service.update(id, propellant);
+    return ResponseEntity.ok(updatedPropellant);
   }
 
   @DeleteMapping("/{id}")
