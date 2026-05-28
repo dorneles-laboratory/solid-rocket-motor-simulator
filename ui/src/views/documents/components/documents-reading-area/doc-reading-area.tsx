@@ -15,9 +15,6 @@ interface DocumentProps {
 }
 
 export default function ReadingArea({ documentData }: DocumentProps) {
-  // Log mantido para depuração, como solicitado
-  console.log("Document Data:", documentData);
-
   return (
     <div className={styles.reading_area}>
       <div className={styles.document_texts_area}>

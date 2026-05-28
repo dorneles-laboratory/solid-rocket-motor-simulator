@@ -13,7 +13,7 @@ interface DocumentData {
 
 export const MOCK_GETTING_STARTED: DocumentData = {
   slug: 'primeiros-passos',
-  title: 'Primeiros Passos com o SRM TAU',
+  title: 'Primeiros Passos com o SRM',
   author: 'Equipe de Engenharia',
   lastEdited: '2026-05-26',
   group: 'Começando',

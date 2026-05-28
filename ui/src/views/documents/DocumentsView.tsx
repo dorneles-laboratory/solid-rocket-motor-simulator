@@ -10,6 +10,7 @@ import ReadingArea from "./components/documents-reading-area/doc-reading-area";
 // Mocks para desenvolvimento web, dados para uso durante desenvolvimento web.
 import { MOCK_GETTING_STARTED } from "../../../../content/mock/getting-started"
 import { MOCK_EQUATIONS } from "../../../../content/mock/equations"
+import Footer from "../../components/layout/footer/footer";
 
 interface DocumentData {
   slug: string;
@@ -24,13 +25,18 @@ interface DocumentData {
   index: { title: string; slug: string }[];
 }
 
+interface DocumentCount {
+  count: number;
+}
+
 export default function Documents() {
   const [activeView, setActiveView] = useState("getting-started")
-
   const [doc, setDoc] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [documentCount, setDocumentCount] = useState<number | null>(null);
 
+  // Fetch document data whenever activeView changes
   useEffect(() => {
     const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
@@ -46,12 +52,30 @@ export default function Documents() {
           setLoading(false);
         });
     } else {
-
       console.warn("Tauri não detectado. Usando dados Mock para desenvolvimento Web.");
       setDoc(activeView === 'getting-started' ? MOCK_GETTING_STARTED : activeView === 'equations' ? MOCK_EQUATIONS : null);
       setLoading(false);
     }
   }, [activeView]);
+
+  // Count documents on mount
+  useEffect(() => {
+    const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
+    if (isTauri) {
+      invoke<DocumentCount>('count_documents')
+        .then((data) => {
+          setDocumentCount(data.count);
+        })
+        .catch((err) => {
+          console.error("Erro ao buscar a contagem de documentos:", err);
+        });
+    } else {
+      console.warn("Tauri não detectado. Usando contagem Mock.");
+      setDocumentCount(2);
+    }
+  }, []);
+
 
   if (loading) {
     return <div style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Lendo arquivo...</div>;
@@ -61,8 +85,6 @@ export default function Documents() {
     return <div style={{ padding: '2rem', color: 'red' }}>Erro: {error}</div>;
   }
 
-  {console.log("Documento Atual:", activeView)}
-  
   return (
     <main className={styles.documents_view}>
       <DocumentsHeader 
@@ -80,6 +102,11 @@ export default function Documents() {
           <ReadingArea documentData={doc} />
         </main>
       </div>
+
+      <Footer
+        index={documentCount || 0}
+        description="Documentos encontrados"
+      />
     </main>
   )
 }

@@ -48,6 +48,12 @@ struct Frontmatter {
     #[serde(default)]
     index: Vec<IndexItem>,
 }
+
+#[derive(Serialize)]
+pub struct DocumentCount {
+    pub count: usize,
+}
+
 // --- COMANDOS NATIVOS (IPC) ---
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -149,12 +155,39 @@ fn list_documents() -> Result<Vec<SidebarItem>, String> {
     Ok(docs_list)
 }
 
+#[tauri::command]
+fn count_documents() -> Result<DocumentCount, String> {
+    let mut path = std::env::current_dir().map_err(|e| e.to_string())?;
+    
+    if path.ends_with("src-tauri") {
+        path.pop(); path.pop();
+    } else if path.ends_with("ui") {
+        path.pop();
+    }
+    path.push("content");
+    path.push("docs");
+
+    let mut count = 0;
+    
+    if let Ok(entries) = fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let file_path = entry.path();
+            
+            if file_path.extension().and_then(|s| s.to_str()) == Some("mdx") {
+                count += 1;
+            }
+        }
+    }
+
+    Ok(DocumentCount { count }) 
+}
+
 // --- INICIALIZAÇÃO DO TAURI ---
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_document, list_documents])
+        .invoke_handler(tauri::generate_handler![greet, get_document, list_documents, count_documents])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
