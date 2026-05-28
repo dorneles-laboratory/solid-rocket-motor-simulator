@@ -47,18 +47,13 @@ export default function PropellantsModal({
 
   const handleSavePropellant = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const response = await fetch('http://localhost:8080/api/propellants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
     
     const isEdit = !!propellantToEdit;
     const url = isEdit 
         ? `http://localhost:8080/api/propellants/${propellantToEdit.id}` 
         : 'http://localhost:8080/api/propellants';
     const method = isEdit ? 'PUT' : 'POST';
+    
     try {
       const response = await fetch(url, {
         method: method,
