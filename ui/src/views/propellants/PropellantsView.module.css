@@ -1,6 +1,204 @@
 .propellants_view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   height: 100%;
+}
+
+.button_container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+.addButton {
+  height: 2rem;
+  gap: 0.375rem;
+  padding-inline: 0.75rem;
+  border-radius: 0;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.addButton:hover {
+  background:
+    color-mix(
+      in srgb,
+      var(--primary),
+      black 10%
+    );
+}
+
+.addButtonIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.propellants_list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--sidebar);
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* --- ROW --- */
+.tableRow {
+  display: grid;
+  grid-template-columns:
+    1fr
+    100px
+    120px
+    120px
+    100px
+    80px
+    70px;
+  gap: 0.5rem;
+  padding-inline: 1rem;
+  padding-block: 0.625rem;
+  border-bottom:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--border),
+      transparent 50%
+    );
+  transition: background-color 0.2s;
+}
+
+.tableRow:hover {
+  background:
+    color-mix(
+      in srgb,
+      var(--muted),
+      transparent 70%
+    );
+}
+
+/* --- NAME --- */
+.propellantName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.propellantDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+}
+
+/* --- NUMERIC --- */
+.numericColumn {
+  text-align: right;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.unit {
+  margin-left: 0.25rem;
+  font-size: 9px;
+  color:
+    color-mix(
+      in srgb,
+      var(--muted-foreground),
+      transparent 40%
+    );
+}
+
+/* --- TYPE --- */
+.typeWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typeBadge {
+  padding-inline: 0.5rem;
+  padding-block: 0.125rem;
+
+  border: 1px solid transparent;
+  border-radius: 0;
+
+  font-size: 9px;
+}
+
+.composite {
+  border-color:
+    rgb(249 115 22 / 0.3);
+
+  background:
+    rgb(249 115 22 / 0.1);
+
+  color: rgb(251 146 60);
+}
+
+.sugar {
+  border-color:
+    rgb(34 197 94 / 0.3);
+
+  background:
+    rgb(34 197 94 / 0.1);
+
+  color: rgb(74 222 128);
+}
+
+/* --- ACTIONS --- */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tableRow:hover .actions {
+  opacity: 1;
+}
+
+.actionButton {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border-radius: 0;
+}
+
+.actionButton:hover {
+  background: var(--muted);
+}
+
+.deleteButton:hover {
+  background:
+    rgb(239 68 68 / 0.1);
+}
+
+.actionIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+
+  color: var(--muted-foreground);
+}
+
+.deleteIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+
+  color:
+    rgb(239 68 68 / 0.7);
 }
