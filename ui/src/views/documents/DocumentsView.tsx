@@ -10,7 +10,7 @@ import ReadingArea from "./components/documents-reading-area/doc-reading-area";
 // Mocks para desenvolvimento web, dados para uso durante desenvolvimento web.
 import { MOCK_GETTING_STARTED } from "../../../../content/mock/getting-started"
 import { MOCK_EQUATIONS } from "../../../../content/mock/equations"
-import Footer from "../../components/layout/footer/footer";
+import { FooterProps } from "../../components/layout/footer/footer";
 
 interface DocumentData {
   slug: string;
@@ -29,13 +29,24 @@ interface DocumentCount {
   count: number;
 }
 
-export default function Documents() {
+interface DocumentsViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function Documents({ setFooter }: DocumentsViewProps) {
   const [activeView, setActiveView] = useState("getting-started")
   const [doc, setDoc] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [documentCount, setDocumentCount] = useState<number | null>(null);
 
+  useEffect(() => {
+    setFooter({
+      index: documentCount !== null ? documentCount : 0,
+      description: documentCount === 1 ? "Documento encontrado" : "Documentos encontrados",
+    });
+  }, [documentCount, setFooter]);
+  
   // Fetch document data whenever activeView changes
   useEffect(() => {
     const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
@@ -86,7 +97,7 @@ export default function Documents() {
   }
 
   return (
-    <main className={styles.documents_view}>
+    <section className={styles.documents_view}>
       <DocumentsHeader 
           path={doc?.group + '/' + doc?.slug + '.md' || "Documento Desconecido"}
           title={doc?.title || "Documento Desconecido"}
@@ -98,15 +109,10 @@ export default function Documents() {
           activeView={activeView}
         />
 
-        <main className={styles.main}>
+        <section className={styles.main}>
           <ReadingArea documentData={doc} />
-        </main>
+        </section>
       </div>
-
-      <Footer
-        index={documentCount || 0}
-        description="Documentos encontrados"
-      />
-    </main>
+    </section>
   )
 }

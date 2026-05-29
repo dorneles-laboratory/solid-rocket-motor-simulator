@@ -8,13 +8,20 @@ import lombok.Setter;
 
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "projects")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Project {
+  
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -45,4 +52,20 @@ public class Project {
 
   @Column(nullable = true)
   private Double targetBurnTime;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "motor_class", nullable = false)
+  private ProjectMotorClass motorClass = ProjectMotorClass.UNCLASSIFIED;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private ProjectStatus status = ProjectStatus.DRAFT;
+
+  @CreatedDate
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @LastModifiedDate
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 }

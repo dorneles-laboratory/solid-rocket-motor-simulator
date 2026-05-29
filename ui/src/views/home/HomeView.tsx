@@ -1,10 +1,23 @@
 import styles from "./HomeView.module.css"
 
 import rocketMotor from "../../assets/rocket-motor.png"
+import { FooterProps } from "../../components/layout/footer/footer";
+import { useEffect } from "react";
 
-export default function HomeView() {
+interface HomeViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function HomeView({ setFooter }: HomeViewProps) {
+  useEffect(() => {
+    setFooter({
+      description: "Bem vindo ao Solid Rocket Motor (SRM)",
+      rightText: "Simulador de motores-foguete de propelente sólido"
+    });
+  }, [setFooter]);
+  
   return (
-    <main className={styles.home_view}>
+    <section className={styles.home_view}>
       <header className={styles.header}>
         <p className={styles.header_text}>Bem-vindo!</p>
       </header>
@@ -34,6 +47,6 @@ export default function HomeView() {
           </p>
         </div>
       </section>
-    </main>
+    </section>
   )
 }

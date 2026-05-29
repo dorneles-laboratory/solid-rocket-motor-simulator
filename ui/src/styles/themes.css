@@ -42,6 +42,9 @@
   --success-background: oklch(0.68 0.16 160 / 12%);
   --warning-background: oklch(0.74 0.18 68 / 12%);
   --error-background: oklch(0.63 0.22 28 / 12%);
+
+  --destructive: oklch(0.577 0.245 27.325 / 90%);
+  
 }
 
 .dark {
@@ -87,4 +90,6 @@
   --success-background: oklch(0.68 0.16 160 / 12%);
   --warning-background: oklch(0.74 0.18 68 / 12%);
   --error-background: oklch(0.63 0.22 28 / 12%);
+
+  --destructive: oklch(0.577 0.245 27.325 / 90%);
 }

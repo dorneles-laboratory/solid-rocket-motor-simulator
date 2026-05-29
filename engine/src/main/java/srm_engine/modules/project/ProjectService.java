@@ -37,6 +37,8 @@ public class ProjectService {
       existing.setTargetImpulse(updated.getTargetImpulse());
       existing.setTargetBurnTime(updated.getTargetBurnTime());
       existing.setMaxThrust(updated.getMaxThrust());
+      existing.setMotorClass(updated.getMotorClass());
+      existing.setStatus(updated.getStatus());
       return repository.save(existing);
     }).orElseThrow(() -> new RuntimeException("Project não encontrado"));
   }
