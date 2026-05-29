@@ -1,5 +1,5 @@
 import { Info, CheckCircle2, AlertTriangle, AlertCircle, X } from 'lucide-react';
-import styles from './Toast.module.css';
+import styles from './toast.module.css';
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error';
 

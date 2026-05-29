@@ -3,20 +3,33 @@
   align-items: flex-start;
   padding: 16px;
   border-radius: 16px;
-  background-color: #ffffff;
+  background-color: var(--background);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   width: 420px;
   max-width: 100%;
   gap: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
 }
 
-.info { background: linear-gradient(90deg, #f0f8ff 0%, #ffffff 35%); }
-.success { background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 35%); }
-.warning { background: linear-gradient(90deg, #fffbeb 0%, #ffffff 35%); }
-.error { background: linear-gradient(90deg, #fef2f2 0%, #ffffff 35%); }
+.info { 
+  background: linear-gradient(90deg, var(--info-background) 0%, var(--background) 35%); 
+  border-color: var(--info);
+}
+
+.success { 
+  background: linear-gradient(90deg, var(--success-background) 0%, var(--background) 35%); 
+  border-color: var(--success);
+}
+.warning { 
+  background: linear-gradient(90deg, var(--warning-background) 0%, var(--background) 35%); 
+  border-color: var(--warning);
+}
+.error { 
+  background: linear-gradient(90deg, var(--error) 0%, var(--background) 35%); 
+  border-color: var(--error);
+}
 
 .iconWrapper {
   display: flex;
@@ -24,7 +37,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: #ffffff;
+  background-color: var(--muted);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
   flex-shrink: 0;
@@ -47,7 +60,7 @@
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: var(--foreground);
   letter-spacing: -0.01em;
 }
 
