@@ -33,6 +33,10 @@
   --sidebar-border: oklch(0.88 0 0);
   --sidebar-ring: oklch(0.705 0.191 47.604);
   --shortcut-bg: oklch(0.88 0 0);
+  --info: oklch(0.62 0.16 261);
+  --success: oklch(0.68 0.16 160);
+  --warning: oklch(0.74 0.18 68);
+  --error: oklch(0.63 0.22 28);
 }
 
 .dark {
@@ -69,4 +73,8 @@
   --sidebar-border: oklch(0.28 0.005 285);
   --sidebar-ring: oklch(0.769 0.188 70.08);
   --shortcut-bg: oklch(0.45 0 0);
+  --info: oklch(0.62 0.16 261);
+  --success: oklch(0.68 0.16 160);
+  --warning: oklch(0.74 0.18 68);
+  --error: oklch(0.63 0.22 28);
 }

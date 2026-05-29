@@ -1,12 +1,12 @@
 import { useState } from "react";
-import styles from "./RootLayout.module.css"
+import styles from "./RootLayout.module.css";
 import Sidebar from "./sidebar/sidebar";
 import Header from "./header/header";
 
-import { 
-  Home as IconHome, 
-  FolderPlus as IconPlus, 
-  FolderOpen as IconFolder, 
+import {
+  Home as IconHome,
+  FolderPlus as IconPlus,
+  FolderOpen as IconFolder,
   LayoutDashboard as IconDashboard,
   Shapes as IconGeometry,
   Gauge as IconBoundary,
@@ -32,44 +32,58 @@ import ThermalMaterialsView from "../../views/thermal-materials/ThermalMaterials
 import CommercialMotorsView from "../../views/commercial-motors/CommercialMotorsView";
 import DocumentsView from "../../views/documents/DocumentsView";
 import SettingsView from "../../views/settings/SettingsView";
+import { ToastContainer } from "../../ui/toast/toast-container";
 
-const VIEW_CONFIG: Record<string, { title: string; icon: React.ReactNode, search?: boolean }> = {
-  "home": { title: "Página Inicial", icon: <IconHome /> },
+const VIEW_CONFIG: Record<
+  string,
+  { title: string; icon: React.ReactNode; search?: boolean }
+> = {
+  home: { title: "Página Inicial", icon: <IconHome /> },
   "new-project": { title: "Novo Projeto", icon: <IconPlus /> },
   "open-project": { title: "Abrir Projeto", icon: <IconFolder /> },
-  "dashboard": { title: "Dashboard", icon: <IconDashboard /> },
-  "dashboard/geometry-editor": { title: "Editor de Geometria", icon: <IconGeometry /> },
-  "dashboard/boundary-conditions": { title: "Condições de Contorno", icon: <IconBoundary /> },
+  dashboard: { title: "Dashboard", icon: <IconDashboard /> },
+  "dashboard/geometry-editor": {
+    title: "Editor de Geometria",
+    icon: <IconGeometry />,
+  },
+  "dashboard/boundary-conditions": {
+    title: "Condições de Contorno",
+    icon: <IconBoundary />,
+  },
   "dashboard/reports": { title: "Relatórios", icon: <IconReports /> },
-  "propellants": { title: "Propelentes", icon: <IconPropellants /> },
-  "structural-materials": { title: "Materiais Estruturais", icon: <IconStructural /> },
+  propellants: { title: "Propelentes", icon: <IconPropellants /> },
+  "structural-materials": {
+    title: "Materiais Estruturais",
+    icon: <IconStructural />,
+  },
   "thermal-materials": { title: "Materiais Térmicos", icon: <IconThermal /> },
   "commercial-motors": { title: "Motores Comerciais", icon: <IconMotors /> },
-  "documents": { title: "Documentos", icon: <IconDocuments />, search: true },
-  "settings": { title: "Configurações", icon: <IconSettings /> },
+  documents: { title: "Documentos", icon: <IconDocuments />, search: true },
+  settings: { title: "Configurações", icon: <IconSettings /> },
 };
 
 export default function RootLayout() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [activeView, setActiveView] = useState("home")
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeView, setActiveView] = useState("home");
 
   const handleToggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
-  }
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   const currentViewInfo = VIEW_CONFIG[activeView] || VIEW_CONFIG["home"];
 
   return (
     <div className={styles.root_layout}>
-      <Sidebar 
-        collapsed={sidebarCollapsed} 
+      <Sidebar
+        collapsed={sidebarCollapsed}
         onToggle={handleToggleSidebar}
         onNavigate={setActiveView}
         activeView={activeView}
       />
-      
+
       <div className={styles.content}>
-        <Header path={[activeView]}
+        <Header
+          path={[activeView]}
           title={currentViewInfo.title}
           icon={currentViewInfo.icon}
           showSearch={currentViewInfo.search}
@@ -78,12 +92,16 @@ export default function RootLayout() {
         <main className={styles.main}>
           {activeView === "home" && <HomeView />}
 
-          {activeView === "new-project" && <NewProjectView />}
+          {activeView === "new-project" && (
+            <NewProjectView onNavigate={setActiveView} />
+          )}
           {activeView === "open-project" && <OpenProjectView />}
 
           {activeView === "dashboard" && <DashboardView />}
           {activeView === "dashboard/geometry-editor" && <GeometryEditorView />}
-          {activeView === "dashboard/boundary-conditions" && <BoundaryConditionsView />}
+          {activeView === "dashboard/boundary-conditions" && (
+            <BoundaryConditionsView />
+          )}
           {activeView === "dashboard/reports" && <ReportsView />}
 
           {activeView === "propellants" && <PropellantsView />}
@@ -95,6 +113,8 @@ export default function RootLayout() {
           {activeView === "settings" && <SettingsView />}
         </main>
       </div>
+
+      <ToastContainer />
     </div>
   );
-} 
+}

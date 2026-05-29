@@ -1,6 +1,6 @@
 # Documentação de Stack Tecnológica: SRM (Solid Rocket Motor)
 
-**Autor:** Fernando Dorneles da Silva (Gerente do Departamento de Desenvolvimento, Tau Rocket Team)
+**Autor:** Fernando Dorneles da Silva
 **Projeto:** `srm` | **Versão:** 1.0.0
 **Data:** 11 de Maio de 2026
 

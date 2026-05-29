@@ -1,0 +1,25 @@
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+}
+
+/* --- GROUP DISABLED --- */
+.group[data-disabled="true"] .label {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* --- PEER DISABLED --- */
+.peer:disabled + .label,
+.peer[disabled] + .label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

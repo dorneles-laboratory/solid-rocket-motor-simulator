@@ -6,8 +6,8 @@ type FooterLegendItem = {
 }
 
 type FooterProps = {
-  index: string | number
-  description: string
+  index?: string | number
+  description?: string
   legends?: FooterLegendItem[]
   rightText?: string
 }
@@ -21,7 +21,7 @@ export default function Footer({
   return (
     <footer className={styles.footer}>
       <span className={styles.footerText}>
-        {index} {description}
+        {index !== undefined ? `${index} ` : ''}{description}
       </span>
 
       {(legends || rightText) && (
