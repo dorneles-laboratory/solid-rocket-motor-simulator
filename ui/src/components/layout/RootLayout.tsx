@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useShortcut } from "../../hooks/use-shortcut";
 import styles from "./RootLayout.module.css";
 import Sidebar from "./sidebar/sidebar";
 import Header from "./header/header";
+import Footer, { FooterProps } from "./footer/footer";
 
 import {
   Home as IconHome,
@@ -41,34 +43,42 @@ const VIEW_CONFIG: Record<
   home: { title: "Página Inicial", icon: <IconHome /> },
   "new-project": { title: "Novo Projeto", icon: <IconPlus /> },
   "open-project": { title: "Abrir Projeto", icon: <IconFolder /> },
-  dashboard: { title: "Dashboard", icon: <IconDashboard /> },
-  "dashboard/geometry-editor": {
-    title: "Editor de Geometria",
-    icon: <IconGeometry />,
-  },
-  "dashboard/boundary-conditions": {
-    title: "Condições de Contorno",
-    icon: <IconBoundary />,
-  },
+  "dashboard": { title: "Dashboard", icon: <IconDashboard /> },
+  "dashboard/geometry-editor": { title: "Editor de Geometria", icon: <IconGeometry /> },
+  "dashboard/boundary-conditions": { title: "Condições de Contorno", icon: <IconBoundary /> },
   "dashboard/reports": { title: "Relatórios", icon: <IconReports /> },
-  propellants: { title: "Propelentes", icon: <IconPropellants /> },
-  "structural-materials": {
-    title: "Materiais Estruturais",
-    icon: <IconStructural />,
-  },
+  "propellants": { title: "Propelentes", icon: <IconPropellants /> },
+  "structural-materials": { title: "Materiais Estruturais", icon: <IconStructural /> },
   "thermal-materials": { title: "Materiais Térmicos", icon: <IconThermal /> },
   "commercial-motors": { title: "Motores Comerciais", icon: <IconMotors /> },
-  documents: { title: "Documentos", icon: <IconDocuments />, search: true },
-  settings: { title: "Configurações", icon: <IconSettings /> },
+  "documents": { title: "Documentos", icon: <IconDocuments /> },
+  "settings": { title: "Configurações", icon: <IconSettings /> },
 };
 
 export default function RootLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeView, setActiveView] = useState("home");
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [footerData, setFooterData] = useState<FooterProps>({ description: "SRM Engine v1.0" });
 
   const handleToggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
+
+  const handleNavigate = (path: string) => {
+    if (path.includes("?projectId=")) {
+      const [routePart, queryPart] = path.split("?projectId=");
+      const cleanView = routePart.startsWith("/") ? routePart.substring(1) : routePart;
+
+      setSelectedProjectId(queryPart);
+      setActiveView(cleanView);
+    } else {
+      setActiveView(path);
+    }
+  };
+
+  useShortcut("n", () => handleNavigate("new-project"), { ctrl: true }); // Ctrl + N
+  useShortcut("o", () => handleNavigate("open-project"), { ctrl: true }); // Ctrl + O
 
   const currentViewInfo = VIEW_CONFIG[activeView] || VIEW_CONFIG["home"];
 
@@ -77,7 +87,7 @@ export default function RootLayout() {
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={handleToggleSidebar}
-        onNavigate={setActiveView}
+        onNavigate={handleNavigate}
         activeView={activeView}
       />
 
@@ -90,28 +100,55 @@ export default function RootLayout() {
         />
 
         <main className={styles.main}>
-          {activeView === "home" && <HomeView />}
+          {activeView === "home" && 
+            <HomeView setFooter={setFooterData}
+          />}
 
           {activeView === "new-project" && (
-            <NewProjectView onNavigate={setActiveView} />
+            <NewProjectView onNavigate={handleNavigate} setFooter={setFooterData} />
           )}
-          {activeView === "open-project" && <OpenProjectView />}
 
-          {activeView === "dashboard" && <DashboardView />}
-          {activeView === "dashboard/geometry-editor" && <GeometryEditorView />}
+          {activeView === "open-project" && (
+            <OpenProjectView onNavigate={handleNavigate} setFooter={setFooterData} />
+          )}
+
+          {activeView === "dashboard" && ( 
+            <DashboardView projectId={selectedProjectId} setFooter={setFooterData} />
+          )}
+
+          {activeView === "dashboard/geometry-editor" && (
+            <GeometryEditorView setFooter={setFooterData} />
+          )}
+          
           {activeView === "dashboard/boundary-conditions" && (
-            <BoundaryConditionsView />
+            <BoundaryConditionsView setFooter={setFooterData} />
           )}
-          {activeView === "dashboard/reports" && <ReportsView />}
+          {activeView === "dashboard/reports" && (
+            <ReportsView setFooter={setFooterData} />
+          )}
 
-          {activeView === "propellants" && <PropellantsView />}
-          {activeView === "structural-materials" && <StructuralMaterialsView />}
-          {activeView === "thermal-materials" && <ThermalMaterialsView />}
-          {activeView === "commercial-motors" && <CommercialMotorsView />}
+          {activeView === "propellants" && (
+            <PropellantsView setFooter={setFooterData} />
+          )}
+          {activeView === "structural-materials" && (
+            <StructuralMaterialsView setFooter={setFooterData} />
+          )}
+          {activeView === "thermal-materials" && (
+            <ThermalMaterialsView setFooter={setFooterData} />
+          )}
+          {activeView === "commercial-motors" && (
+            <CommercialMotorsView setFooter={setFooterData} />
+          )}
 
-          {activeView === "documents" && <DocumentsView />}
-          {activeView === "settings" && <SettingsView />}
+          {activeView === "documents" && (
+            <DocumentsView setFooter={setFooterData} />
+          )}
+          {activeView === "settings" && (
+            <SettingsView setFooter={setFooterData} />
+          )}
         </main>
+
+        <Footer {...footerData} />
       </div>
 
       <ToastContainer />

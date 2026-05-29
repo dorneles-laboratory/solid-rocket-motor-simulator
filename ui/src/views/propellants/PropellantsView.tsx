@@ -1,13 +1,14 @@
 import styles from "./PropellantsView.module.css";
 import { Button } from "../../ui/button/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import Footer from "../../components/layout/footer/footer";
+import { FooterProps } from "../../components/layout/footer/footer";
 import { useEffect, useState } from "react";
 import PropellantsHeader from "./components/propellants-header/prop-header";
 import PropellantsModal from "./components/propellants-modal/prop-modal";
 import { showToast } from "../../ui/toast/toast-container";
+import image from "../../assets/propellant.png"
 
-interface Propellant {
+export interface Propellant {
   id: string;
   name: string;
   density: number;
@@ -17,7 +18,11 @@ interface Propellant {
   type: string;
 }
 
-export default function PropellantsView() {
+interface PropellantsViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function PropellantsView({ setFooter }: PropellantsViewProps) {
   const [propellants, setPropellants] = useState<Propellant[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +30,23 @@ export default function PropellantsView() {
   const [editingPropellant, setEditingPropellant] = useState<Propellant | null>(
     null,
   );
+
+  useEffect(() => {
+    setFooter({
+      index: propellants.length || 0,
+      description: propellants.length === 1 ? "Propelente encontrado" : "Propelentes encontrados",
+      legends: [
+        {
+          label: "Composite",
+          color: "#f97316",
+        },
+        {
+          label: "Sugar",
+          color: "#22c55e",
+        },
+      ]
+    })
+  }), [propellants, setFooter];
 
   useEffect(() => {
     fetchPropellants();
@@ -100,7 +122,7 @@ export default function PropellantsView() {
   };
 
   return (
-    <main className={styles.propellants_view}>
+    <section className={styles.propellants_view}>
       <div className={styles.button_container}>
         <Button size="lg" onClick={handleAddNew}>
           <Plus className={styles.addButtonIcon} strokeWidth={2} />
@@ -112,7 +134,6 @@ export default function PropellantsView() {
         {/* TABLE HEADER */}
         <PropellantsHeader />
 
-        {/* TABLE ROWS */}
         {isLoading ? (
           <div
             style={{
@@ -123,7 +144,7 @@ export default function PropellantsView() {
           >
             Carregando dados do servidor...
           </div>
-        ) : (
+        ) : propellants.length > 0 ? (
           propellants.map((prop) => (
             <div key={prop.id} className={styles.tableRow}>
               {/* NAME */}
@@ -194,23 +215,29 @@ export default function PropellantsView() {
               </div>
             </div>
           ))
+        ) : (
+          <section className={styles.noItensGrid}>
+            <div>
+              <img
+                src={image}
+                alt="Solid rocket motor"
+                className={styles.rocket_image}
+              />
+
+              <div className={styles.noItensMessage}>
+                <h1 className={styles.noItensTitle}>
+                  Nenhum propelente encontrado!
+                </h1>
+
+                <p className={styles.noItensSubtitle}>
+                  Crie um novo propelente para começar a desenvolver seu motor sólido. 
+                  Aperte <strong className={styles.keyboard_shortcut}> Ctrl + Q </strong> para criar um novo propelente. 
+                </p>
+              </div>
+            </div>
+          </section>
         )}
       </div>
-
-      <Footer
-        index={propellants.length}
-        description="propelentes cadastrados"
-        legends={[
-          {
-            label: "Composite",
-            color: "#f97316",
-          },
-          {
-            label: "Sugar",
-            color: "#22c55e",
-          },
-        ]}
-      />
 
       {/* --- MODAL DE CADASTRO --- */}
       <PropellantsModal
@@ -219,6 +246,6 @@ export default function PropellantsView() {
         onSuccess={handleModalSuccess}
         propellantToEdit={editingPropellant}
       />
-    </main>
+    </section>
   );
 }

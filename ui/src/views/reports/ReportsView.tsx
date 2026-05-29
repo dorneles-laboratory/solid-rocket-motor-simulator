@@ -1,10 +1,23 @@
+import { useEffect } from 'react';
 import ComingSoon from '../../components/cooming-soon/coming-soon';
+import { FooterProps } from '../../components/layout/footer/footer';
 import styles from './ReportsView.module.css';
 
-export default function ReportsView() {
+interface ReportsViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function ReportsView({ setFooter }: ReportsViewProps) {
+  useEffect(() => {
+    setFooter({
+      description: "Gere relatórios detalhados sobre o desempenho do seu motor sólido de foguete, incluindo gráficos de impulso específico, tempo de queima e muito mais.",
+      rightText: "Em breve uma nova funcionalidade."
+    });
+  }, [setFooter]);
+  
   return (
-    <main className={styles.reports_view}>
+    <section className={styles.reports_view}>
       <ComingSoon />
-    </main>
+    </section>
   );
 }

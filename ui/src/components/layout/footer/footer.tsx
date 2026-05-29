@@ -5,7 +5,7 @@ type FooterLegendItem = {
   color: string
 }
 
-type FooterProps = {
+export type FooterProps = {
   index?: string | number
   description?: string
   legends?: FooterLegendItem[]

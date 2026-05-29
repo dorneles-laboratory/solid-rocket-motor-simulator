@@ -3,16 +3,7 @@ import { Button } from "../../../../ui/button/button";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { showToast } from "../../../../ui/toast/toast-container";
-
-export interface Propellant {
-  id: string;
-  name: string;
-  density: number;
-  burnRateA: number;
-  burnRateN: number;
-  theoreticalIsp: number;
-  type: string;
-}
+import { Propellant } from "../../PropellantsView";
 
 interface PropellantsModalProps {
   isOpen: boolean;

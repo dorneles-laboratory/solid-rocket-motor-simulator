@@ -1,12 +1,12 @@
 <div align="center">
   <img src="https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=2070&auto=format&fit=crop" alt="SRM Cover" width="100%" style="border-radius: 8px; margin-bottom: 20px;" />
 
-  # 🚀 SRM (Solid Rocket Motor Simulator)
-  
-  **O aplicativo desktop definitivo para simulação de balística interna de motores a propelente sólido.**
+# 🚀 SRM (Solid Rocket Motor Simulator)
 
-  <a href="#"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge" alt="Status"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Versão-0.1.8--dev-blue?style=for-the-badge" alt="Version"></a>
+**O aplicativo desktop definitivo para simulação de balística interna de motores a propelente sólido.**
+
+<a href="#"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge" alt="Status"></a>
+<a href="#"><img src="https://img.shields.io/badge/Versão-0.1.9--dev-blue?style=for-the-badge" alt="Version"></a>
 
   <br>
 
@@ -59,7 +59,7 @@ docker-compose up -d
 
 ```
 
-*O banco rodará em background na porta `5433`.*
+_O banco rodará em background na porta `5433`._
 
 ### Passo 2: Iniciar o Motor de Cálculo (Backend Java)
 
@@ -71,7 +71,7 @@ cd engine
 
 ```
 
-*O servidor Java ficará ativo na porta `8080`. Aguarde a mensagem de inicialização bem-sucedida.*
+_O servidor Java ficará ativo na porta `8080`. Aguarde a mensagem de inicialização bem-sucedida._
 
 ### Passo 3: Abrir a Interface Desktop (Frontend Tauri)
 
@@ -83,14 +83,14 @@ npm run tauri dev
 
 ```
 
-*O Tauri compilará o aplicativo e abrirá a janela nativa do SRM no seu sistema.*
+_O Tauri compilará o aplicativo e abrirá a janela nativa do SRM no seu sistema._
 
 ---
 
 ## 🛑 Como parar a execução
 
-* **Frontend e Backend:** Pressione `Ctrl + C` nos respectivos terminais.
-* **Banco de Dados:** Para desligar o container do PostgreSQL, rode na raiz do projeto:
+- **Frontend e Backend:** Pressione `Ctrl + C` nos respectivos terminais.
+- **Banco de Dados:** Para desligar o container do PostgreSQL, rode na raiz do projeto:
 
 ```bash
 docker-compose down
@@ -101,7 +101,7 @@ docker-compose down
 
 ## 📂 Estrutura de Pastas
 
-* `/engine`: Código-fonte do motor de simulação (Spring Boot).
-* `/ui`: Código-fonte da interface do usuário (React/Tauri).
-* `docker-compose.yml`: Orquestração do banco de dados local.
-* `README.md`: Documentação do projeto.
+- `/engine`: Código-fonte do motor de simulação (Spring Boot).
+- `/ui`: Código-fonte da interface do usuário (React/Tauri).
+- `docker-compose.yml`: Orquestração do banco de dados local.
+- `README.md`: Documentação do projeto.

@@ -1,6 +1,7 @@
 .newProjectView {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 /* --- MAIN CONTENT --- */
@@ -10,11 +11,12 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
   padding: 2rem;
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* --- CARD --- */
@@ -292,4 +294,8 @@
 .classBadge strong {
   font-size: 12px;
   font-weight: 700;
+}
+
+.footerWrapper {
+  max-height: 2rem;
 }

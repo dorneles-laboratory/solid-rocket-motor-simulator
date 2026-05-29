@@ -1,5 +1,5 @@
 import styles from "./NewProjectView.module.css";
-import Footer from "../../components/layout/footer/footer";
+import { FooterProps } from "../../components/layout/footer/footer";
 import NewProjectHeader from "./components/header/n-proj-header";
 import { Button } from "../../ui/button/button";
 import { Input } from "../../ui/input/input";
@@ -82,9 +82,10 @@ const initialFormData = {
 
 interface NewProjectViewProps {
   onNavigate: (view: string) => void;
+  setFooter: (data: FooterProps) => void;
 }
 
-export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
+export default function NewProjectView({ onNavigate, setFooter }: NewProjectViewProps) {
   // Controle de UI
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -92,6 +93,13 @@ export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState(initialFormData);
+
+  useEffect(() => {
+    setFooter({
+      description: "Se pode ser imaginado, pode ser criado",
+      rightText: "Crie um novo projeto de motor-foguete sólido para começar a simular!",
+    });
+  }, [setFooter]);
 
   useEffect(() => {
     setFormData(initialFormData);
@@ -118,7 +126,7 @@ export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
       console.error("Erro ao buscar propelentes:", error);
       showToast({
         type: "error",
-        title: "Creation Failed",
+        title: "Fetch Failed",
         message: "Failed to fetch propellants.",
       });
     } finally {
@@ -128,8 +136,6 @@ export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log("Dados do formulário:", formData);
 
     try {
       const response = await fetch("http://localhost:8080/api/projects", {
@@ -144,9 +150,6 @@ export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
           title: "Project Created",
           message: "Your project was created successfully!",
         });
-
-        const savedProject = await response.json();
-        console.log("Projeto criado com sucesso:", savedProject);
 
         setFormData(initialFormData);
         onNavigate("dashboard");
@@ -463,8 +466,6 @@ export default function NewProjectView({ onNavigate }: NewProjectViewProps) {
           </form>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

@@ -3,8 +3,8 @@ import rocket from "../../assets/em-breve.png"
 
 export default function ComingSoon() {
   return (
-    <main className={styles.placeholder_view}>
-      <section className={styles.placeholder_content}>
+    <section className={styles.placeholder_view}>
+      <div>
         <img
           src={rocket}
           alt="Solid rocket motor"
@@ -20,7 +20,7 @@ export default function ComingSoon() {
             Estamos trabalhando para trazer esta funcionalidade em breve. Fique atento às atualizações!
           </p>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
   )
 }

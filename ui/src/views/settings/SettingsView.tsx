@@ -1,10 +1,23 @@
+import { useEffect } from "react";
 import ComingSoon from "../../components/cooming-soon/coming-soon"
+import { FooterProps } from "../../components/layout/footer/footer";
 import styles from "./SettingsView.module.css"
 
-export default function Settings() {
+interface SettingsViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function Settings({ setFooter }: SettingsViewProps) {
+  useEffect(() => {
+    setFooter({
+      description: "Configure suas preferências e ajustes para otimizar sua experiência no aplicativo.",
+      rightText: "Em breve uma nova funcionalidade."
+    });
+  }, [setFooter]);
+
   return (
-    <main className={styles.settings_view}>
+    <section className={styles.settings_view}>
       <ComingSoon />
-    </main>
+    </section>
   )
 }
