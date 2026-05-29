@@ -1,4 +1,4 @@
-package srm_engine.modules.propellant;
+package srm_engine.modules.project;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,42 +10,42 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/propellants")
+@RequestMapping("/api/projects")
 @CrossOrigin(origins = "*")
-public class PropellantController {
-  private final PropellantService service;
+public class ProjectController {
+  private final ProjectService service;
 
-  public PropellantController(PropellantService service) {
-        this.service = service;
-    }
+  public ProjectController(ProjectService service) {
+    this.service = service;
+  }
 
   @GetMapping
-  public ResponseEntity<List<Propellant>> getAll() {
+  public ResponseEntity<List<Project>> getAll() {
     return ResponseEntity.ok(service.getAll());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Propellant> getById(@PathVariable UUID id) {
+  public ResponseEntity<Project> getById(@PathVariable UUID id) {
     return service.getById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
   @PostMapping
-  public ResponseEntity<Object> create(@RequestBody Propellant propellant) {
+  public ResponseEntity<Object> create(@RequestBody Project project) {
     try {
-      Propellant created = service.create(propellant);
+      Project created = service.create(project);
       return ResponseEntity.status(HttpStatus.CREATED).body(created);
     } catch (DataIntegrityViolationException e) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body("Já existe um propelente com este nome.");
+          .body("Já existe um projeto com este nome.");
     }
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Propellant> update(@PathVariable UUID id, @RequestBody Propellant propellant) {
-    Propellant updatedPropellant = service.update(id, propellant);
-    return ResponseEntity.ok(updatedPropellant);
+  public ResponseEntity<Project> update(@PathVariable UUID id, @RequestBody Project project) {
+    Project updatedProject = service.update(id, project);
+    return ResponseEntity.ok(updatedProject);
   }
 
   @DeleteMapping("/{id}")

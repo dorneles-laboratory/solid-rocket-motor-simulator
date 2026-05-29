@@ -1,6 +1,295 @@
-.new_project_view {
+.newProjectView {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+}
+
+/* --- MAIN CONTENT --- */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   height: 100%;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+/* --- CARD --- */
+.card {
+  width: 100%;
+  max-width: 36rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+/* --- CONTENT --- */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+/* --- SECTION --- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* --- SECTION TITLE --- */
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* --- FIELD --- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* --- LABELS --- */
+.label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.labelWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.labelHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* --- ICONS --- */
+.smallIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* --- INPUT BASE --- */
+.input,
+.inputWithUnit,
+.inputWithUnitSmall,
+.textarea,
+.select {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  font-size: 0.75rem;
+  color: var(--foreground);
+}
+
+.input,
+.inputWithUnit,
+.inputWithUnitSmall {
+  height: 2.25rem;
+  padding-inline: 0.75rem;
+  font-family: monospace;
+}
+
+.input::placeholder,
+.inputWithUnit::placeholder,
+.inputWithUnitSmall::placeholder,
+.textarea::placeholder {
+  color:
+    color-mix(
+      in srgb,
+      var(--muted-foreground),
+      transparent 50%
+    );
+}
+
+.input:focus-visible,
+.inputWithUnit:focus-visible,
+.inputWithUnitSmall:focus-visible,
+.textarea:focus-visible,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow:
+    0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--ring),
+      transparent 50%
+    );
+}
+
+/* --- INPUT --- */
+.input {
+  font-size: 0.875rem;
+}
+
+/* --- TEXTAREA --- */
+.textarea {
+  min-height: 80px;
+  resize: none;
+  padding: 0.75rem;
+}
+
+/* --- REQUIREMENTS --- */
+.requirementsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* --- INPUT WITH UNIT --- */
+.inputWrapper {
+  position: relative;
+}
+
+.inputWithUnit {
+  padding-right: 3rem;
+}
+
+.inputWithUnitSmall {
+  padding-right: 2rem;
+}
+
+.inputUnit {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--muted-foreground);
+}
+
+/* --- BUTTON --- */
+.createButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 0;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+}
+
+.createButton:hover {
+  background:
+    color-mix(
+      in srgb,
+      var(--primary),
+      black 10%
+    );
+}
+
+.createButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- SELECT --- */
+.select {
+  appearance: none;
+  padding-right: 2rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+}
+
+/* --- EXPAND BUTTON --- */
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.expandButton:hover {
+  opacity: 0.8;
+}
+
+.expandText {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+
+/* --- BADGES --- */
+.classBadge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--primary),
+      transparent 80%
+    );
+  background:
+    color-mix(
+      in srgb,
+      var(--primary),
+      transparent 90%
+    );
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.classBadge strong {
+  font-size: 12px;
+  font-weight: 700;
 }

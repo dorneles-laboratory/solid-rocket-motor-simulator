@@ -1,16 +1,17 @@
-import styles from './prop-modal.module.css'
-import { Button } from "../../../../ui/button/button"
-import { X } from 'lucide-react';
+import styles from "./prop-modal.module.css";
+import { Button } from "../../../../ui/button/button";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { showToast } from "../../../../ui/toast/toast-container";
 
 export interface Propellant {
-  id: string
-  name: string
-  density: number
-  burnRateA: number
-  burnRateN: number
-  theoreticalIsp: number
-  type: string
+  id: string;
+  name: string;
+  density: number;
+  burnRateA: number;
+  burnRateN: number;
+  theoreticalIsp: number;
+  type: string;
 }
 
 interface PropellantsModalProps {
@@ -26,14 +27,14 @@ const initialFormData = {
   burnRateA: 0,
   burnRateN: 0,
   theoreticalIsp: 0,
-  type: "Sugar"
+  type: "Sugar",
 };
 
 export default function PropellantsModal({
   isOpen,
   onClose,
   onSuccess,
-  propellantToEdit
+  propellantToEdit,
 }: PropellantsModalProps) {
   const [formData, setFormData] = useState(initialFormData);
 
@@ -47,28 +48,44 @@ export default function PropellantsModal({
 
   const handleSavePropellant = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const isEdit = !!propellantToEdit;
-    const url = isEdit 
-        ? `http://localhost:8080/api/propellants/${propellantToEdit.id}` 
-        : 'http://localhost:8080/api/propellants';
-    const method = isEdit ? 'PUT' : 'POST';
-    
+    const url = isEdit
+      ? `http://localhost:8080/api/propellants/${propellantToEdit.id}`
+      : "http://localhost:8080/api/propellants";
+    const method = isEdit ? "PUT" : "POST";
+
     try {
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
+        showToast({
+          type: "success",
+          title: isEdit ? "Updated" : "Created",
+          message: `Propellant ${isEdit ? "updated" : "created"} successfully.`,
+        });
         const savedPropellant = await response.json();
-        onSuccess(savedPropellant, isEdit); 
+        onSuccess(savedPropellant, isEdit);
         setFormData(initialFormData);
         onClose();
+      } else if (response.status === 409) {
+        const errorMsg = await response.text();
+        showToast({
+          type: "error",
+          title: "Creation Failed",
+          message: errorMsg,
+        });
       }
     } catch (error) {
-      console.error("Erro ao salvar propelente:", error);
+      showToast({
+        type: "error",
+        title: "Save Failed",
+        message: "Failed to save propellant.",
+      });
     }
   };
 
@@ -83,38 +100,54 @@ export default function PropellantsModal({
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h2>{propellantToEdit ? 'Editar' : 'Novo'} Propelente</h2>
+          <h2>{propellantToEdit ? "Editar" : "Novo"} Propelente</h2>
           <button onClick={closeModal} className={styles.closeModalBtn}>
             <X size={16} />
           </button>
         </div>
-        
+
         <form onSubmit={handleSavePropellant} className={styles.modalForm}>
           <div className={styles.formGroup}>
             <label>Nome</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               required
-              value={formData.name} 
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
             />
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>Densidade (g/cm³)</label>
-              <input 
-                type="number" step="0.001" required
-                value={formData.density || ''} 
-                onChange={(e) => setFormData({...formData, density: parseFloat(e.target.value)})}
+              <input
+                type="number"
+                step="0.001"
+                required
+                value={formData.density || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    density: parseFloat(e.target.value),
+                  })
+                }
               />
             </div>
             <div className={styles.formGroup}>
               <label>Isp Teórico (s)</label>
-              <input 
-                type="number" step="1" required
-                value={formData.theoreticalIsp || ''} 
-                onChange={(e) => setFormData({...formData, theoreticalIsp: parseFloat(e.target.value)})}
+              <input
+                type="number"
+                step="1"
+                required
+                value={formData.theoreticalIsp || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    theoreticalIsp: parseFloat(e.target.value),
+                  })
+                }
               />
             </div>
           </div>
@@ -122,27 +155,43 @@ export default function PropellantsModal({
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>Coef. Queima 'a'</label>
-              <input 
-                type="number" step="0.01" required
-                value={formData.burnRateA || ''} 
-                onChange={(e) => setFormData({...formData, burnRateA: parseFloat(e.target.value)})}
+              <input
+                type="number"
+                step="0.01"
+                required
+                value={formData.burnRateA || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    burnRateA: parseFloat(e.target.value),
+                  })
+                }
               />
             </div>
             <div className={styles.formGroup}>
               <label>Expoente 'n'</label>
-              <input 
-                type="number" step="0.001" required
-                value={formData.burnRateN || ''} 
-                onChange={(e) => setFormData({...formData, burnRateN: parseFloat(e.target.value)})}
+              <input
+                type="number"
+                step="0.001"
+                required
+                value={formData.burnRateN || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    burnRateN: parseFloat(e.target.value),
+                  })
+                }
               />
             </div>
           </div>
 
           <div className={styles.formGroup}>
             <label>Tipo</label>
-            <select 
-              value={formData.type} 
-              onChange={(e) => setFormData({...formData, type: e.target.value})}
+            <select
+              value={formData.type}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
             >
               <option value="Sugar">Sugar</option>
               <option value="Composite">Composite</option>
@@ -153,10 +202,12 @@ export default function PropellantsModal({
             <Button type="button" variant="ghost" onClick={closeModal}>
               Cancelar
             </Button>
-            <Button type="submit">{propellantToEdit ? "Atualizar" : "Salvar"}</Button>
+            <Button type="submit">
+              {propellantToEdit ? "Atualizar" : "Salvar"}
+            </Button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

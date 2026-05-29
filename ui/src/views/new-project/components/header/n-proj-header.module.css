@@ -1,0 +1,62 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-inline: 1.5rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--border);
+  background:
+    color-mix(
+      in srgb,
+      var(--muted),
+      transparent 70%
+    );
+}
+
+/* --- ICON --- */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--primary),
+      transparent 70%
+    );
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary),
+      transparent 90%
+    );
+}
+
+.headerIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary);
+}
+
+/* --- CONTENT --- */
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- TEXT --- */
+.title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.description {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

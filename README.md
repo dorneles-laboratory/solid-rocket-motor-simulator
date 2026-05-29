@@ -1,6 +1,28 @@
-# 🚀 SRM (Solid Rocket Motor Simulator)
+<div align="center">
+  <img src="https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=2070&auto=format&fit=crop" alt="SRM Cover" width="100%" style="border-radius: 8px; margin-bottom: 20px;" />
 
-O **SRM** é o aplicativo desktop oficial de simulação de propulsão sólida da Tau Rocket Team. Desenvolvido para substituir planilhas legadas de cálculo de balística interna (como o QuarkIII), o sistema oferece rastreabilidade, alta performance de cálculo e uma interface gráfica moderna para o dimensionamento de motores a propelente sólido.
+  # 🚀 SRM (Solid Rocket Motor Simulator)
+  
+  **O aplicativo desktop definitivo para simulação de balística interna de motores a propelente sólido.**
+
+  <a href="#"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge" alt="Status"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Versão-0.1.8--dev-blue?style=for-the-badge" alt="Version"></a>
+
+  <br>
+
+  <img src="https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21" />
+  <img src="https://img.shields.io/badge/Spring_Boot_3-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Tauri-FFC131?style=for-the-badge&logo=tauri&logoColor=white" alt="Tauri" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  
+</div>
+
+---
+
+O **SRM** é o aplicativo desktop oficial de simulação de propulsão sólida. Desenvolvido para substituir planilhas legadas de cálculo de balística interna, o sistema oferece rastreabilidade, alta performance de cálculo e uma interface gráfica moderna para o dimensionamento de motores a propelente sólido.
 
 ## 🏗️ Arquitetura
 
@@ -37,7 +59,7 @@ docker-compose up -d
 
 ```
 
-_O banco rodará em background na porta `5433`._
+*O banco rodará em background na porta `5433`.*
 
 ### Passo 2: Iniciar o Motor de Cálculo (Backend Java)
 
@@ -49,7 +71,7 @@ cd engine
 
 ```
 
-_O servidor Java ficará ativo na porta `8080`. Aguarde a mensagem de inicialização bem-sucedida._
+*O servidor Java ficará ativo na porta `8080`. Aguarde a mensagem de inicialização bem-sucedida.*
 
 ### Passo 3: Abrir a Interface Desktop (Frontend Tauri)
 
@@ -61,14 +83,14 @@ npm run tauri dev
 
 ```
 
-_O Tauri compilará o aplicativo e abrirá a janela nativa do SRM no seu sistema._
+*O Tauri compilará o aplicativo e abrirá a janela nativa do SRM no seu sistema.*
 
 ---
 
 ## 🛑 Como parar a execução
 
-- **Frontend e Backend:** Pressione `Ctrl + C` nos respectivos terminais.
-- **Banco de Dados:** Para desligar o container do PostgreSQL, rode na raiz do projeto:
+* **Frontend e Backend:** Pressione `Ctrl + C` nos respectivos terminais.
+* **Banco de Dados:** Para desligar o container do PostgreSQL, rode na raiz do projeto:
 
 ```bash
 docker-compose down
@@ -79,7 +101,7 @@ docker-compose down
 
 ## 📂 Estrutura de Pastas
 
-- `/engine`: Código-fonte do motor de simulação (Spring Boot).
-- `/ui`: Código-fonte da interface do usuário (React/Tauri).
-- `docker-compose.yml`: Orquestração do banco de dados local.
-- `README.md`: Documentação do projeto.
+* `/engine`: Código-fonte do motor de simulação (Spring Boot).
+* `/ui`: Código-fonte da interface do usuário (React/Tauri).
+* `docker-compose.yml`: Orquestração do banco de dados local.
+* `README.md`: Documentação do projeto.

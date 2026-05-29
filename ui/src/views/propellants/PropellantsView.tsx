@@ -1,19 +1,20 @@
-import styles from "./PropellantsView.module.css"
-import { Button } from "../../ui/button/button"
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import styles from "./PropellantsView.module.css";
+import { Button } from "../../ui/button/button";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import Footer from "../../components/layout/footer/footer";
 import { useEffect, useState } from "react";
 import PropellantsHeader from "./components/propellants-header/prop-header";
 import PropellantsModal from "./components/propellants-modal/prop-modal";
+import { showToast } from "../../ui/toast/toast-container";
 
 interface Propellant {
-  id: string
-  name: string
-  density: number
-  burnRateA: number
-  burnRateN: number
-  theoreticalIsp: number
-  type: string
+  id: string;
+  name: string;
+  density: number;
+  burnRateA: number;
+  burnRateN: number;
+  theoreticalIsp: number;
+  type: string;
 }
 
 export default function PropellantsView() {
@@ -21,7 +22,9 @@ export default function PropellantsView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [editingPropellant, setEditingPropellant] = useState<Propellant | null>(null);
+  const [editingPropellant, setEditingPropellant] = useState<Propellant | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchPropellants();
@@ -29,13 +32,17 @@ export default function PropellantsView() {
 
   const fetchPropellants = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/propellants');
+      const response = await fetch("http://localhost:8080/api/propellants");
       if (response.ok) {
         const data = await response.json();
         setPropellants(data);
       }
     } catch (error) {
-      console.error("Erro ao buscar propelentes:", error);
+      showToast({
+        type: "error",
+        title: "Fetch Failed",
+        message: "Failed to fetch propellants.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -51,10 +58,41 @@ export default function PropellantsView() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/propellants/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+      if (response.ok) {
+        showToast({
+          type: "success",
+          title: "Deleted",
+          message: "Propellant deleted successfully.",
+        });
+        setPropellants((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        showToast({
+          type: "error",
+          title: "Deletion Failed",
+          message: "Failed to delete propellant.",
+        });
+      }
+    } catch (error) {
+      showToast({
+        type: "error",
+        title: "Deletion Failed",
+        message: "Failed to delete propellant.",
+      });
+    }
+  };
+
   const handleModalSuccess = (savedPropellant: Propellant, isEdit: boolean) => {
     if (isEdit) {
-      setPropellants((prev) => 
-        prev.map((p) => p.id === savedPropellant.id ? savedPropellant : p)
+      setPropellants((prev) =>
+        prev.map((p) => (p.id === savedPropellant.id ? savedPropellant : p)),
       );
     } else {
       setPropellants((prev) => [...prev, savedPropellant]);
@@ -65,10 +103,7 @@ export default function PropellantsView() {
     <main className={styles.propellants_view}>
       <div className={styles.button_container}>
         <Button size="lg" onClick={handleAddNew}>
-          <Plus
-            className={styles.addButtonIcon}
-            strokeWidth={2}
-          />
+          <Plus className={styles.addButtonIcon} strokeWidth={2} />
           Adicionar Propelente
         </Button>
       </div>
@@ -79,7 +114,13 @@ export default function PropellantsView() {
 
         {/* TABLE ROWS */}
         {isLoading ? (
-          <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+          <div
+            style={{
+              padding: "1rem",
+              textAlign: "center",
+              color: "var(--muted-foreground)",
+            }}
+          >
             Carregando dados do servidor...
           </div>
         ) : (
@@ -90,7 +131,8 @@ export default function PropellantsView() {
                 <div
                   className={styles.propellantDot}
                   style={{
-                    backgroundColor: prop.type === "Composite" ? "#f97316" : "#22c55e",
+                    backgroundColor:
+                      prop.type === "Composite" ? "#f97316" : "#22c55e",
                   }}
                 />
                 {prop.name}
@@ -133,15 +175,20 @@ export default function PropellantsView() {
 
               {/* ACTIONS */}
               <div className={styles.actions}>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={styles.actionButton} 
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={styles.actionButton}
                   onClick={() => handleEdit(prop)}
                 >
                   <Pencil className={styles.actionIcon} strokeWidth={1.5} />
                 </Button>
-                <Button variant="ghost" size="sm" className={`${styles.actionButton} ${styles.deleteButton}`} onClick={() => alert("Funcionalidade de exclusão ainda não implementada")}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => handleDelete(prop.id)}
+                >
                   <Trash2 className={styles.deleteIcon} strokeWidth={1.5} />
                 </Button>
               </div>
@@ -166,12 +213,12 @@ export default function PropellantsView() {
       />
 
       {/* --- MODAL DE CADASTRO --- */}
-      <PropellantsModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <PropellantsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSuccess={handleModalSuccess}
         propellantToEdit={editingPropellant}
       />
     </main>
-  )
+  );
 }

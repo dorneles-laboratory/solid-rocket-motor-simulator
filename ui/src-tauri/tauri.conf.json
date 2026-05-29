@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "SRM TAU",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "identifier": "com.tau.srm",
   "build": {
     "beforeDevCommand": "npm run dev",
