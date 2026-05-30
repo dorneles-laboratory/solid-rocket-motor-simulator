@@ -10,9 +10,9 @@ import {
   FolderPlus as IconPlus,
   FolderOpen as IconFolder,
   LayoutDashboard as IconDashboard,
-  Shapes as IconGeometry,
-  Gauge as IconBoundary,
-  FileText as IconReports,
+  // Shapes as IconGeometry,
+  // Gauge as IconBoundary,
+  // FileText as IconReports,
   Layers as IconStructural,
   Cog as IconMotors,
   Flame as IconThermal,
@@ -25,9 +25,10 @@ import HomeView from "../../views/home/HomeView";
 import NewProjectView from "../../views/new-project/NewProjectView";
 import OpenProjectView from "../../views/open-project/OpenProjectView";
 import DashboardView from "../../views/dashboard/DashboardView";
-import GeometryEditorView from "../../views/dashboard/pages/geometry-editor/GeometryEditorView";
-import ReportsView from "../../views/dashboard/pages/reports/ReportsView";
-import BoundaryConditionsView from "../../views/dashboard/pages/boundary-conditions/BoundaryConditionsView";
+// import GeometryEditorView from "../../views/dashboard/pages/geometry-editor/GeometryEditorView";
+// import ReportsView from "../../views/dashboard/pages/reports/ReportsView";
+// import BoundaryConditionsView from "../../views/dashboard/pages/boundary-conditions/BoundaryConditionsView";
+// import OutputPanelView from "../../views/dashboard/pages/output-panel/OutputPanelView";
 import PropellantsView from "../../views/propellants/PropellantsView";
 import StructuralMaterialsView from "../../views/structural-materials/StructuralMaterialsView";
 import ThermalMaterialsView from "../../views/thermal-materials/ThermalMaterialsView";
@@ -35,7 +36,6 @@ import CommercialMotorsView from "../../views/commercial-motors/CommercialMotors
 import DocumentsView from "../../views/documents/DocumentsView";
 import SettingsView from "../../views/settings/SettingsView";
 import { ToastContainer } from "../../ui/toast/toast-container";
-import OutputPanelView from "../../views/dashboard/pages/output-panel/OutputPanelView";
 
 const VIEW_CONFIG: Record<
   string,
@@ -45,10 +45,10 @@ const VIEW_CONFIG: Record<
   "new-project": { title: "Novo Projeto", icon: <IconPlus /> },
   "open-project": { title: "Abrir Projeto", icon: <IconFolder /> },
   "dashboard": { title: "Dashboard", icon: <IconDashboard /> },
-  "dashboard/geometry-editor": { title: "Editor de Geometria", icon: <IconGeometry /> },
-  "dashboard/boundary-conditions": { title: "Condições de Contorno", icon: <IconBoundary /> },
-  "dashboard/reports": { title: "Relatórios", icon: <IconReports /> },
-  "dashboard/output-panel": { title: "Painel de Saída", icon: <IconDashboard /> },
+  // "dashboard/geometry-editor": { title: "Editor de Geometria", icon: <IconGeometry /> },
+  // "dashboard/boundary-conditions": { title: "Condições de Contorno", icon: <IconBoundary /> },
+  // "dashboard/reports": { title: "Relatórios", icon: <IconReports /> },
+  // "dashboard/output-panel": { title: "Painel de Saída", icon: <IconDashboard /> },
   "propellants": { title: "Propelentes", icon: <IconPropellants /> },
   "structural-materials": { title: "Materiais Estruturais", icon: <IconStructural /> },
   "thermal-materials": { title: "Materiais Térmicos", icon: <IconThermal /> },
@@ -120,7 +120,7 @@ export default function RootLayout() {
             <DashboardView projectId={selectedProjectId} setFooter={setFooterData} />
           )}
 
-          {activeView === "dashboard/geometry-editor" && (
+          {/* {activeView === "dashboard/geometry-editor" && (
             // <GeometryEditorView setFooter={setFooterData} />
             <GeometryEditorView />
           )}
@@ -137,7 +137,7 @@ export default function RootLayout() {
 
           {activeView === "dashboard/output-panel" && (
             <OutputPanelView />
-          )}
+          )} */}
 
 
           {activeView === "propellants" && (
