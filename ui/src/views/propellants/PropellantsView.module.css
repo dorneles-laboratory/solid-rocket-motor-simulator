@@ -59,7 +59,7 @@
     120px
     100px
     80px
-    70px;
+    100px;
   gap: 0.5rem;
   padding-inline: 1rem;
   padding-block: 0.625rem;
@@ -168,34 +168,45 @@
 }
 
 .actionButton {
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 0;
+  color: var(--primary);
 }
 
 .actionButton:hover {
-  background: var(--muted);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary),
+      transparent 20%
+    );
+}
+
+.deleteButton {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0;
+  color: var(--destructive);
 }
 
 .deleteButton:hover {
   background:
-    rgb(239 68 68 / 0.1);
+    color-mix(
+      in srgb,
+      var(--destructive),
+      transparent 20%
+    );
 }
 
 .actionIcon {
   width: 0.75rem;
   height: 0.75rem;
-
-  color: var(--muted-foreground);
 }
 
 .deleteIcon {
   width: 0.75rem;
   height: 0.75rem;
-
-  color:
-    rgb(239 68 68 / 0.7);
 }
 
 /* --- NO ITEMS --- */

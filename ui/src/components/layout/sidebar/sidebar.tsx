@@ -103,6 +103,14 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             active={activeView === "dashboard/reports"}
             indent
           />
+          <NavItem
+            icon={<IconReports className={styles.icon} strokeWidth={1.5} />}
+            label="Output Panel"
+            collapsed={collapsed}
+            onClick={() => onNavigate("dashboard/output-panel")}
+            active={activeView === "dashboard/output-panel"}
+            indent
+          />
         </NavGroup>
 
         {/* BIBLIOTECA Section */}

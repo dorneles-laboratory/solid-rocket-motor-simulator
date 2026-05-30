@@ -32,3 +32,6 @@ __exemples__
 
 # Prisma / Generated files
 generated/
+
+# proviser
+ui/src/views/dashboard/pages/
