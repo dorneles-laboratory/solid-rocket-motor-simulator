@@ -25,9 +25,9 @@ import HomeView from "../../views/home/HomeView";
 import NewProjectView from "../../views/new-project/NewProjectView";
 import OpenProjectView from "../../views/open-project/OpenProjectView";
 import DashboardView from "../../views/dashboard/DashboardView";
-import GeometryEditorView from "../../views/geometry-editor/GeometryEditorView";
-import ReportsView from "../../views/reports/ReportsView";
-import BoundaryConditionsView from "../../views/boundary-conditions/BoundaryConditionsView";
+import GeometryEditorView from "../../views/dashboard/pages/geometry-editor/GeometryEditorView";
+import ReportsView from "../../views/dashboard/pages/reports/ReportsView";
+import BoundaryConditionsView from "../../views/dashboard/pages/boundary-conditions/BoundaryConditionsView";
 import PropellantsView from "../../views/propellants/PropellantsView";
 import StructuralMaterialsView from "../../views/structural-materials/StructuralMaterialsView";
 import ThermalMaterialsView from "../../views/thermal-materials/ThermalMaterialsView";
@@ -35,6 +35,7 @@ import CommercialMotorsView from "../../views/commercial-motors/CommercialMotors
 import DocumentsView from "../../views/documents/DocumentsView";
 import SettingsView from "../../views/settings/SettingsView";
 import { ToastContainer } from "../../ui/toast/toast-container";
+import OutputPanelView from "../../views/dashboard/pages/output-panel/OutputPanelView";
 
 const VIEW_CONFIG: Record<
   string,
@@ -47,6 +48,7 @@ const VIEW_CONFIG: Record<
   "dashboard/geometry-editor": { title: "Editor de Geometria", icon: <IconGeometry /> },
   "dashboard/boundary-conditions": { title: "Condições de Contorno", icon: <IconBoundary /> },
   "dashboard/reports": { title: "Relatórios", icon: <IconReports /> },
+  "dashboard/output-panel": { title: "Painel de Saída", icon: <IconDashboard /> },
   "propellants": { title: "Propelentes", icon: <IconPropellants /> },
   "structural-materials": { title: "Materiais Estruturais", icon: <IconStructural /> },
   "thermal-materials": { title: "Materiais Térmicos", icon: <IconThermal /> },
@@ -112,20 +114,31 @@ export default function RootLayout() {
             <OpenProjectView onNavigate={handleNavigate} setFooter={setFooterData} />
           )}
 
+
+
           {activeView === "dashboard" && ( 
             <DashboardView projectId={selectedProjectId} setFooter={setFooterData} />
           )}
 
           {activeView === "dashboard/geometry-editor" && (
-            <GeometryEditorView setFooter={setFooterData} />
+            // <GeometryEditorView setFooter={setFooterData} />
+            <GeometryEditorView />
           )}
           
           {activeView === "dashboard/boundary-conditions" && (
-            <BoundaryConditionsView setFooter={setFooterData} />
+            // <BoundaryConditionsView setFooter={setFooterData} />
+            <BoundaryConditionsView />
           )}
+          
           {activeView === "dashboard/reports" && (
-            <ReportsView setFooter={setFooterData} />
+          // <ReportsView setFooter={setFooterData} />
+          <ReportsView />
           )}
+
+          {activeView === "dashboard/output-panel" && (
+            <OutputPanelView />
+          )}
+
 
           {activeView === "propellants" && (
             <PropellantsView setFooter={setFooterData} />

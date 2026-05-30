@@ -6,7 +6,7 @@
 **O aplicativo desktop definitivo para simulação de balística interna de motores a propelente sólido.**
 
 <a href="#"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge" alt="Status"></a>
-<a href="#"><img src="https://img.shields.io/badge/Versão-0.1.9--dev-blue?style=for-the-badge" alt="Version"></a>
+<a href="#"><img src="https://img.shields.io/badge/Versão-0.1.10--dev-blue?style=for-the-badge" alt="Version"></a>
 
   <br>
 

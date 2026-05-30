@@ -211,7 +211,6 @@
   color: var(--destructive);
 }
 
-
 .deleteButton:hover {
   background:
     color-mix(

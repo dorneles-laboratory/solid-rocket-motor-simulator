@@ -1,8 +1,9 @@
 .dashboard_view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  width: 100%;
   height: 100%;
+  background-color: var(--background);
 }
 
 /* --- NO ITEMS --- */
@@ -58,4 +59,374 @@
   padding: 0.15rem 0.4rem;
   margin: 0 0.25rem 0 0.25rem;
   border-radius: 4px;
+}
+
+/* component styles */
+/* Variáveis base */
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --border: #e4e4e7;
+  --primary: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  
+  --warning: #eab308;
+  --critical: #ef4444;
+  --success: #22c55e;
+  --info: #3b82f6;
+}
+
+/* Layout Geral */
+.dashboardView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background);
+}
+
+.dashboardHeader {
+  display: flex;
+  height: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  padding: 0 1rem;
+}
+
+.headerTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted-foreground);
+}
+
+.headerTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.headerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  padding: 0.125rem 0.5rem;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.dashboardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Grids */
+.grid4Cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.grid2Cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+/* Metric Card */
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  padding: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.metricCard.statusNormal {
+  border-color: var(--border);
+}
+
+.metricCard.statusNormal:hover {
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.metricCard.statusWarning {
+  border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+  background-color: color-mix(in srgb, var(--warning) 5%, transparent);
+}
+
+.metricCard.statusCritical {
+  border-color: color-mix(in srgb, var(--critical) 30%, transparent);
+  background-color: color-mix(in srgb, var(--critical) 5%, transparent);
+}
+
+.mcHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mcTitle {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.mcIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.mcIcon.iconNormal { color: var(--muted-foreground); }
+.mcIcon.iconWarning { color: var(--warning); }
+.mcIcon.iconCritical { color: var(--critical); }
+
+.mcValueWrapper {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.mcValue {
+  font-family: monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.mcUnit {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.mcTrend {
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 10px;
+}
+
+.mcTrend.trendPositive { color: var(--success); }
+.mcTrend.trendNegative { color: var(--critical); }
+
+.trendIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.trendIcon.iconRotate { transform: rotate(180deg); }
+
+/* Panels genéricos e Gráfico */
+.panel {
+  border: 1px solid var(--border);
+  background-color: var(--card);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  padding: 0.5rem 1rem;
+}
+
+.panelTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panelIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.panelTitle {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.panelBody {
+  padding: 1rem;
+}
+
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.legendColor {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.legendColor.colorPrimary { background-color: var(--primary); }
+.legendColor.colorBlue { background-color: var(--info); }
+
+.legendLabel {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.chartContainer {
+  position: relative;
+  height: 16rem;
+  padding: 1rem;
+}
+
+.chartGrid {
+  position: absolute;
+  top: 1rem; right: 1rem; bottom: 1rem; left: 1rem;
+  background-image: 
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.chartSvg {
+  position: absolute;
+  top: 1rem; left: 1rem; right: 1rem; bottom: 1rem;
+  height: calc(100% - 2rem);
+  width: calc(100% - 2rem);
+}
+
+.chartAxisY {
+  position: absolute;
+  left: 0; top: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 2rem);
+  text-align: right;
+}
+
+.chartAxisX {
+  position: absolute;
+  bottom: 0; left: 1rem; right: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.axisLabel {
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+
+/* Geometry e Alertas */
+.geometryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-left: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  padding-left: 0.75rem;
+}
+
+.geoLabel {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.geoValue {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.alertItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  padding: 0.75rem 0;
+}
+
+.alertItem:last-child {
+  border-bottom: none;
+}
+
+.alertIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.125rem;
+}
+
+.alertItem.typeWarning .alertIconWrapper {
+  color: var(--warning);
+  background-color: color-mix(in srgb, var(--warning) 10%, transparent);
+}
+
+.alertItem.typeInfo .alertIconWrapper {
+  color: var(--info);
+  background-color: color-mix(in srgb, var(--info) 10%, transparent);
+}
+
+.alertItem.typeSuccess .alertIconWrapper {
+  color: var(--success);
+  background-color: color-mix(in srgb, var(--success) 10%, transparent);
+}
+
+.alertIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.alertContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertMessage {
+  font-size: 12px;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.alertTime {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 10px;
+  color: var(--muted-foreground);
 }
