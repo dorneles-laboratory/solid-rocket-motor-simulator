@@ -6,7 +6,6 @@ import { useTheme } from "../../hooks/use-theme";
 import { useTranslation } from "react-i18next";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { showToast } from "../../ui/toast/toast-container";
-import { removeRenderedTicks } from "recharts/types/state/renderedTicksSlice";
 
 const isTauri = '__TAURI_INTERNALS__' in window || '__TAURI_IPC__' in window;
 const store = new LazyStore(".user-settings.json");
