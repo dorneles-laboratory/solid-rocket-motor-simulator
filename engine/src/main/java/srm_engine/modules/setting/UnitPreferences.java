@@ -1,4 +1,4 @@
-package srm_engine.modules.settings;
+package srm_engine.modules.setting;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

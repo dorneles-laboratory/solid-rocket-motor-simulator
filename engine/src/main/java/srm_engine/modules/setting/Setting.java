@@ -1,4 +1,4 @@
-package srm_engine.modules.settings;
+package srm_engine.modules.setting;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Settings {
+public class Setting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

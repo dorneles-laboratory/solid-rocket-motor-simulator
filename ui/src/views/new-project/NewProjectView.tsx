@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-type motorClass =
+type impulseClass =
   | "A"
   | "B"
   | "C"
@@ -38,7 +38,7 @@ type motorClass =
   | "-";
 
 // Função auxiliar para calcular a classe do motor baseada no impulso
-const getMotorClass = (impulseValue: string): motorClass => {
+const getImpulseClass = (impulseValue: string): impulseClass => {
   const i = parseFloat(impulseValue);
   if (isNaN(i) || i <= 0) return "-";
   if (i <= 2.5) return "A";
@@ -85,7 +85,10 @@ interface NewProjectViewProps {
   setFooter: (data: FooterProps) => void;
 }
 
-export default function NewProjectView({ onNavigate, setFooter }: NewProjectViewProps) {
+export default function NewProjectView({
+  onNavigate,
+  setFooter,
+}: NewProjectViewProps) {
   // Controle de UI
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -97,7 +100,8 @@ export default function NewProjectView({ onNavigate, setFooter }: NewProjectView
   useEffect(() => {
     setFooter({
       description: "Se pode ser imaginado, pode ser criado",
-      rightText: "Crie um novo projeto de motor-foguete sólido para começar a simular!",
+      rightText:
+        "Crie um novo projeto de motor-foguete sólido para começar a simular!",
     });
   }, [setFooter]);
 
@@ -171,7 +175,7 @@ export default function NewProjectView({ onNavigate, setFooter }: NewProjectView
     }
   };
 
-  const motorClass = getMotorClass(formData.targetImpulse);
+  const impulseClass = getImpulseClass(formData.targetImpulse);
 
   return (
     <div className={styles.newProjectView}>
@@ -371,7 +375,7 @@ export default function NewProjectView({ onNavigate, setFooter }: NewProjectView
                       </Label>
                       {/* MOTOR CLASS BADGE */}
                       <span className={styles.classBadge}>
-                        Class <strong>{motorClass}</strong>
+                        Class <strong>{impulseClass}</strong>
                       </span>
                     </div>
 

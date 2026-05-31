@@ -13,7 +13,7 @@ import { Button } from "../../../../ui/button/button";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { Project } from "../../OpenProjectView";
 
-export type MotorClass =
+export type ImpulseClass =
   | "-"
   | "A"
   | "B"
@@ -111,7 +111,7 @@ export default function OpenProjectCard({
           <h3 className={styles.projectName}>{project.name}</h3>
 
           <div className={styles.projectMeta}>
-            <span className={styles.motorClass}>{project.motorClass}</span>
+            <span className={styles.impulseClass}>{project.impulseClass}</span>
 
             <span className={styles.date}>
               <Clock className={styles.dateIcon} strokeWidth={1.5} />
@@ -141,9 +141,9 @@ export default function OpenProjectCard({
         </span>
 
         <div className={styles.actions}>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className={styles.actionButton}
             onClick={() => onNavigate(project.id)}
           >

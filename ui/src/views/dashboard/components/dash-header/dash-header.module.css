@@ -6,12 +6,7 @@
   flex-shrink: 0;
   padding-inline: 1rem;
   border-bottom: 1px solid var(--border);
-  background:
-    color-mix(
-      in srgb,
-      var(--muted),
-      transparent 70%
-    );
+  background: color-mix(in srgb, var(--muted), transparent 70%);
 }
 
 .headerInfo {
@@ -34,25 +29,14 @@
   color: var(--muted-foreground);
 }
 
-.motorClass {
+.impulseClass {
   display: inline-flex;
-  align-items: center; 
+  align-items: center;
   gap: 0.25rem;
   padding-inline: 0.5rem;
   padding-block: 0.125rem;
-  border:
-    1px solid
-    color-mix(
-      in srgb,
-      var(--primary),
-      transparent 70%
-    );
-  background:
-    color-mix(
-      in srgb,
-      var(--primary),
-      transparent 90%
-    );
+  border: 1px solid color-mix(in srgb, var(--primary), transparent 70%);
+  background: color-mix(in srgb, var(--primary), transparent 90%);
   color: var(--primary);
   font-family: monospace;
   font-size: 10px;

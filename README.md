@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=2070&auto=format&fit=crop" alt="SRM Cover" width="100%" style="border-radius: 8px; margin-bottom: 20px;" />
+  
+  <img src="./content/readme.png" />
 
 # 🚀 SRM (Solid Rocket Motor Simulator)
 

@@ -33,7 +33,7 @@ public class ThermalMaterialService {
       existing.setThermalConductivity(updated.getThermalConductivity());
       existing.setSpecificHeat(updated.getSpecificHeat());
       existing.setMaxServiceTemperature(updated.getMaxServiceTemperature());
-      existing.setApplications(updated.getApplications());
+      existing.setApplication(updated.getApplication());
       return repository.save(existing);
     }).orElseThrow(() -> new RuntimeException("Material térmico não encontrado"));
   }

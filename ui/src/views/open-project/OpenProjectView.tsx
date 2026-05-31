@@ -1,7 +1,7 @@
 import { FooterProps } from "../../components/layout/footer/footer";
 import styles from "./OpenProjectView.module.css";
 import OpenProjectCard, {
-  MotorClass,
+  ImpulseClass,
   ProjectStatus,
 } from "./components/o-proj-card/o-proj-card";
 import { useEffect, useState } from "react";
@@ -21,7 +21,7 @@ export interface Project {
   targetImpulse: string;
   targetBurnTime: string;
   maxThrust: string;
-  motorClass: MotorClass;
+  impulseClass: ImpulseClass;
   status: ProjectStatus;
   createdAt: string;
   updatedAt: string;
@@ -32,17 +32,21 @@ interface OpenProjectViewProps {
   setFooter: (data: FooterProps) => void;
 }
 
-export default function OpenProjectView({ onNavigate, setFooter }: OpenProjectViewProps) {
+export default function OpenProjectView({
+  onNavigate,
+  setFooter,
+}: OpenProjectViewProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [sortBy, setSortBy] = useState<"date" | "name">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  
+
   useEffect(() => {
     setFooter({
       index: projects.length || 0,
-      description: projects.length === 1 ? "Projeto encontrado" : "Projetos encontrados",
+      description:
+        projects.length === 1 ? "Projeto encontrado" : "Projetos encontrados",
     });
   }, [projects, setFooter]);
 
@@ -99,9 +103,9 @@ export default function OpenProjectView({ onNavigate, setFooter }: OpenProjectVi
               <Plus className={styles.addButtonIcon} strokeWidth={2} />
               Criar Projeto
             </Button>
-          </div>  
+          </div>
         )}
-      
+
         <div className={styles.sortContainer}>
           <button
             className={styles.sortButton}
@@ -149,7 +153,9 @@ export default function OpenProjectView({ onNavigate, setFooter }: OpenProjectVi
               key={project.id}
               project={project}
               onDelete={handleRemoveProjectFromState}
-              onNavigate={projectId => onNavigate(`/dashboard?projectId=${projectId}`)}
+              onNavigate={(projectId) =>
+                onNavigate(`/dashboard?projectId=${projectId}`)
+              }
             />
           ))}
         </div>

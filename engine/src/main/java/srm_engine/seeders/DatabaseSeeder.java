@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.ArrayList;
 
+// Settings
 import srm_engine.modules.setting.Setting;
 import srm_engine.modules.setting.SettingRepository;
 import srm_engine.modules.setting.UnitPreferences;
@@ -24,6 +25,11 @@ import srm_engine.modules.structural_material.StructuralMaterial;
 import srm_engine.modules.thermal_material.ThermalMaterialRepository;
 import srm_engine.modules.thermal_material.ThermalMaterial;
 
+// Commercial Motors
+import srm_engine.modules.commercial_motors.CommercialMotorRepository;
+import srm_engine.modules.commercial_motors.CommercialMotor;
+import srm_engine.shared.enums.ImpulseClass;
+
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
@@ -33,17 +39,20 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final PropellantRepository propellantRepository;
     private final StructuralMaterialRepository structuralMaterialRepository;
     private final ThermalMaterialRepository thermalMaterialRepository;
+    private final CommercialMotorRepository commercialMotorRepository;
 
     public DatabaseSeeder(
         SettingRepository settingRepository, 
         PropellantRepository propellantRepository,
         StructuralMaterialRepository structuralMaterialRepository,
-        ThermalMaterialRepository thermalMaterialRepository
+        ThermalMaterialRepository thermalMaterialRepository,
+        CommercialMotorRepository commercialMotorRepository
     ) {
         this.settingRepository = settingRepository;
         this.propellantRepository = propellantRepository;
         this.structuralMaterialRepository = structuralMaterialRepository;
         this.thermalMaterialRepository = thermalMaterialRepository;
+        this.commercialMotorRepository = commercialMotorRepository;
     }
 
     @Override
@@ -54,6 +63,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedPropellants();
         seedStructuralMaterials();
         seedThermalMaterials();
+        seedCommercialMotors();
 
         logger.info("✅ Database Seeder finalizado com sucesso!");
     }
@@ -324,6 +334,151 @@ public class DatabaseSeeder implements CommandLineRunner {
             logger.info("Catálogo de Materiais Térmicos populado com sucesso!");
         } else {
             logger.info("Materiais Térmicos já existem. Pulando...");
+        }
+    }
+
+    private void seedCommercialMotors() {
+        if (commercialMotorRepository.count() == 0) {
+            logger.info("Semeando tabela de Motores Comerciais (CommercialMotor)...");
+
+            List<CommercialMotor> motors = new ArrayList<>();
+
+            CommercialMotor g80t = new CommercialMotor();
+            g80t.setManufacturer("Aerotech");
+            g80t.setDesignation("G80-T");
+            g80t.setImpulseClass(ImpulseClass.G);
+            g80t.setTotalImpulse(120);
+            g80t.setMaxThrust(108);
+            g80t.setBurnTime(1.2);
+            g80t.setPropellantMass(62);
+            g80t.setDiameter(29);
+            motors.add(g80t);
+
+            CommercialMotor h123w = new CommercialMotor();
+            h123w.setManufacturer("Aerotech");
+            h123w.setDesignation("H123-W");
+            h123w.setImpulseClass(ImpulseClass.H);
+            h123w.setTotalImpulse(219);
+            h123w.setMaxThrust(175);
+            h123w.setBurnTime(1.4);
+            h123w.setPropellantMass(109);
+            h123w.setDiameter(29);
+            motors.add(h123w);
+
+            CommercialMotor h143ss = new CommercialMotor();
+            h143ss.setManufacturer("Cesaroni");
+            h143ss.setDesignation("H143-SS");
+            h143ss.setImpulseClass(ImpulseClass.H);
+            h143ss.setTotalImpulse(236);
+            h143ss.setMaxThrust(187);
+            h143ss.setBurnTime(1.5);
+            h143ss.setPropellantMass(119);
+            h143ss.setDiameter(29);
+            motors.add(h143ss);
+
+            CommercialMotor i218rw = new CommercialMotor();
+            i218rw.setManufacturer("Cesaroni");
+            i218rw.setDesignation("I218-RW");
+            i218rw.setImpulseClass(ImpulseClass.I);
+            i218rw.setTotalImpulse(420);
+            i218rw.setMaxThrust(285);
+            i218rw.setBurnTime(1.8);
+            i218rw.setPropellantMass(196);
+            i218rw.setDiameter(38);
+            motors.add(i218rw);
+
+            CommercialMotor i284w = new CommercialMotor();
+            i284w.setManufacturer("Aerotech");
+            i284w.setDesignation("I284-W");
+            i284w.setImpulseClass(ImpulseClass.I);
+            i284w.setTotalImpulse(512);
+            i284w.setMaxThrust(320);
+            i284w.setBurnTime(1.9);
+            i284w.setPropellantMass(238);
+            i284w.setDiameter(38);
+            motors.add(i284w);
+
+            CommercialMotor j350lw = new CommercialMotor();
+            j350lw.setManufacturer("Loki Research");
+            j350lw.setDesignation("J350-LW");
+            j350lw.setImpulseClass(ImpulseClass.J);
+            j350lw.setTotalImpulse(780);
+            j350lw.setMaxThrust(420);
+            j350lw.setBurnTime(2.1);
+            j350lw.setPropellantMass(375);
+            j350lw.setDiameter(38);
+            motors.add(j350lw);
+
+            CommercialMotor j394pp = new CommercialMotor();
+            j394pp.setManufacturer("Cesaroni");
+            j394pp.setDesignation("J394-PP");
+            j394pp.setImpulseClass(ImpulseClass.J);
+            j394pp.setTotalImpulse(830);
+            j394pp.setMaxThrust(465);
+            j394pp.setBurnTime(2.0);
+            j394pp.setPropellantMass(392);
+            j394pp.setDiameter(54);
+            motors.add(j394pp);
+
+            CommercialMotor k550w = new CommercialMotor();
+            k550w.setManufacturer("Aerotech");
+            k550w.setDesignation("K550-W");
+            k550w.setImpulseClass(ImpulseClass.K);
+            k550w.setTotalImpulse(1420);
+            k550w.setMaxThrust(680);
+            k550w.setBurnTime(2.5);
+            k550w.setPropellantMass(680);
+            k550w.setDiameter(54);
+            motors.add(k550w);
+
+            CommercialMotor k660ww = new CommercialMotor();
+            k660ww.setManufacturer("Cesaroni");
+            k660ww.setDesignation("K660-WW");
+            k660ww.setImpulseClass(ImpulseClass.K);
+            k660ww.setTotalImpulse(1580);
+            k660ww.setMaxThrust(810);
+            k660ww.setBurnTime(2.3);
+            k660ww.setPropellantMass(745);
+            k660ww.setDiameter(54);
+            motors.add(k660ww);
+
+            CommercialMotor l850bb = new CommercialMotor();
+            l850bb.setManufacturer("Animal Motor Works");
+            l850bb.setDesignation("L850-BB");
+            l850bb.setImpulseClass(ImpulseClass.L);
+            l850bb.setTotalImpulse(2840);
+            l850bb.setMaxThrust(1050);
+            l850bb.setBurnTime(3.1);
+            l850bb.setPropellantMass(1340);
+            l850bb.setDiameter(75);
+            motors.add(l850bb);
+
+            CommercialMotor f32t = new CommercialMotor();
+            f32t.setManufacturer("Aerotech");
+            f32t.setDesignation("F32-T");
+            f32t.setImpulseClass(ImpulseClass.F);
+            f32t.setTotalImpulse(51);
+            f32t.setMaxThrust(42);
+            f32t.setBurnTime(1.6);
+            f32t.setPropellantMass(26);
+            f32t.setDiameter(24);
+            motors.add(f32t);
+
+            CommercialMotor e126 = new CommercialMotor();
+            e126.setManufacturer("Estes");
+            e126.setDesignation("E12-6");
+            e126.setImpulseClass(ImpulseClass.E);
+            e126.setTotalImpulse(28);
+            e126.setMaxThrust(22);
+            e126.setBurnTime(2.1);
+            e126.setPropellantMass(18);
+            e126.setDiameter(24);
+            motors.add(e126);
+
+            commercialMotorRepository.saveAll(motors);
+            logger.info("Catálogo de Motores Comerciais populado com sucesso!");
+        } else {
+            logger.info("Motores Comerciais já existem. Pulando...");
         }
     }
 }
