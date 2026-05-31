@@ -44,13 +44,15 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             : styles.navigation
         }>
 
-        <NavItem
+        <NavGroup title="Geral" collapsed={collapsed}>
+          <NavItem
             icon={<IconHome className={styles.icon} strokeWidth={1.5} />}
             label="Início"
             collapsed={collapsed}
             onClick={() => onNavigate("home")}
             active={activeView === "home"}
-        />
+          />
+        </NavGroup>
 
         {/* PROJETO Section */}
         <NavGroup title="Projeto" collapsed={collapsed}>

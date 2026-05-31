@@ -26,22 +26,22 @@ public class Propellant {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "name", nullable = false, unique = true)
   private String name;
   
-  @Column(nullable = false)
+  @Column(name = "density", nullable = false)
   private double density;
   
-  @Column(nullable = false)
+  @Column(name = "burn_rate_a", nullable = false)
   private double burnRateA;
   
-  @Column(nullable = false)
+  @Column(name = "burn_rate_n", nullable = false)
   private double burnRateN;
 
-  @Column(nullable = false)
+  @Column(name = "theoretical_isp", nullable = false)
   private double theoreticalIsp;
 
-  @Column(nullable = false)
+  @Column(name = "type", nullable = false)
   private String type;
 
   @CreatedDate

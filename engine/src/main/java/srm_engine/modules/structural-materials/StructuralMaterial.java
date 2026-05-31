@@ -26,19 +26,19 @@ public class StructuralMaterial {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "name", nullable = false, unique = true)
   private String name;
   
-  @Column(nullable = false)
+  @Column(name = "density", nullable = false)
   private double density;
   
-  @Column(nullable = false)
+  @Column(name = "yield_strength", nullable = false)
   private double yieldStrength;
   
-  @Column(nullable = false)
+  @Column(name = "ultimate_tensile_strength", nullable = false)
   private double ultimateTensileStrength;
 
-  @Column(nullable = false)
+  @Column(name = "elastic_modulus", nullable = false)
   private double elasticModulus;
 
   @CreatedDate

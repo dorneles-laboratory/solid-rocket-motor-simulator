@@ -26,22 +26,22 @@ public class ThermalMaterial {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "name", nullable = false, unique = true)
   private String name;
   
-  @Column(nullable = false)
+  @Column(name = "density", nullable = false)
   private double density;
   
-  @Column(nullable = false)
+  @Column(name = "thermal_conductivity", nullable = false)
   private double thermalConductivity;
   
-  @Column(nullable = false)
+  @Column(name = "specific_heat", nullable = false)
   private double specificHeat;
 
-  @Column(nullable = false)
+  @Column(name = "max_service_temperature", nullable = false)
   private double maxServiceTemperature;
 
-  @Column(nullable = true)
+  @Column(name = "applications", nullable = true)
   private String applications;
 
   @CreatedDate
