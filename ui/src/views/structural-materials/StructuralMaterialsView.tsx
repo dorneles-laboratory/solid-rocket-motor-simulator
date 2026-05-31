@@ -7,6 +7,7 @@ import StructuralHeader from "./components/structural-header/struct-header";
 import image from "../../assets/structural-materials.png";
 import { showToast } from "../../ui/toast/toast-container";
 import StructuralMaterialsModal from "./components/structural-modal/struct-modal";
+import { useShortcut } from "../../hooks/use-shortcut";
 
 export interface StructuralMaterial {
   id: string;
@@ -73,6 +74,8 @@ export default function StructuralMaterialsView({
     setIsModalOpen(true);
   };
 
+  useShortcut('m', handleAddNew, { ctrl: true });
+
   const handleEdit = (material: StructuralMaterial) => {
     setEditingStructuralMaterial(material);
     setIsModalOpen(true);
@@ -133,7 +136,7 @@ export default function StructuralMaterialsView({
         </Button>
       </div>
 
-      <div className={styles.structural_list}>
+      <div className={styles.list}>
         {/* TABLE HEADER */}
         <StructuralHeader />
 

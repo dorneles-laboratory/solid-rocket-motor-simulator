@@ -34,7 +34,7 @@
   flex-shrink: 0;
 }
 
-.structural_list {
+.list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

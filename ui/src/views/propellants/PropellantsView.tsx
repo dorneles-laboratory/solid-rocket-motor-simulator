@@ -7,6 +7,7 @@ import PropellantsHeader from "./components/propellants-header/prop-header";
 import PropellantsModal from "./components/propellants-modal/prop-modal";
 import { showToast } from "../../ui/toast/toast-container";
 import image from "../../assets/propellant.png"
+import { useShortcut } from "../../hooks/use-shortcut";
 
 export interface Propellant {
   id: string;
@@ -74,6 +75,8 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
     setEditingPropellant(null);
     setIsModalOpen(true);
   };
+
+  useShortcut('q', handleAddNew, { ctrl: true });
 
   const handleEdit = (propellant: Propellant) => {
     setEditingPropellant(propellant);

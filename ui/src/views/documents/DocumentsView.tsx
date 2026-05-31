@@ -11,6 +11,9 @@ import ReadingArea from "./components/documents-reading-area/doc-reading-area";
 import { MOCK_GETTING_STARTED } from "../../../../content/mock/getting-started"
 import { MOCK_EQUATIONS } from "../../../../content/mock/equations"
 import { FooterProps } from "../../components/layout/footer/footer";
+import { showToast } from "../../ui/toast/toast-container";
+
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 interface DocumentData {
   slug: string;
@@ -41,6 +44,14 @@ export default function Documents({ setFooter }: DocumentsViewProps) {
   const [documentCount, setDocumentCount] = useState<number | null>(null);
 
   useEffect(() => {
+    showToast({
+      type: "info",
+      title: "Running in Web Mode",
+      message: "Tauri não detectado. Usando dados Mock para desenvolvimento Web."
+    });
+  }, []);
+
+  useEffect(() => {
     setFooter({
       index: documentCount !== null ? documentCount : 0,
       description: documentCount === 1 ? "Documento encontrado" : "Documentos encontrados",
@@ -49,8 +60,6 @@ export default function Documents({ setFooter }: DocumentsViewProps) {
   
   // Fetch document data whenever activeView changes
   useEffect(() => {
-    const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-
     if (isTauri) {
       invoke<DocumentData>('get_document', { slug: `${activeView || 'getting-started'}` })
         .then((data) => {
@@ -63,7 +72,6 @@ export default function Documents({ setFooter }: DocumentsViewProps) {
           setLoading(false);
         });
     } else {
-      console.warn("Tauri não detectado. Usando dados Mock para desenvolvimento Web.");
       setDoc(activeView === 'getting-started' ? MOCK_GETTING_STARTED : activeView === 'equations' ? MOCK_EQUATIONS : null);
       setLoading(false);
     }
@@ -71,18 +79,19 @@ export default function Documents({ setFooter }: DocumentsViewProps) {
 
   // Count documents on mount
   useEffect(() => {
-    const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-
     if (isTauri) {
       invoke<DocumentCount>('count_documents')
         .then((data) => {
           setDocumentCount(data.count);
         })
         .catch((err) => {
-          console.error("Erro ao buscar a contagem de documentos:", err);
+          showToast({
+            type: "error",
+            title: "Erro ao Contar Documentos",
+            message: err instanceof Error ? err.message : String(err)
+          });
         });
     } else {
-      console.warn("Tauri não detectado. Usando contagem Mock.");
       setDocumentCount(2);
     }
   }, []);
@@ -99,8 +108,8 @@ export default function Documents({ setFooter }: DocumentsViewProps) {
   return (
     <section className={styles.documents_view}>
       <DocumentsHeader 
-          path={doc?.group + '/' + doc?.slug + '.md' || "Documento Desconecido"}
-          title={doc?.title || "Documento Desconecido"}
+          path={doc?.group + '/' + doc?.slug + '.md' || "Documento Desconhecido"}
+          title={doc?.title || "Documento Desconhecido"}
         />
 
       <div className={styles.content}>

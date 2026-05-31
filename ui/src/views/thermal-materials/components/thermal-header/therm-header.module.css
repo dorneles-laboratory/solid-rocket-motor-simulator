@@ -1,0 +1,41 @@
+.tableHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns:
+    1fr
+    140px
+    140px
+    100px
+    200px
+    140px
+    100px;
+  gap: 0.5rem;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background:
+    color-mix(
+      in srgb,
+      var(--muted),
+      transparent 50%
+    );
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.headerRight {
+  text-align: right;
+}
+
+.headerCenter {
+  text-align: center;
+}
+
+.headerLeft {
+  text-align: left;
+}

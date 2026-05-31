@@ -1,8 +1,11 @@
 import styles from "./HomeView.module.css"
-
 import rocketMotor from "../../assets/rocket-motor.png"
 import { FooterProps } from "../../components/layout/footer/footer";
 import { useEffect } from "react";
+import { showToast } from "../../ui/toast/toast-container";
+
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
 
 interface HomeViewProps {
   setFooter: (data: FooterProps) => void;
@@ -15,6 +18,16 @@ export default function HomeView({ setFooter }: HomeViewProps) {
       rightText: "Simulador de motores-foguete de propelente sólido"
     });
   }, [setFooter]);
+
+  useEffect(() => {
+    if (!isTauri) {
+      showToast({
+        type: "info",
+        title: "Running in Web Mode",
+        message: "Você está rodando a aplicação em modo Web, algumas funcionalidades podem estar limitadas. Para a melhor experiência, rode a aplicação em modo Desktop usando Tauri."
+      });
+    }
+  }, []);
   
   return (
     <section className={styles.home_view}>

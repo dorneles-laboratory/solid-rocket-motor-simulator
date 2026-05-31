@@ -1,4 +1,4 @@
-package srm_engine.modules.structural_material;
+package srm_engine.modules.thermal_material;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,13 +14,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "structural_materials")
+@Table(name = "thermal_materials")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class StructuralMaterial {
+public class ThermalMaterial {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,14 +32,17 @@ public class StructuralMaterial {
   @Column(name = "density", nullable = false)
   private double density;
   
-  @Column(name = "yield_strength", nullable = false)
-  private double yieldStrength;
+  @Column(name = "thermal_conductivity", nullable = false)
+  private double thermalConductivity;
   
-  @Column(name = "ultimate_tensile_strength", nullable = false)
-  private double ultimateTensileStrength;
+  @Column(name = "specific_heat", nullable = false)
+  private double specificHeat;
 
-  @Column(name = "elastic_modulus", nullable = false)
-  private double elasticModulus;
+  @Column(name = "max_service_temperature", nullable = false)
+  private double maxServiceTemperature;
+
+  @Column(name = "applications", nullable = true)
+  private String applications;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)

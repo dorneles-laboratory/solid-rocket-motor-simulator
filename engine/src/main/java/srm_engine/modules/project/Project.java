@@ -26,31 +26,31 @@ public class Project {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "name", nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = true)
+  @Column(name = "author", nullable = true)
   private String author;
 
-  @Column(length = 1000)
+  @Column(name = "mission_objective", length = 1000)
   private String missionObjective;
 
-  @Column(nullable = false)
+  @Column(name = "max_diameter", nullable = false)
   private Double maxDiameter;
 
-  @Column(nullable = true)
+  @Column(name = "max_length", nullable = true)
   private Double maxLength;
 
-  @Column(nullable = true)
+  @Column(name = "max_thrust", nullable = true)
   private Double maxThrust;
 
-  @Column(nullable = false)
+  @Column(name = "propellant_id", nullable = false)
   private UUID propellantId;
 
-  @Column(nullable = true)
+  @Column(name = "target_impulse", nullable = true)
   private Double targetImpulse;
 
-  @Column(nullable = true)
+  @Column(name = "target_burn_time", nullable = true)
   private Double targetBurnTime;
 
   @Enumerated(EnumType.STRING)

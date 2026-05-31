@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "localization": {
+      "title": "Localization",
+      "subtitle": "Interface language and general preferences."
+    },
+    "footer": {
+      "description": "Configure your preferences and settings to optimize your experience in the application."
+    }
+  }
+}
