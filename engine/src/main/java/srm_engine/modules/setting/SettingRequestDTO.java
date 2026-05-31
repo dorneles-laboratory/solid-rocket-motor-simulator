@@ -1,9 +1,9 @@
-package srm_engine.modules.settings;
+package srm_engine.modules.setting;
 
 import lombok.Data;
 
 @Data
-public class SettingsRequestDTO {
+public class SettingRequestDTO {
   private String unitSystem;
   private UnitPreferencesDTO preferences;
   private boolean autoSave;

@@ -1,10 +1,11 @@
-package srm_engine.modules.project;
+package srm_engine.modules.commercial_motors;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 import srm_engine.shared.enums.ImpulseClass;
 
@@ -16,52 +17,42 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "projects")
+@Table(name = "commercial_motors")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Project {
-  
+public class CommercialMotor {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(name = "name", nullable = false, unique = true)
-  private String name;
-
-  @Column(name = "author", nullable = true)
-  private String author;
-
-  @Column(name = "mission_objective", length = 1000)
-  private String missionObjective;
-
-  @Column(name = "max_diameter", nullable = false)
-  private Double maxDiameter;
-
-  @Column(name = "max_length", nullable = true)
-  private Double maxLength;
-
-  @Column(name = "max_thrust", nullable = true)
-  private Double maxThrust;
-
-  @Column(name = "propellant_id", nullable = false)
-  private UUID propellantId;
-
-  @Column(name = "target_impulse", nullable = true)
-  private Double targetImpulse;
-
-  @Column(name = "target_burn_time", nullable = true)
-  private Double targetBurnTime;
-
+  @Column(name = "manufacturer", nullable = false)
+  private String manufacturer;
+  
+  @Column(name = "designation", nullable = false, unique = true)
+  private String designation;
+  
   @Enumerated(EnumType.STRING)
   @Column(name = "impulse_class", nullable = false)
   private ImpulseClass impulseClass;
+  
+  @Column(name = "total_impulse", nullable = false)
+  private double totalImpulse;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false)
-  private ProjectStatus status = ProjectStatus.DRAFT;
+  @Column(name = "max_thrust", nullable = false)
+  private double maxThrust;
+
+  @Column(name = "burn_time", nullable = false)
+  private double burnTime;
+
+  @Column(name = "propellant_mass", nullable = false)
+  private double propellantMass;
+
+  @Column(name = "diameter", nullable = false)
+  private double diameter;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)

@@ -41,8 +41,8 @@ public class ThermalMaterial {
   @Column(name = "max_service_temperature", nullable = false)
   private double maxServiceTemperature;
 
-  @Column(name = "applications", nullable = true)
-  private String applications;
+  @Column(name = "application", nullable = true)
+  private String application;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)

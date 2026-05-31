@@ -1,8 +1,8 @@
-package srm_engine.modules.project;
+package srm_engine.shared.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum ProjectMotorClass {
+public enum ImpulseClass {
     A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, UNCLASSIFIED;
 
     @JsonValue

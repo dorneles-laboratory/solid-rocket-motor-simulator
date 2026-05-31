@@ -53,6 +53,7 @@
   height: 2rem;
   padding-inline: 0.75rem;
   padding-right: 2rem;
+  padding: 0 0.5rem;
   border: 1px solid var(--border);
   border-radius: 0;
   background-color: var(--background);
