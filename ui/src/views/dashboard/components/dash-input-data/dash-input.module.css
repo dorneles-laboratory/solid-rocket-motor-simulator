@@ -1,0 +1,87 @@
+/* Container Principal */
+.inputPanel {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--card) 50%, transparent);
+  backdrop-filter: blur(4px);
+  width: 22rem;
+}
+
+/* ScrollArea wrapper */
+.scrollContent {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+  overflow-y: auto;
+  height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color:
+    var(--border, #cbd5e1)
+    transparent;
+}
+
+.scrollContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollContent::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.scrollContent::-webkit-scrollbar-thumb:hover {
+  background:
+    color-mix(
+      in srgb,
+      var(--border),
+      var(--foreground) 20%
+    );
+}
+
+/* Static Properties (Propelente info) */
+.staticRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+}
+
+.staticLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.staticValueWrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.staticValue {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.staticUnit {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+/* Footer */
+.footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background-color: var(--card);
+  padding: 1rem;
+}

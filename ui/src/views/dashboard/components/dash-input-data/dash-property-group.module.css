@@ -1,0 +1,61 @@
+.groupContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupButton {
+  display: flex;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  padding: 0 1rem;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  width: 100%;
+}
+
+.groupButton:hover {
+  background-color: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+.groupTitle {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+.groupIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--muted-foreground);
+  transition: transform 0.2s;
+}
+
+.groupIconClosed {
+  transform: rotate(-90deg);
+}
+
+.groupContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.groupContentOpen {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.groupContentClosed {
+  max-height: 0;
+  opacity: 0;
+}

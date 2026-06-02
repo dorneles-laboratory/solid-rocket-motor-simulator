@@ -37,8 +37,10 @@ public class ProjectController {
       Project created = service.create(project);
       return ResponseEntity.status(HttpStatus.CREATED).body(created);
     } catch (DataIntegrityViolationException e) {
+      e.printStackTrace();
+
       return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body("Já existe um projeto com este nome.");
+          .body(e.getMostSpecificCause().getMessage());
     }
   }
 

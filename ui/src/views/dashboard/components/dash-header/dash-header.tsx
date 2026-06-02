@@ -1,8 +1,8 @@
 import styles from "./dash-header.module.css";
-import { Project } from "../../../open-project/OpenProjectView";
+import { ProjectData } from "../../../new-project/NewProjectView";
 
 interface DashboardHeaderProps {
-  project: Project;
+  project: ProjectData;
 }
 
 export default function DashboardHeader({ project }: DashboardHeaderProps) {

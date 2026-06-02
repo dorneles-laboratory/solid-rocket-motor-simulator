@@ -1,0 +1,199 @@
+.grid2Cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+/* Panels genéricos */
+.panel {
+  border: 1px solid var(--border);
+  background-color: var(--card);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  padding: 0.5rem 1rem;
+}
+
+.panelTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panelIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.panelTitle {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.panelBody {
+  padding: 1rem;
+}
+
+/* Gráfico e Legendas */
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.legendColor {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.legendLabel {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.chartContainer {
+  position: relative;
+  height: 16rem;
+  padding: 1rem;
+}
+
+.chartGrid {
+  position: absolute;
+  top: 1rem; right: 1rem; bottom: 1rem; left: 1rem;
+  background-image: 
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.chartSvg {
+  position: absolute;
+  top: 1rem; left: 1rem; right: 1rem; bottom: 1rem;
+  height: calc(100% - 2rem);
+  width: calc(100% - 2rem);
+}
+
+.chartAxisY {
+  position: absolute;
+  left: 0; top: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 2rem);
+  text-align: right;
+}
+
+.chartAxisX {
+  position: absolute;
+  bottom: 0; left: 1rem; right: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.axisLabel {
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+
+/* Geometry e Dados */
+.geometryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-left: 2px solid color-mix(in srgb, var(--muted-foreground) 30%, transparent);
+  padding-left: 0.75rem;
+}
+
+.geoLabel {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.geoValue {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* Alertas e Logs */
+.alertContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.alertItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  padding: 0.75rem 0;
+}
+
+.alertItem:last-child {
+  border-bottom: none;
+}
+
+.alertIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.125rem;
+}
+
+.alertItem.typeWarning .alertIconWrapper {
+  color: var(--warning);
+  background-color: color-mix(in srgb, var(--warning) 10%, transparent);
+}
+
+.alertItem.typeInfo .alertIconWrapper {
+  color: var(--info);
+  background-color: color-mix(in srgb, var(--info) 10%, transparent);
+}
+
+.alertItem.typeSuccess .alertIconWrapper {
+  color: var(--success);
+  background-color: color-mix(in srgb, var(--success) 10%, transparent);
+}
+
+.alertItem.typeCritical .alertIconWrapper {
+  color: var(--critical);
+  background-color: color-mix(in srgb, var(--critical) 10%, transparent);
+}
+
+.alertContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertMessage {
+  font-size: 12px;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.alertTime {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}

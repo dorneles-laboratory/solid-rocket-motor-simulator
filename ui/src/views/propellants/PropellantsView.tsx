@@ -47,7 +47,7 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
         },
       ]
     })
-  }), [propellants, setFooter];
+  }, [propellants, setFooter]);
 
   useEffect(() => {
     fetchPropellants();

@@ -24,6 +24,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": ["icons/rocket.ico"]
+    "icon": ["icons/rocket.ico"],
+    "resources": [ "engine.jar" ]
   }
 }
