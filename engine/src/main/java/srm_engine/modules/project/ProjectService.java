@@ -39,6 +39,15 @@ public class ProjectService {
       existing.setMaxThrust(updated.getMaxThrust());
       existing.setImpulseClass(updated.getImpulseClass());
       existing.setStatus(updated.getStatus());
+      existing.setMotorChamberDiameter(updated.getMotorChamberDiameter());
+      existing.setMotorChamberLength(updated.getMotorChamberLength());
+      existing.setGrainOuterDiameter(updated.getGrainOuterDiameter());
+      existing.setGrainInnerDiameter(updated.getGrainInnerDiameter());
+      existing.setGrainSegmentsLength(updated.getGrainSegmentsLength());
+      existing.setGrainSegments(updated.getGrainSegments());
+      existing.setNozzleThroatDiameter(updated.getNozzleThroatDiameter());
+      existing.setNozzleConvergenceAngle(updated.getNozzleConvergenceAngle());
+      existing.setNozzleDivergenceAngle(updated.getNozzleDivergenceAngle());
       return repository.save(existing);
     }).orElseThrow(() -> new RuntimeException("Project não encontrado"));
   }

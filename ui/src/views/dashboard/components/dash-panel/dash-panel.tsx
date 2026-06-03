@@ -20,8 +20,8 @@ export interface DashboardDataItem {
 export interface DashboardTextItem {
   text: string;
   time?: string;
-  icon?: ReactNode; // Ícone específico para cada alerta
-  variant?: 'Warning' | 'Info' | 'Success' | 'Critical'; // Combina com as classes do seu CSS (ex: .typeWarning)
+  icon?: ReactNode;
+  variant?: 'Warning' | 'Info' | 'Success' | 'Critical';
 }
 
 interface DashboardPanelProps {
@@ -30,19 +30,17 @@ interface DashboardPanelProps {
   icon?: ReactNode;
   rightText?: string;
   
-  // Gráficos
+  // Gráficos (Agora com suporte a Dual-Axis)
   legends?: DashboardPanelLegendItem[];
   xRange?: [number, number];
   yRange?: [number, number];
   xAxisUnit?: string;
   yAxisUnit?: string;
+  secondaryYRange?: [number, number]; // Escala para a segunda linha (Pressão)
+  secondaryYAxisUnit?: string;        // Unidade da segunda linha
   
-  // Dados Numéricos / Geometria
   dataItems?: DashboardDataItem[];
-  
-  // Textos e Alertas
   textItems?: DashboardTextItem[];
-
   children?: ReactNode;
 }
 
@@ -56,6 +54,8 @@ export default function DashboardPanel({
   yRange = [0, 1],
   xAxisUnit = '',
   yAxisUnit = '',
+  secondaryYRange,
+  secondaryYAxisUnit = '',
   dataItems,
   textItems,
   children
@@ -65,31 +65,43 @@ export default function DashboardPanel({
   const SVG_WIDTH = 600;
   const SVG_HEIGHT = 200;
   const [xMin, xMax] = xRange;
-  const [yMin, yMax] = yRange;
 
-  const generateSvgPath = (points: ChartDataPoint[] | undefined) => {
+  // Calcula o caminho SVG dinamicamente baseado na escala que a linha pedir
+  const generateSvgPath = (points: ChartDataPoint[] | undefined, scaleYMin: number, scaleYMax: number) => {
     if (!points || points.length === 0) return '';
     return points.map((point, index) => {
       const x = ((point.x - xMin) / (xMax - xMin)) * SVG_WIDTH;
-      const y = SVG_HEIGHT - ((point.y - yMin) / (yMax - yMin)) * SVG_HEIGHT;
+      const rangeY = (scaleYMax - scaleYMin) || 1; 
+      const y = SVG_HEIGHT - ((point.y - scaleYMin) / rangeY) * SVG_HEIGHT;
       return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
     }).join(' ');
   };
 
-  const generateAreaPath = (points: ChartDataPoint[] | undefined) => {
-    const linePath = generateSvgPath(points);
-    if (!linePath || !points) return '';
+  const generateAreaPath = (points: ChartDataPoint[] | undefined, scaleYMin: number, scaleYMax: number) => {
+    const linePath = generateSvgPath(points, scaleYMin, scaleYMax);
+    if (!linePath || !points || points.length === 0) return '';
     const firstX = (((points[0].x - xMin) / (xMax - xMin)) * SVG_WIDTH).toFixed(1);
     const lastX = (((points[points.length - 1].x - xMin) / (xMax - xMin)) * SVG_WIDTH).toFixed(1);
     return `${linePath} L ${lastX} ${SVG_HEIGHT} L ${firstX} ${SVG_HEIGHT} Z`;
   };
 
+  // Eixo Y Principal (Esquerda - Empuxo)
   const yAxisLabels = [];
   for (let i = 3; i >= 0; i--) {
-    const val = yMin + (i * (yMax - yMin)) / 3;
+    const val = yRange[0] + (i * (yRange[1] - yRange[0])) / 3;
     yAxisLabels.push(`${val.toFixed(0)}${yAxisUnit}`);
   }
 
+  // Eixo Y Secundário (Direita - Pressão)
+  const secondaryYAxisLabels = [];
+  if (secondaryYRange) {
+    for (let i = 3; i >= 0; i--) {
+      const val = secondaryYRange[0] + (i * (secondaryYRange[1] - secondaryYRange[0])) / 3;
+      secondaryYAxisLabels.push(`${val.toFixed(1)}${secondaryYAxisUnit}`);
+    }
+  }
+
+  // Eixo X (Base - Tempo)
   const xAxisLabels = [];
   for (let i = 0; i <= 4; i++) {
     const val = xMin + (i * (xMax - xMin)) / 4;
@@ -115,7 +127,6 @@ export default function DashboardPanel({
             )}
             {type === 'graphic' && legends?.map((legend) => (
               <div key={legend.label} className={styles.legendItem}>
-                {/* Mantém a cor dinâmica injetada via style, mas usa a classe base do CSS */}
                 <div className={styles.legendColor} style={{ backgroundColor: legend.color }} />
                 <span className={styles.legendLabel}>{legend.label}</span>
               </div>
@@ -133,8 +144,13 @@ export default function DashboardPanel({
             <div className={styles.chartGrid} />
             <svg className={styles.chartSvg} viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none">
               {legends?.map((legend, index) => {
-                const pathD = generateSvgPath(legend.data);
-                const areaD = generateAreaPath(legend.data);
+                // Mágica do Eixo Duplo: A 2ª linha (index 1) usa o eixo secundário se ele existir
+                const isSecondary = index === 1 && secondaryYRange;
+                const currentYMin = isSecondary ? secondaryYRange[0] : yRange[0];
+                const currentYMax = isSecondary ? secondaryYRange[1] : yRange[1];
+
+                const pathD = generateSvgPath(legend.data, currentYMin, currentYMax);
+                const areaD = generateAreaPath(legend.data, currentYMin, currentYMax);
                 if (!pathD) return null;
 
                 return (
@@ -157,9 +173,20 @@ export default function DashboardPanel({
                 );
               })}
             </svg>
+            
+            {/* Eixo Esquerdo (Ex: Empuxo) */}
             <div className={styles.chartAxisY}>
               {yAxisLabels.map((label, idx) => <span key={idx} className={styles.axisLabel}>{label}</span>)}
             </div>
+
+            {/* Eixo Direito (Ex: Pressão) - Renderizado apenas se o secondaryYRange for passado */}
+            {secondaryYRange && (
+              <div className={styles.chartAxisY} style={{ left: 'auto', right: 0, alignItems: 'flex-end' }}>
+                {secondaryYAxisLabels.map((label, idx) => <span key={idx} className={styles.axisLabel}>{label}</span>)}
+              </div>
+            )}
+
+            {/* Eixo Base (Tempo) */}
             <div className={styles.chartAxisX}>
               {xAxisLabels.map((label, idx) => <span key={idx} className={styles.axisLabel}>{label}</span>)}
             </div>
@@ -193,10 +220,8 @@ export default function DashboardPanel({
                     className={`${styles.alertItem} ${variantClass}`.trim()}
                   >
                     {item.icon && <div className={styles.alertIconWrapper}>{item.icon}</div>}
-                    
                     <div className={styles.alertContent}>
                       <p className={styles.alertMessage}>{item.text}</p>
-                      
                       {item.time && <span className={styles.alertTime}>{item.time}</span>}
                     </div>
                   </div>

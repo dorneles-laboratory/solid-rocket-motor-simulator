@@ -138,12 +138,51 @@
 .pulseIndicator {
   width: 0.375rem;
   height: 0.375rem;
-  background-color: #ff0800;
+  border-radius: 9999px;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.pulseIndicator.success {
+  background-color: var(--success);
+}
+
+.pulseIndicator.error {
+  background-color: var(--error);
+}
+
+.pulseIndicator.timeout {
+  background-color: var(--warning);
+}
+
+.pulseIndicator.cato {
+  background-color: var(--critical);
+}
+
+.pulseIndicator.idle {
+  background-color: var(--info);
 }
 
 .statusText {
   font-family: monospace;
   font-size: 9px;
-  color: #ff0800;
+}
+
+.statusText.success {
+  color: var(--success);
+}
+
+.statusText.error {
+  color: var(--error);
+}
+
+.statusText.timeout {
+  color: var(--warning);
+}
+
+.statusText.cato {
+  color: var(--critical);
+}
+
+.statusText.idle {
+  color: var(--info);
 }

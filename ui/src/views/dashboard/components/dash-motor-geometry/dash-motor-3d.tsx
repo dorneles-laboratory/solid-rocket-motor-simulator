@@ -46,6 +46,22 @@ export default function Motor3D({ dimensions }: { dimensions: MotorDimensions })
     return shape;
   }, [radiusGrainOuter, radiusGrainInner]);
 
+  const GAP = 1;
+  const grainMeshes = useMemo(() => {
+    const segments = Math.max(1, dimensions.grainSegments || 1);
+
+    const totalLength =
+      segments * grainLength +
+      (segments - 1) * GAP;
+
+    return Array.from({ length: segments }, (_, index) => ({
+      key: index,
+      position:
+        -totalLength / 2 +
+        index * (grainLength + GAP),
+    }));
+  }, [dimensions.grainSegments, grainLength]);
+
   return (
     // Grupo principal: Deita o motor inteiro para alinhar com o eixo X da câmera (igual ao 2D)
     <group rotation={[0, 0, -Math.PI / 2]}>
@@ -65,15 +81,54 @@ export default function Motor3D({ dimensions }: { dimensions: MotorDimensions })
 
       {/* PROPELLANT GRAIN (Grão) */}
       {/* O Extrude cresce no eixo Z positivo. Rodamos para crescer no Y e centralizamos na carcaça */}
-      <mesh 
-        position={[0, -grainLength / 2, 0]} 
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <extrudeGeometry 
-          args={[grainShape, { depth: grainLength, curveSegments: 32, bevelEnabled: false }]} 
-        />
-        <meshStandardMaterial color="#f97316" roughness={0.7} />
-      </mesh>
+      {grainMeshes.map((grain) => (
+        <mesh
+          key={grain.key}
+          position={[0, grain.position, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <extrudeGeometry
+            args={[
+              grainShape,
+              {
+                depth: grainLength,
+                curveSegments: 32,
+                bevelEnabled: false,
+              },
+            ]}
+          />
+          <meshStandardMaterial
+            color="#f97316"
+            roughness={0.7}
+          />
+        </mesh>
+      ))}
+
+      {grainMeshes.slice(0, -1).map((grain) => {
+        const separatorPosition =
+          grain.position + grainLength / 2 + GAP / 2;
+
+        return (
+          <mesh
+            key={`separator-${grain.key}`}
+            position={[0, separatorPosition, 0]}
+          >
+            <ringGeometry
+              args={[
+                Math.max(radiusGrainOuter - 0.25, radiusGrainInner),
+                radiusGrainOuter,
+                64,
+              ]}
+            />
+            <meshBasicMaterial
+              color="#71717a"
+              transparent
+              opacity={0.8}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        );
+      })}
 
       {/* NOZZLE (Bocal) */}
       {/* Encaixado exatamente na borda inferior da carcaça (-chamberLength / 2) */}

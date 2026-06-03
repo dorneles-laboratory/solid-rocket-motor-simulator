@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import isEqual from "fast-deep-equal";
 import styles from "./DashboardView.module.css";
 import iconDashboard from "../../assets/dashboard.png";
 import { FooterProps } from "../../components/layout/footer/footer";
@@ -16,11 +17,12 @@ import {
 import DashboardInputPanel from "./components/dash-input-data/dash-input";
 import DashboardPanel from "./components/dash-panel/dash-panel";
 import MotorGeometry, { FocusedSection, MotorDimensions } from "./components/dash-motor-geometry/dash-motor-geometry";
-import DashboardHeader from "./components/dash-header/dash-header";
+import DashboardHeader, { SaveStatus } from "./components/dash-header/dash-header";
 import MetricCard from "./components/dash-metric-card/dash-metric-card";
 import ClassBadge from "./components/dash-class-badge/dash-class-badge";
 import { ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
 import { Propellant } from "../propellants/PropellantsView";
+import { runMotorSimulation, SimulationResult } from "../../utils/simulation";
 
 // ==========================================
 // 1. TIPAGENS (INTERFACES)
@@ -34,6 +36,7 @@ export interface ProjectData {
   maxLength?: number;
   propellantId: string;
   targetImpulse?: number;
+  impulseClass?: string;
   targetBurnTime?: number;
   maxThrust?: number;
   status: ProjectStatus;
@@ -58,13 +61,6 @@ export interface AlertMessage {
   type: AlertType;
   time: string;
 }
-
-// interface SimulationData {
-//   alerts?: AlertMessage[];
-//   thrustData: { x: number; y: number }[];
-//   pressureData: { x: number; y: number }[];
-//   pointsCount: number;
-// }
 
 interface DashboardViewProps {
   projectId: string | null;
@@ -98,9 +94,11 @@ export default function DashboardView({
   
   // --- ESTADOS ---
   const [project, setProject] = useState<ProjectData | null>(null);
+  const [projectLoaded, setProjectLoaded] = useState<ProjectData | null>(null);
   const [propellant, setPropellant] = useState<Propellant | null>(null);
-  // const [simulationData, setSimulationData] = useState<SimulationData | null>(null);
+  const [simulationData, setSimulationData] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [simulationRun, setSimulationRun] = useState(false);
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
@@ -144,6 +142,7 @@ export default function DashboardView({
       if (response.ok) {
         const data = await response.json();
         setProject(data);
+        setProjectLoaded(data);
       } else {
         throw new Error("Falha ao buscar dados");
       }
@@ -187,6 +186,149 @@ export default function DashboardView({
     }
   };
 
+  const handleRunSimulation = () => {
+    if (!project || !propellant) {
+      showToast({ type: "error", title: "Erro", message: "Projeto ou Propelente ausente." });
+      return;
+    }
+
+    setSimulationRun(true);
+    
+    setTimeout(() => {
+      try {
+        const results = runMotorSimulation(project, propellant);
+        
+        if (results) {
+          setSimulationData(results);
+
+          // Reage ao status da simulação
+          if (results.status === "SUCCESS") {
+              showToast({ type: "success", title: "Sucesso", message: results.message });
+          } else if (results.status === "CATO") {
+              showToast({ type: "error", title: "FALHA CATASTRÓFICA", message: results.message });
+          } else if (results.status === "TIMEOUT") {
+              showToast({ type: "warning", title: "Tempo Excedido", message: results.message });
+          } else {
+              showToast({ type: "error", title: "Erro", message: results.message });
+              return
+          }
+          
+          // ==========================================
+          // GERAÇÃO DE ALERTAS BALÍSTICOS
+          // ==========================================
+          const simAlerts: AlertMessage[] = [];
+          const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const { maxPressureBar, initialKn, isp, class: motorClass } = results.metrics;
+
+          // Regra 1: Pressão da Câmara (MEOP)
+          if (maxPressureBar > 80) {
+            simAlerts.push({
+              id: 'sim-press-critical',
+              type: 'error',
+              message: `Pressão máxima crítica (${maxPressureBar.toFixed(1)} Bar). Risco iminente de falha estrutural da carcaça (CATO).`,
+              time: timeNow
+            });
+          } else if (maxPressureBar > 60) {
+            simAlerts.push({
+              id: 'sim-press-warning',
+              type: 'warning',
+              message: `Pressão máxima elevada (${maxPressureBar.toFixed(1)} Bar). Certifique-se do fator de segurança do tubo.`,
+              time: timeNow
+            });
+          } else if (maxPressureBar < 15) {
+            simAlerts.push({
+              id: 'sim-press-low',
+              type: 'warning',
+              message: `Pressão sub-ótima (${maxPressureBar.toFixed(1)} Bar). O motor pode sofrer com chuffing e queima instável.`,
+              time: timeNow
+            });
+          }
+
+          // Regra 2: Relação Kn (Area de Queima / Garganta)
+          if (initialKn > 320) {
+            simAlerts.push({
+              id: 'sim-kn-high',
+              type: 'warning',
+              message: `Kn inicial agressivo (${initialKn.toFixed(0)}). A rampa de pressurização causará um alto pico de estresse inicial.`,
+              time: timeNow
+            });
+          } else if (initialKn < 180) {
+            simAlerts.push({
+              id: 'sim-kn-low',
+              type: 'note',
+              message: `Kn inicial brando (${initialKn.toFixed(0)}). A ignição pode ser lenta e exigir um iniciador térmico mais potente.`,
+              time: timeNow
+            });
+          }
+
+          // Regra 3: Eficiência Geral (Info)
+          simAlerts.push({
+            id: 'sim-efficiency',
+            type: 'info',
+            message: `Performance calculada: Motor Classe ${motorClass} validado com ISP real estimado de ${isp.toFixed(1)} s.`,
+            time: timeNow
+          });
+
+          // Atualiza os alertas preservando apenas os que NÃO vieram da simulação anterior (ex: alertas de dimensão)
+          setAlerts(prev => {
+            const preservedAlerts = prev.filter(alert => !alert.id.startsWith('sim-'));
+            return [...preservedAlerts, ...simAlerts];
+          });
+
+          showToast({ type: "success", title: "Simulação Concluída", message: `${results.pointsCount} pontos calculados.` });
+        }
+      } catch (error) {
+        showToast({ type: "error", title: "Falha Matemática", message: "Os parâmetros atuais geraram um erro no cálculo iterativo." });
+      } finally {
+        setSimulationRun(false);
+      }
+    }, 100);
+  };
+
+  const handleSaveChanges = async () => {
+    if (saveStatus !== "unsaved" || !project) return;
+    
+    const payload = {
+      ...project,
+      impulseClass: simulationData?.metrics?.class || project.impulseClass,
+    }
+
+   setIsSaving(true);
+    try {
+      await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      setProject(structuredClone(payload));
+      setProjectLoaded(structuredClone(payload));
+      showToast({ type: "success", title: "Sucesso", message: "Alterações salvas com sucesso." });
+    } catch (error) {
+      console.error(error);
+      showToast({ type: "error", title: "Erro no Salvamento", message: "Falha na comunicação ao salvar." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveStatus: SaveStatus = useMemo(() => {
+    if (!projectLoaded || !project) return "saved";
+    if (isSaving) return "saving";
+
+    const hasManualChanges = !isEqual(projectLoaded, project);
+
+    const simClass = simulationData?.metrics?.class;
+    const hasSimulationChanges = simClass ? simClass !== projectLoaded.impulseClass : false;
+
+    return (hasManualChanges || hasSimulationChanges) ? "unsaved" : "saved";
+    
+  }, [projectLoaded, project, isSaving, simulationData]);
+
+  const status = simulationData?.status?.toLowerCase() || "idle";
+
   const handleDimensionsChange = (newDims: MotorDimensions) => {
     if (!project) return;
 
@@ -219,11 +361,11 @@ export default function DashboardView({
     }
 
     // Regra: Diâmetro do grão não pode ser maior que o da carcaça
-    if (limitDiameter > 0 && newDims.grainOuterDiameter > limitDiameter) {
+    if (newDims.chamberDiameter > 0 && newDims.grainOuterDiameter > newDims.chamberDiameter) {
       currentActiveAlerts.push({
         id: 'diameter-grain-limit',
         title: 'Diâmetro do Grão Excedido',
-        message: `Diâmetro do grão (${newDims.grainOuterDiameter}mm) maior que o diâmetro interno da carcaça (${limitDiameter}mm).`,
+        message: `Diâmetro do grão (${newDims.grainOuterDiameter}mm) maior que o diâmetro interno da carcaça (${newDims.chamberDiameter}mm).`,
         type: 'error',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
@@ -252,11 +394,39 @@ export default function DashboardView({
       grainOuterDiameter: newDims.grainOuterDiameter,
       grainInnerDiameter: newDims.grainCoreDiameter,
       grainSegmentsLength: newDims.grainLength,
+      grainSegments: newDims.grainSegments,
       nozzleThroatDiameter: newDims.throatDiameter,
       nozzleConvergenceAngle: newDims.convergenceAngle,
       nozzleDivergenceAngle: newDims.divergenceAngle,
     });
   };
+
+  // ==========================================
+  // AUTO-SCALING PARA OS GRÁFICOS
+  // ==========================================
+  let dynamicMaxTime = 2.0;
+  let dynamicMaxThrust = 1500;
+  let dynamicMaxPressure = 80;
+
+  if (simulationData) {
+    // Escala X (Tempo): Pega o último instante de tempo, adiciona 20% de margem e arredonda em casas de 0.5s
+    const lastPoint = simulationData.thrustData[simulationData.thrustData.length - 1];
+    const actualMaxTime = lastPoint ? lastPoint.x : 2.0;
+    dynamicMaxTime = Math.ceil(actualMaxTime * 1.2 * 2) / 2;
+    if (dynamicMaxTime < 1.0) dynamicMaxTime = 1.0; // Garante que o gráfico mostre no mínimo 1 segundo
+
+    // Escala Y1 (Empuxo): Adiciona 20% de teto e arredonda bonitinho
+    const thrustLimit = simulationData.metrics.maxThrust;
+    dynamicMaxThrust = Math.ceil((thrustLimit * 1.2) / 100) * 100;
+    // Se for um motor gigante (> 2000N), arredonda de 500 em 500 para não encher de zeros no painel
+    if (thrustLimit > 2000) dynamicMaxThrust = Math.ceil((thrustLimit * 1.2) / 500) * 500;
+    if (dynamicMaxThrust < 100) dynamicMaxThrust = 100;
+
+    // Escala Y2 (Pressão): Adiciona 20% de teto e arredonda nas dezenas
+    const pressLimit = simulationData.metrics.maxPressureBar;
+    dynamicMaxPressure = Math.ceil((pressLimit * 1.2) / 10) * 10;
+    if (dynamicMaxPressure < 20) dynamicMaxPressure = 20;
+  }
 
   return (
     <section className={styles.dashboardView}>
@@ -280,6 +450,7 @@ export default function DashboardView({
                 grainOuterDiameter: project.grainOuterDiameter,
                 grainCoreDiameter: project.grainInnerDiameter,
                 grainLength: project.grainSegmentsLength,
+                grainSegments: project.grainSegments,
                 throatDiameter: project.nozzleThroatDiameter,
                 convergenceAngle: project.nozzleConvergenceAngle,
                 divergenceAngle: project.nozzleDivergenceAngle
@@ -288,10 +459,17 @@ export default function DashboardView({
             onFocusChange={setFocusedSection}
             propellant={propellant || undefined}
             onDimensionsChange={handleDimensionsChange}
+            isSimulating={simulationRun}
+            onRunSimulation={handleRunSimulation}
           />
 
           <div className={styles.divider}>
-            {/* <DashboardHeader project={project} /> */}
+            <DashboardHeader 
+              project_name={project.name}
+              project_class={project?.impulseClass || "-"}
+              saveStatus={saveStatus}
+              onSave={handleSaveChanges} 
+            />
 
             <div className={styles.dashboardContent}>
               {/* Painel com o Esquema do Motor */}
@@ -314,6 +492,7 @@ export default function DashboardView({
                       grainOuterDiameter: project.grainOuterDiameter || 0,
                       grainCoreDiameter: project.grainInnerDiameter || 0,
                       grainLength: project.grainSegmentsLength || 0,
+                      grainSegments: project.grainSegments || 0,
                       throatDiameter: project.nozzleThroatDiameter || 0,
                       convergenceAngle: project.nozzleConvergenceAngle || 0,
                       divergenceAngle: project.nozzleDivergenceAngle || 0
@@ -327,10 +506,17 @@ export default function DashboardView({
                 <span className={styles.statusTitle}>
                   Resultados da Simulação
                 </span>
+
                 {!simulationRun && (
                   <div className={styles.statusWrapper}>
-                    <div className={styles.pulseIndicator} />
-                    <span className={styles.statusText}>Incompleto</span>
+                    <div
+                      className={`${styles.pulseIndicator} ${styles[status]}`}
+                    />
+                    <span
+                      className={`${styles.statusText} ${styles[status]}`}
+                    >
+                      {simulationData?.status || "---"}
+                    </span>
                   </div>
                 )}
               </div>
@@ -339,32 +525,35 @@ export default function DashboardView({
               <div className={styles.metricsGrid}>
                 <MetricCard
                   title="Impulso Total"
-                  value={simulationRun ? "433.2" : "---"}
+                  value={simulationData ? simulationData.metrics.totalImpulse.toFixed(1) : "---"}
                   unit="N·s"
                   icon={<Flame size={16} />}
                 />
                 <MetricCard
-                  title="Empuxo Medio"
-                  value={simulationRun ? "343.8" : "---"}
+                  title="Empuxo Médio"
+                  value={simulationData ? simulationData.metrics.avgThrust.toFixed(1) : "---"}
                   unit="N"
                   icon={<Gauge size={16} />}
                 />
                 <MetricCard
-                  title="Empuxo Max."
-                  value={simulationRun ? "382.1" : "---"}
+                  title="Empuxo Máx."
+                  value={simulationData ? simulationData.metrics.maxThrust.toFixed(1) : "---"}
                   unit="N"
                   icon={<Zap size={16} />}
                 />
                 <MetricCard
                   title="ISP"
-                  value={simulationRun ? "118.5" : "---"}
+                  value={simulationData ? simulationData.metrics.isp.toFixed(1) : "---"}
                   unit="s"
                   icon={<Timer size={16} />}
                 />
-                <ClassBadge value="I" simulationRun={simulationRun} />
+                <ClassBadge 
+                  value={simulationData ? simulationData.metrics.class : "---"} 
+                  simulationData={simulationData ? true : false} 
+                />
               </div>
 
-              {/* {simulationRun ? (
+              {simulationData ? (
                 <DashboardPanel
                   type="graphic"
                   panelTitle="Curva de Empuxo / Pressão"
@@ -375,10 +564,15 @@ export default function DashboardView({
                       style={{ color: "var(--chart-2)" }}
                     />
                   }
-                  xRange={[0, 2.0]}
+                  xRange={[0, dynamicMaxTime]}
                   xAxisUnit="s"
-                  yRange={[0, 1500]}
+                  
+                  yRange={[0, dynamicMaxThrust]}
                   yAxisUnit="N"
+                  
+                  secondaryYRange={[0, dynamicMaxPressure]}
+                  secondaryYAxisUnit="B"
+                  
                   rightText={`${simulationData?.pointsCount || 0} pontos coletados`}
                   legends={[
                     {
@@ -458,11 +652,10 @@ export default function DashboardView({
                     </div>
                   </div>
                 </DashboardPanel>
-              )} */}
+              )}
 
               <div className={styles.grid2Cols}>
-                {/* {simulationRun ? (
-                  <DashboardPanel
+                <DashboardPanel
                     type="data"
                     panelTitle="Current Grain Geometry"
                     icon={
@@ -473,50 +666,33 @@ export default function DashboardView({
                       />
                     }
                     dataItems={[
-                      {
-                        label: "Core Type",
-                        value: project?.geometry?.coreType || "N/A",
-                      },
+                      // {
+                      //   label: "Core Type",
+                        // value: project?.geometry?.coreType || "N/A",
+                        // value: project?. || "N/A",
+                      // },
                       {
                         label: "Segments",
-                        value: project?.geometry?.segments || 0,
+                        value: `${project?.grainSegments || 0} un`,
                       },
                       {
                         label: "Outer Diameter",
-                        value: `${project?.outerDiameter || 0} mm`,
+                        value: `${project?.grainOuterDiameter || 0} mm`,
                       },
                       {
                         label: "Inner Diameter",
-                        value: `${project?.geometry?.innerDiameter || 0} mm`,
+                        value: `${project?.grainInnerDiameter || 0} mm`,
                       },
                       {
                         label: "Length",
-                        value: `${project?.geometry?.length || 0} mm`,
+                        value: `${(project?.grainSegments * project?.grainSegmentsLength) || 249} mm`,
                       },
-                      {
-                        label: "Propellant Mass",
-                        value: `${project?.geometry?.propellantMass || 0} kg`,
-                      },
+                      // {
+                      //   label: "Propellant Mass",
+                      //   value: `${project?.grainPropellantMass || 0} kg`,
+                      // },
                     ]}
                   />
-                ) : (
-                  <DashboardPanel
-                    type="text"
-                    panelTitle="Current Grain Geometry"
-                    icon={
-                      <Layers
-                        className={styles.panelIcon}
-                        strokeWidth={1.5}
-                        style={{ color: "var(--chart-4)" }}
-                      />
-                    }
-                    textItems={[
-                      {
-                        text: "Execute a simulacao para visualizar os dados da geometria atual do grão.",
-                      },
-                    ]}
-                  />
-                )} */}
 
                 <DashboardPanel
                   type="text"

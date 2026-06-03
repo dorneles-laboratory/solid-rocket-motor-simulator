@@ -10,6 +10,7 @@ export interface MotorDimensions {
   grainOuterDiameter: number
   grainCoreDiameter: number
   grainLength: number
+  grainSegments: number
   throatDiameter: number
   convergenceAngle: number
   divergenceAngle: number
@@ -21,6 +22,7 @@ export type FocusedSection =
   | "grain-outer" 
   | "grain-core" 
   | "grain-length" 
+  | "grain-segments"
   | "nozzle-throat" 
   | "nozzle-convergence" 
   | "nozzle-divergence" 
@@ -38,6 +40,7 @@ const defaultDimensions: MotorDimensions = {
   grainOuterDiameter: 0,
   grainCoreDiameter: 0,
   grainLength: 0,
+  grainSegments: 0,
   throatDiameter: 0,
   convergenceAngle: 0,
   divergenceAngle: 0,
@@ -260,8 +263,8 @@ export default function MotorGeometry({
 
             {/* PROPELLANT GRAIN */}
             <g
-              className={`${styles.sectionGroup} ${focusedSection === "grain-length" || focusedSection === 'grain-outer' || focusedSection === "grain-core" ? styles.sectionUnfiltered : ""}`.trim()}
-              filter={focusedSection === "grain-length" ||  focusedSection === 'grain-outer' || focusedSection === "grain-core" ? "url(#glow)" : undefined}
+              className={`${styles.sectionGroup} ${focusedSection === "grain-length" || focusedSection === 'grain-outer' || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.sectionUnfiltered : ""}`.trim()}
+              filter={focusedSection === "grain-length" ||  focusedSection === 'grain-outer' || focusedSection === "grain-core" || focusedSection === "grain-segments" ? "url(#glow)" : undefined}
             >
               {/* Outer grain surface (with hatch fill) */}
               <rect
@@ -271,6 +274,38 @@ export default function MotorGeometry({
                 height={grainOuterVisualDiameter}
                 fill={"url(#propellant-hatch)"}
               />
+
+              {Array.from({
+                length: Math.max(0, (dimensions.grainSegments || 1) - 1),
+              }).map((_, index) => {
+                const separatorX =
+                  startX +
+                  10 +
+                  ((index + 1) * grainVisualLength) /
+                    (dimensions.grainSegments || 1);
+
+                return (
+                  <line
+                    key={`grain-separator-${index}`}
+                    x1={separatorX}
+                    y1={centerY - grainOuterVisualDiameter / 2}
+                    x2={separatorX}
+                    y2={centerY + grainOuterVisualDiameter / 2}
+                    stroke={
+                      focusedSection === "grain-segments"
+                        ? highlightStroke
+                        : "var(--muted-foreground)"
+                    }
+                    strokeWidth={
+                      focusedSection === "grain-segments"
+                        ? 2
+                        : 1
+                    }
+                    strokeDasharray="4,3"
+                    opacity={0.7}
+                  />
+                );
+              })}
 
               {/* Top wall */}
               <line
@@ -580,8 +615,8 @@ export default function MotorGeometry({
         
         {/* Propelente Label */}
         <div className={styles.legendItem}>
-          <div className={`${styles.legendBox} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" ? styles.legendBoxActive : styles.legendBoxGrainInactive}`} />
-          <span className={`${styles.legendText} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" ? styles.legendTextActive : styles.legendTextInactive}`}>
+          <div className={`${styles.legendBox} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendBoxActive : styles.legendBoxGrainInactive}`} />
+          <span className={`${styles.legendText} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendTextActive : styles.legendTextInactive}`}>
             Propelente
           </span>
         </div>

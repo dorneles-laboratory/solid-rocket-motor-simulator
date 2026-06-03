@@ -5,10 +5,10 @@ interface PropertyFieldProps {
   id: string
   label: string
   unit: string
-  value: number
-  onChange: (value: number) => void
-  onFocus?: () => void
-  onBlur?: () => void
+  value: number | string;
+  onChange: (value: number | string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export default function PropertyField({

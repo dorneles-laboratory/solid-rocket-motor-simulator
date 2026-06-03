@@ -15,13 +15,13 @@ interface InputPanelProps {
   onRunSimulation?: () => void
 }
 
-// Fallback de segurança para as dimensões
 const defaultDimensions: MotorDimensions = {
   chamberDiameter: 0,
   chamberLength: 0,
   grainOuterDiameter: 0,
   grainCoreDiameter: 0,
   grainLength: 0,
+  grainSegments: 0,
   throatDiameter: 0,
   convergenceAngle: 0,
   divergenceAngle: 0,
@@ -35,23 +35,29 @@ export default function DashboardInputPanel({
   onFocusChange,
   onRunSimulation,
 }: InputPanelProps) {
-  // Função centralizada para atualizar qualquer dimensão de forma limpa
-  const updateDimension = (key: keyof MotorDimensions, value: number) => {
-    if (onDimensionsChange) {
-      onDimensionsChange({ ...dimensions, [key]: value })
+    const handleDimensionChange = (key: keyof MotorDimensions, rawValue: string | number) => {
+    if (!onDimensionsChange) return
+
+    if (rawValue === "" || rawValue === undefined) {
+      onDimensionsChange({ ...dimensions, [key]: 0 })
+      return
     }
+
+    const cleanString = String(rawValue).replace(/^0+(?=\d)/, '')
+
+    onDimensionsChange({ ...dimensions, [key]: Number(cleanString) })
   }
 
-  // Função centralizada para lidar com o foco
   const handleFocus = (section: FocusedSection) => {
     if (onFocusChange) onFocusChange(section)
   }
+
+  const displayValue = (val: number) => val === 0 ? "" : val
 
   return (
     <section className={styles.inputPanel}>
       <DashboardInputHeader />
 
-      {/* Property Grid */}
       <div className={styles.scrollContent}>
         
         {/* Chamber / Casing */}
@@ -60,8 +66,8 @@ export default function DashboardInputPanel({
             id="chamber-diameter"
             label="Diametro Interno"
             unit="mm"
-            value={dimensions.chamberDiameter}
-            onChange={(v) => updateDimension("chamberDiameter", v)}
+            value={displayValue(dimensions.chamberDiameter)}
+            onChange={(v) => handleDimensionChange("chamberDiameter", v)}
             onFocus={() => handleFocus("chamber-diameter")}
             onBlur={() => handleFocus(null)}
           />
@@ -69,8 +75,8 @@ export default function DashboardInputPanel({
             id="chamber-length"
             label="Comprimento"
             unit="mm"
-            value={dimensions.chamberLength}
-            onChange={(v) => updateDimension("chamberLength", v)}
+            value={displayValue(dimensions.chamberLength)}
+            onChange={(v) => handleDimensionChange("chamberLength", v)}
             onFocus={() => handleFocus("chamber-length")}
             onBlur={() => handleFocus(null)}
           />
@@ -82,8 +88,8 @@ export default function DashboardInputPanel({
             id="grain-outer"
             label="Diametro Externo"
             unit="mm"
-            value={dimensions.grainOuterDiameter}
-            onChange={(v) => updateDimension("grainOuterDiameter", v)}
+            value={displayValue(dimensions.grainOuterDiameter)}
+            onChange={(v) => handleDimensionChange("grainOuterDiameter", v)}
             onFocus={() => handleFocus("grain-outer")}
             onBlur={() => handleFocus(null)}
           />
@@ -91,8 +97,8 @@ export default function DashboardInputPanel({
             id="grain-core"
             label="Diametro Nucleo"
             unit="mm"
-            value={dimensions.grainCoreDiameter}
-            onChange={(v) => updateDimension("grainCoreDiameter", v)}
+            value={displayValue(dimensions.grainCoreDiameter)}
+            onChange={(v) => handleDimensionChange("grainCoreDiameter", v)}
             onFocus={() => handleFocus("grain-core")}
             onBlur={() => handleFocus(null)}
           />
@@ -100,9 +106,19 @@ export default function DashboardInputPanel({
             id="grain-length"
             label="Comprimento"
             unit="mm"
-            value={dimensions.grainLength}
-            onChange={(v) => updateDimension("grainLength", v)}
+            value={displayValue(dimensions.grainLength)}
+            onChange={(v) => handleDimensionChange("grainLength", v)}
             onFocus={() => handleFocus("grain-length")}
+            onBlur={() => handleFocus(null)}
+          />
+
+          <PropertyField
+            id="grain-segments"
+            label="Qtd. Segmentos"
+            unit="un"
+            value={displayValue(dimensions.grainSegments)}
+            onChange={(v) => handleDimensionChange("grainSegments", v)}
+            onFocus={() => handleFocus("grain-segments")}
             onBlur={() => handleFocus(null)}
           />
         </DashboardPropertyGroup>
@@ -113,8 +129,8 @@ export default function DashboardInputPanel({
             id="throat-diameter"
             label="Diametro Garganta"
             unit="mm"
-            value={dimensions.throatDiameter}
-            onChange={(v) => updateDimension("throatDiameter", v)}
+            value={displayValue(dimensions.throatDiameter)}
+            onChange={(v) => handleDimensionChange("throatDiameter", v)}
             onFocus={() => handleFocus("nozzle-throat")}
             onBlur={() => handleFocus(null)}
           />
@@ -122,8 +138,8 @@ export default function DashboardInputPanel({
             id="conv-angle"
             label="Angulo Conv."
             unit="deg"
-            value={dimensions.convergenceAngle}
-            onChange={(v) => updateDimension("convergenceAngle", v)}
+            value={displayValue(dimensions.convergenceAngle)}
+            onChange={(v) => handleDimensionChange("convergenceAngle", v)}
             onFocus={() => handleFocus("nozzle-convergence")}
             onBlur={() => handleFocus(null)}
           />
@@ -131,8 +147,8 @@ export default function DashboardInputPanel({
             id="div-angle"
             label="Angulo Div."
             unit="deg"
-            value={dimensions.divergenceAngle}
-            onChange={(v) => updateDimension("divergenceAngle", v)}
+            value={displayValue(dimensions.divergenceAngle)}
+            onChange={(v) => handleDimensionChange("divergenceAngle", v)}
             onFocus={() => handleFocus("nozzle-divergence")}
             onBlur={() => handleFocus(null)}
           />
@@ -142,7 +158,6 @@ export default function DashboardInputPanel({
         <DashboardPropertyGroup title="Propelente">
           <div className={styles.staticRow}>
             <span className={styles.staticLabel}>Nome</span>
-            {/* Uso do fallback caso propellant seja undefined */}
             <span className={styles.staticValue}>{propellant?.name || "N/A"}</span>
           </div>
 
