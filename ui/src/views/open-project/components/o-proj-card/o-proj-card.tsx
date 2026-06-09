@@ -68,7 +68,7 @@ export default function OpenProjectCard({
   onDelete,
   onNavigate,
 }: OpenProjectCardProps) {
-    const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`http://localhost:8080/api/projects/${id}`, {
         method: "DELETE",
@@ -94,6 +94,7 @@ export default function OpenProjectCard({
         title: "Deletion Failed",
         message: "Failed to delete project.",
       });
+      console.error("Error deleting project:", error);
     }
   };
 

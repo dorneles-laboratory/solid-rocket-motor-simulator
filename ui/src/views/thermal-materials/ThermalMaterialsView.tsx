@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { FooterProps } from '../../components/layout/footer/footer';
-import styles from './ThermalMaterialsView.module.css';
-import { Button } from '../../ui/button/button';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { showToast } from '../../ui/toast/toast-container';
-import { useShortcut } from '../../hooks/use-shortcut';
-import ThermalHeader from './components/thermal-header/therm-header';
-import ThermalMaterialsModal from './components/therm-modal/therm-modal';
-import image from '../../assets/thermal-materials.png';
+import { useEffect, useState } from "react";
+import { FooterProps } from "../../components/layout/footer/footer";
+import styles from "./ThermalMaterialsView.module.css";
+import { Button } from "../../ui/button/button";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { showToast } from "../../ui/toast/toast-container";
+import { useShortcut } from "../../hooks/use-shortcut";
+import ThermalHeader from "./components/thermal-header/therm-header";
+import ThermalMaterialsModal from "./components/therm-modal/therm-modal";
+import image from "../../assets/thermal-materials.png";
 export interface ThermalMaterial {
   id: string;
   name: string;
@@ -22,17 +22,20 @@ interface ThermalMaterialsViewProps {
   setFooter: (data: FooterProps) => void;
 }
 
-export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsViewProps) {
+export default function ThermalMaterialsView({
+  setFooter,
+}: ThermalMaterialsViewProps) {
   useEffect(() => {
     setFooter({
-      description: "Descubra uma ampla seleção de materiais térmicos para sua nave espacial, incluindo isolantes térmicos e materiais de proteção contra calor.",
-      rightText: "Em breve uma nova funcionalidade."
+      description:
+        "Descubra uma ampla seleção de materiais térmicos para sua nave espacial, incluindo isolantes térmicos e materiais de proteção contra calor.",
+      rightText: "Em breve uma nova funcionalidade.",
     });
   }, [setFooter]);
 
-    const [thermalMaterials, setThermalMaterials] = useState<
-    ThermalMaterial[]
-  >([]);
+  const [thermalMaterials, setThermalMaterials] = useState<ThermalMaterial[]>(
+    [],
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,7 +60,7 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
   const fetchThermalMaterials = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/thermal-materials"
+        "http://localhost:8080/api/thermal-materials",
       );
       if (response.ok) {
         const data = await response.json();
@@ -69,6 +72,7 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
         title: "Fetch Failed",
         message: "Failed to fetch thermal materials.",
       });
+      console.error("Error fetching thermal materials:", error);
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +83,7 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
     setIsModalOpen(true);
   };
 
-  useShortcut('t', handleAddNew, { ctrl: true });
+  useShortcut("t", handleAddNew, { ctrl: true });
 
   const handleEdit = (material: ThermalMaterial) => {
     setEditingThermalMaterial(material);
@@ -92,7 +96,7 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
         `http://localhost:8080/api/thermal-materials/${id}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (response.ok) {
         showToast({
@@ -114,18 +118,19 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
         title: "Deletion Failed",
         message: "Failed to delete thermal material.",
       });
+      console.error("Error deleting thermal material:", error);
     }
   };
 
   const handleModalSuccess = (
     savedThermalMaterial: ThermalMaterial,
-    isEdit: boolean
+    isEdit: boolean,
   ) => {
     if (isEdit) {
       setThermalMaterials((prev) =>
         prev.map((m) =>
-          m.id === savedThermalMaterial.id ? savedThermalMaterial : m
-        )
+          m.id === savedThermalMaterial.id ? savedThermalMaterial : m,
+        ),
       );
     } else {
       setThermalMaterials((prev) => [...prev, savedThermalMaterial]);
@@ -189,9 +194,7 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
               </span>
 
               {/* APPLICATION */}
-              <span className={styles.textColumn}>
-                {material.applications}
-              </span>
+              <span className={styles.textColumn}>{material.applications}</span>
 
               {/* ACTIONS */}
               <div className={styles.actions}>
@@ -230,8 +233,8 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
                 </h1>
 
                 <p className={styles.noItensSubtitle}>
-                  Crie um novo material para começar a desenvolver seu motor sólido.
-                  Aperte{" "}
+                  Crie um novo material para começar a desenvolver seu motor
+                  sólido. Aperte{" "}
                   <strong className={styles.keyboard_shortcut}>
                     {" "}
                     Ctrl + T{" "}
@@ -254,4 +257,3 @@ export default function ThermalMaterialsView({ setFooter }: ThermalMaterialsView
     </section>
   );
 }
-

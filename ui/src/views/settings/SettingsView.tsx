@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { showToast } from "../../ui/toast/toast-container";
 
-const isTauri = '__TAURI_INTERNALS__' in window || '__TAURI_IPC__' in window;
+const isTauri = "__TAURI_INTERNALS__" in window || "__TAURI_IPC__" in window;
 const store = new LazyStore(".user-settings.json");
 interface SettingsViewProps {
   setFooter: (data: FooterProps) => void;
@@ -29,8 +29,15 @@ const UNIT_OPTIONS = {
   temperature: ["K", "C", "F", "R"],
 };
 
-export interface SettingsData {
-  theme: string;
+type Theme = "light" | "dark" | "system";
+
+interface AppearanceSettings {
+  theme: Theme;
+  language: string;
+}
+
+interface SettingsData {
+  theme: Theme;
   unitSystem: UnitSystemMode;
   preferences: UnitPreferences;
   localization: {
@@ -42,8 +49,8 @@ export interface SettingsData {
 export default function SettingsView({ setFooter }: SettingsViewProps) {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const [ mounted, setMounted] = useState(false);
-  const [ _systemIsDark, setSystemIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [, setSystemIsDark] = useState(false);
 
   const [settingsData, setSettingsData] = useState<SettingsData>({
     theme: theme,
@@ -55,7 +62,7 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
       temperature: "K",
     },
     localization: {
-      language: i18n.language || "pt-BR", 
+      language: i18n.language || "pt-BR",
     },
     autoSave: false,
   });
@@ -67,7 +74,9 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
         let loadedLanguage = i18n.language;
 
         if (isTauri) {
-          const appearance: any = await store.get("appearance");
+          const appearance = (await store.get(
+            "appearance",
+          )) as AppearanceSettings | null;
           if (appearance) {
             loadedTheme = appearance.theme || theme;
             loadedLanguage = appearance.language || i18n.language;
@@ -80,30 +89,33 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
           remoteData = await response.json();
         }
 
-        if(remoteData === null || remoteData === undefined) {
+        if (remoteData === null || remoteData === undefined) {
           showToast({
             type: "warning",
             title: "Load Failed",
             message: "No settings data received from server, using defaults.",
           });
-          
+
           handleSave();
         }
 
-        setSettingsData(prev => ({
+        setSettingsData((prev) => ({
           theme: loadedTheme,
           localization: { language: loadedLanguage },
           unitSystem: remoteData?.unitSystem || prev.unitSystem,
           preferences: remoteData?.preferences || prev.preferences,
-          autoSave: remoteData?.autoSave !== undefined ? remoteData.autoSave : prev.autoSave
+          autoSave:
+            remoteData?.autoSave !== undefined
+              ? remoteData.autoSave
+              : prev.autoSave,
         }));
-
       } catch (error) {
         showToast({
           type: "error",
           title: "Load Failed",
           message: "An error occurred while loading saved settings.",
         });
+        console.error("Error loading settings:", error);
       }
     };
     loadSavedSettings();
@@ -117,7 +129,10 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
-    setSettingsData({...settingsData, localization: {...settingsData.localization, language: newLang}});
+    setSettingsData({
+      ...settingsData,
+      localization: { ...settingsData.localization, language: newLang },
+    });
   };
 
   const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
@@ -142,20 +157,33 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
     if (settingsData.unitSystem === "metric") {
       setSettingsData({
         ...settingsData,
-        preferences: { length: "mm", pressure: "MPa", force: "N", temperature: "K" }
+        preferences: {
+          length: "mm",
+          pressure: "MPa",
+          force: "N",
+          temperature: "K",
+        },
       });
     } else if (settingsData.unitSystem === "imperial") {
       setSettingsData({
         ...settingsData,
-        preferences: { length: "in", pressure: "psi", force: "lbf", temperature: "R" }
+        preferences: {
+          length: "in",
+          pressure: "psi",
+          force: "lbf",
+          temperature: "R",
+        },
       });
     }
   }, [settingsData.unitSystem]);
 
-  const handleCustomUnitChange = (key: keyof UnitPreferences, value: string) => {
+  const handleCustomUnitChange = (
+    key: keyof UnitPreferences,
+    value: string,
+  ) => {
     setSettingsData({
       ...settingsData,
-      preferences: { ...settingsData.preferences, [key]: value }
+      preferences: { ...settingsData.preferences, [key]: value },
     });
   };
 
@@ -171,7 +199,8 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
         showToast({
           type: "warning",
           title: "Running in Web Mode",
-          message: "Native Tauri saving is unavailable. Changes will not persist.",
+          message:
+            "Native Tauri saving is unavailable. Changes will not persist.",
         });
       }
 
@@ -204,19 +233,19 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
         });
         throw new Error("Falha ao salvar as configurações no servidor.");
       }
-      
+
       showToast({
         type: "success",
         title: "Settings Saved",
         message: "Your settings have been saved successfully.",
       });
-
     } catch (error) {
       showToast({
         type: "error",
         title: "Save Failed",
         message: "An error occurred while saving settings.",
       });
+      console.error("Error saving settings:", error);
     }
   };
 
@@ -227,21 +256,22 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
   return (
     <section className={styles.settings_view}>
       <div className={styles.contentPadding}>
-        
         {/* Localização e Geral Section */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{t("settings.localization.title")}</h2>
+            <h2 className={styles.sectionTitle}>
+              {t("settings.localization.title")}
+            </h2>
             <p className={styles.sectionSubtitle}>
               {t("settings.localization.subtitle")}
             </p>
           </div>
-          
+
           <div className={styles.card}>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Idioma (Language)</label>
-              <select 
-                value={settingsData.localization.language} 
+              <select
+                value={settingsData.localization.language}
                 onChange={handleLanguageChange}
                 className={`${styles.input} ${styles.select}`}
               >
@@ -259,16 +289,23 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
               Comportamento geral de salvamento.
             </p>
           </div>
-          
+
           <div className={styles.card}>
             <div className={styles.fieldGroup}>
               <div className={styles.toggleWrapper}>
-                <label className={styles.label}>Auto-Save (Salvar alterações automaticamente)</label>
+                <label className={styles.label}>
+                  Auto-Save (Salvar alterações automaticamente)
+                </label>
                 <label className={styles.toggle}>
                   <input
                     type="checkbox"
                     checked={settingsData.autoSave}
-                    onChange={(e) => setSettingsData({...settingsData, autoSave: e.target.checked})}
+                    onChange={(e) =>
+                      setSettingsData({
+                        ...settingsData,
+                        autoSave: e.target.checked,
+                      })
+                    }
                     className={styles.toggleInput}
                   />
                   <span className={styles.toggleSlider}></span>
@@ -277,7 +314,7 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
             </div>
           </div>
         </section>
-        
+
         {/* Simulation Preferences Section */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -286,91 +323,132 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
               Configurações padrão para cálculos e unidades.
             </p>
           </div>
-          
+
           <div className={styles.card}>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Sistema de Unidades</label>
-              
+
               <div className={styles.radioGroup}>
-                {(["metric", "imperial", "custom"] as UnitSystemMode[]).map((mode) => (
-                  <div className={styles.radioItem} key={mode}>
-                    <input 
-                      type="radio" 
-                      id={mode} 
-                      name="unitMode" 
-                      value={mode}
-                      checked={settingsData.unitSystem === mode}
-                      onChange={(e) => setSettingsData({...settingsData, unitSystem: e.target.value as UnitSystemMode})}
-                      className={styles.radioInput}
-                    />
-                    <label htmlFor={mode} className={styles.label}>
-                      {mode === "metric" ? "Métrico (SI)" : mode === "imperial" ? "Imperial" : "Personalizado"}
-                    </label>
-                  </div>
-                ))}
+                {(["metric", "imperial", "custom"] as UnitSystemMode[]).map(
+                  (mode) => (
+                    <div className={styles.radioItem} key={mode}>
+                      <input
+                        type="radio"
+                        id={mode}
+                        name="unitMode"
+                        value={mode}
+                        checked={settingsData.unitSystem === mode}
+                        onChange={(e) =>
+                          setSettingsData({
+                            ...settingsData,
+                            unitSystem: e.target.value as UnitSystemMode,
+                          })
+                        }
+                        className={styles.radioInput}
+                      />
+                      <label htmlFor={mode} className={styles.label}>
+                        {mode === "metric"
+                          ? "Métrico (SI)"
+                          : mode === "imperial"
+                            ? "Imperial"
+                            : "Personalizado"}
+                      </label>
+                    </div>
+                  ),
+                )}
               </div>
             </div>
-            
+
             {/* Tabela de Unidades (Dinâmica) */}
             <div className={styles.unitsTableWrapper}>
               <div className={styles.unitsGrid}>
-                
                 {/* Comprimento */}
                 <span>Comprimento:</span>
                 {settingsData.unitSystem === "custom" ? (
-                  <select 
-                    value={settingsData.preferences.length} 
-                    onChange={(e) => handleCustomUnitChange("length", e.target.value)}
+                  <select
+                    value={settingsData.preferences.length}
+                    onChange={(e) =>
+                      handleCustomUnitChange("length", e.target.value)
+                    }
                     className={`${styles.input} ${styles.select}`}
                   >
-                    {UNIT_OPTIONS.length.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {UNIT_OPTIONS.length.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
                   </select>
                 ) : (
-                  <span className={styles.fontMono}>{settingsData.preferences.length}</span>
+                  <span className={styles.fontMono}>
+                    {settingsData.preferences.length}
+                  </span>
                 )}
 
                 {/* Pressão */}
                 <span>Pressão:</span>
                 {settingsData.unitSystem === "custom" ? (
-                  <select 
-                    value={settingsData.preferences.pressure} 
-                    onChange={(e) => handleCustomUnitChange("pressure", e.target.value)}
+                  <select
+                    value={settingsData.preferences.pressure}
+                    onChange={(e) =>
+                      handleCustomUnitChange("pressure", e.target.value)
+                    }
                     className={`${styles.input} ${styles.select}`}
                   >
-                    {UNIT_OPTIONS.pressure.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {UNIT_OPTIONS.pressure.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
                   </select>
                 ) : (
-                  <span className={styles.fontMono}>{settingsData.preferences.pressure}</span>
+                  <span className={styles.fontMono}>
+                    {settingsData.preferences.pressure}
+                  </span>
                 )}
 
                 {/* Força */}
                 <span>Força:</span>
                 {settingsData.unitSystem === "custom" ? (
-                  <select 
-                    value={settingsData.preferences.force} 
-                    onChange={(e) => handleCustomUnitChange("force", e.target.value)}
+                  <select
+                    value={settingsData.preferences.force}
+                    onChange={(e) =>
+                      handleCustomUnitChange("force", e.target.value)
+                    }
                     className={`${styles.input} ${styles.select}`}
                   >
-                    {UNIT_OPTIONS.force.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {UNIT_OPTIONS.force.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
                   </select>
                 ) : (
-                  <span className={styles.fontMono}>{settingsData.preferences.force}</span>
+                  <span className={styles.fontMono}>
+                    {settingsData.preferences.force}
+                  </span>
                 )}
 
                 {/* Temperatura */}
                 <span>Temperatura:</span>
                 {settingsData.unitSystem === "custom" ? (
-                  <select 
-                    value={settingsData.preferences.temperature} 
-                    onChange={(e) => handleCustomUnitChange("temperature", e.target.value)}
+                  <select
+                    value={settingsData.preferences.temperature}
+                    onChange={(e) =>
+                      handleCustomUnitChange("temperature", e.target.value)
+                    }
                     className={`${styles.input} ${styles.select}`}
                   >
-                    {UNIT_OPTIONS.temperature.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {UNIT_OPTIONS.temperature.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
                   </select>
                 ) : (
-                  <span className={styles.fontMono}>{settingsData.preferences.temperature}</span>
+                  <span className={styles.fontMono}>
+                    {settingsData.preferences.temperature}
+                  </span>
                 )}
-
               </div>
             </div>
           </div>
@@ -408,7 +486,10 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
                 onClick={() => handleThemeChange("system")}
                 className={`${styles.themeBtn} ${isSystemActive ? styles.themeBtnActive : styles.themeBtnInactive}`}
               >
-                <Monitor className={styles.themeIconMonitor} strokeWidth={1.5} />
+                <Monitor
+                  className={styles.themeIconMonitor}
+                  strokeWidth={1.5}
+                />
                 <span className={styles.themeBtnText}>Sistema</span>
               </button>
             </div>
@@ -421,8 +502,7 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
             Salvar Configurações
           </button>
         </div>
-        
       </div>
     </section>
-  )
+  );
 }

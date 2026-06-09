@@ -77,6 +77,7 @@ export default function PropellantsModal({
         title: "Save Failed",
         message: "Failed to save propellant.",
       });
+      console.error("Error saving propellant:", error);
     }
   };
 

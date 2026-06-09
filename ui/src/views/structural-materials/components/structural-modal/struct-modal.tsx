@@ -76,6 +76,7 @@ export default function StructuralMaterialsModal({
         title: "Save Failed",
         message: "Failed to save structural material.",
       });
+      console.error("Error saving structural material:", error);
     }
   };
 
@@ -96,7 +97,10 @@ export default function StructuralMaterialsModal({
           </button>
         </div>
 
-        <form onSubmit={handleSaveStructuralMaterial} className={styles.modalForm}>
+        <form
+          onSubmit={handleSaveStructuralMaterial}
+          className={styles.modalForm}
+        >
           <div className={styles.formGroup}>
             <label>Nome</label>
             <input

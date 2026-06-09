@@ -30,5 +30,16 @@ export default defineConfig(({mode}) => {
         ignored: ["**/src-tauri/**"],
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            icons: ['lucide-react'], 
+            math: ['katex']
+          }
+        }
+      }
+    }
   };
 });

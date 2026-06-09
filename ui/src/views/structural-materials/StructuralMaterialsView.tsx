@@ -52,7 +52,7 @@ export default function StructuralMaterialsView({
   const fetchStructuralMaterials = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/structural-materials"
+        "http://localhost:8080/api/structural-materials",
       );
       if (response.ok) {
         const data = await response.json();
@@ -64,6 +64,7 @@ export default function StructuralMaterialsView({
         title: "Fetch Failed",
         message: "Failed to fetch structural materials.",
       });
+      console.error("Error fetching structural materials:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +75,7 @@ export default function StructuralMaterialsView({
     setIsModalOpen(true);
   };
 
-  useShortcut('m', handleAddNew, { ctrl: true });
+  useShortcut("m", handleAddNew, { ctrl: true });
 
   const handleEdit = (material: StructuralMaterial) => {
     setEditingStructuralMaterial(material);
@@ -87,7 +88,7 @@ export default function StructuralMaterialsView({
         `http://localhost:8080/api/structural-materials/${id}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (response.ok) {
         showToast({
@@ -109,18 +110,19 @@ export default function StructuralMaterialsView({
         title: "Deletion Failed",
         message: "Failed to delete structural material.",
       });
+      console.error("Error deleting structural material:", error);
     }
   };
 
   const handleModalSuccess = (
     savedStructuralMaterial: StructuralMaterial,
-    isEdit: boolean
+    isEdit: boolean,
   ) => {
     if (isEdit) {
       setStructuralMaterials((prev) =>
         prev.map((m) =>
-          m.id === savedStructuralMaterial.id ? savedStructuralMaterial : m
-        )
+          m.id === savedStructuralMaterial.id ? savedStructuralMaterial : m,
+        ),
       );
     } else {
       setStructuralMaterials((prev) => [...prev, savedStructuralMaterial]);
@@ -219,8 +221,8 @@ export default function StructuralMaterialsView({
                 </h1>
 
                 <p className={styles.noItensSubtitle}>
-                  Crie um novo material para começar a desenvolver seu motor sólido.
-                  Aperte{" "}
+                  Crie um novo material para começar a desenvolver seu motor
+                  sólido. Aperte{" "}
                   <strong className={styles.keyboard_shortcut}>
                     {" "}
                     Ctrl + M{" "}

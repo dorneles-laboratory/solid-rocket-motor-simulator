@@ -77,6 +77,7 @@ export default function ThermalMaterialsModal({
         title: "Save Failed",
         message: "Failed to save thermal material.",
       });
+      console.error("Error saving thermal material:", error);
     }
   };
 
@@ -175,7 +176,7 @@ export default function ThermalMaterialsModal({
               />
             </div>
           </div>
-          
+
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>Aplicações</label>
@@ -191,7 +192,7 @@ export default function ThermalMaterialsModal({
               />
             </div>
           </div>
-        
+
           <div className={styles.modalFooter}>
             <Button type="button" variant="ghost" onClick={closeModal}>
               Cancelar

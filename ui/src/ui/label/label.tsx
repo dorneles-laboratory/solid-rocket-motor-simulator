@@ -1,12 +1,8 @@
-import styles from "./label.module.css"
+import styles from "./label.module.css";
 
-interface LabelProps
-  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>;
 
-export default function Label({
-  className = "",
-  ...props
-}: LabelProps) {
+export default function Label({ className = "", ...props }: LabelProps) {
   return (
     <label
       className={`
@@ -15,5 +11,5 @@ export default function Label({
       `}
       {...props}
     />
-  )
+  );
 }

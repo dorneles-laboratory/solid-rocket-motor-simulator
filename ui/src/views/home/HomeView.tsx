@@ -7,7 +7,8 @@ import { ProjectData } from "../dashboard/DashboardView";
 import { HomeCardLastProject } from "./components/home-card-last-project";
 import { formatDate } from "../../utils/formatDate";
 
-const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+const isTauri =
+  typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 interface HomeViewProps {
   setFooter: (data: FooterProps) => void;
@@ -38,12 +39,15 @@ export default function HomeView({ setFooter, onNavigate }: HomeViewProps) {
 
     const fetchLastProject = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/projects/recent`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `http://localhost:8080/api/projects/recent`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error("Falha ao buscar dados da API");
@@ -57,6 +61,7 @@ export default function HomeView({ setFooter, onNavigate }: HomeViewProps) {
           title: "Erro de Comunicação",
           message: "Não foi possível carregar os projetos recentes.",
         });
+        console.error("Error fetching recent projects:", error);
       }
     };
 
