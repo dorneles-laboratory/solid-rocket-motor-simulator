@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 public class ProjectService {
@@ -22,8 +24,16 @@ public class ProjectService {
     return repository.save(project);
   }
 
-  public java.util.Optional<Project> getById(UUID id) {
+  public Optional<Project> getById(UUID id) {
     return repository.findById(id);
+  }
+
+   public Optional<Project> openProject(UUID id) {
+    return repository.findById(id)
+          .map(project -> {
+              project.setLastOpenedAt(LocalDateTime.now());
+              return repository.save(project);
+          });
   }
 
   public Project update(UUID id, Project updated) {
@@ -39,6 +49,15 @@ public class ProjectService {
       existing.setMaxThrust(updated.getMaxThrust());
       existing.setImpulseClass(updated.getImpulseClass());
       existing.setStatus(updated.getStatus());
+      existing.setMotorChamberDiameter(updated.getMotorChamberDiameter());
+      existing.setMotorChamberLength(updated.getMotorChamberLength());
+      existing.setGrainOuterDiameter(updated.getGrainOuterDiameter());
+      existing.setGrainInnerDiameter(updated.getGrainInnerDiameter());
+      existing.setGrainSegmentsLength(updated.getGrainSegmentsLength());
+      existing.setGrainSegments(updated.getGrainSegments());
+      existing.setNozzleThroatDiameter(updated.getNozzleThroatDiameter());
+      existing.setNozzleConvergenceAngle(updated.getNozzleConvergenceAngle());
+      existing.setNozzleDivergenceAngle(updated.getNozzleDivergenceAngle());
       return repository.save(existing);
     }).orElseThrow(() -> new RuntimeException("Project não encontrado"));
   }
@@ -49,5 +68,9 @@ public class ProjectService {
       return true;
     }
     return false;
+  }
+
+  public List<Project> getRecentProjects() {
+    return repository.findTop3ByOrderByLastOpenedAtDesc();
   }
 }

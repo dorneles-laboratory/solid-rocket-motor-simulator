@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 3rem;
+  height: 2.5rem;
   flex-shrink: 0;
   padding-inline: 1rem;
   border-bottom: 1px solid var(--border);
@@ -41,4 +41,84 @@
   font-family: monospace;
   font-size: 10px;
   font-weight: 600;
+}
+
+/* =========================================
+   NOVAS CLASSES: STATUS CLOUD E CONTAINER
+   ========================================= */
+
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Espaçamento entre o status e o botão */
+}
+
+.statusCloud {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-inline: 0.625rem;
+  padding-block: 0.25rem;
+  border-radius: 9999px; /* Formato de pílula */
+  border: 1px solid transparent;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+/* Estados da Nuvem usando color-mix para manter a harmonia do seu design */
+
+.saved {
+  color: #10b981; /* Verde esmeralda moderno */
+  background: color-mix(in srgb, #10b981, transparent 90%);
+  border-color: color-mix(in srgb, #10b981, transparent 70%);
+}
+
+.saving {
+  color: var(--primary); /* Usa a cor primária do tema para mostrar atividade */
+  background: color-mix(in srgb, var(--primary), transparent 90%);
+  border-color: color-mix(in srgb, var(--primary), transparent 70%);
+  animation: pulseCloud 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.unsaved {
+  color: #f59e0b; /* Laranja âmbar para pendências */
+  background: color-mix(in srgb, #f59e0b, transparent 90%);
+  border-color: color-mix(in srgb, #f59e0b, transparent 70%);
+}
+
+@keyframes pulseCloud {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* =========================================
+   BOTÃO APPLY
+   ========================================= */
+
+.applyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 1.75rem; /* h-7 */
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0 0.75rem;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  border-radius: 0.125rem; /* Leve arredondamento para ficar mais moderno, ajuste se necessário */
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.applyButton:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--primary) 90%, transparent);
 }

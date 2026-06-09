@@ -63,6 +63,33 @@ public class Project {
   @Column(name = "status", nullable = false)
   private ProjectStatus status = ProjectStatus.DRAFT;
 
+  @Column(name = "motor_chamber_diameter", nullable = true)
+  private Double motorChamberDiameter;
+
+  @Column(name = "motor_chamber_length", nullable = true)
+  private Double motorChamberLength;
+
+  @Column(name = "grain_outer_diameter", nullable = true)
+  private Double grainOuterDiameter;
+
+  @Column(name = "grain_inner_diameter", nullable = true)
+  private Double grainInnerDiameter;
+
+  @Column(name = "grain_length", nullable = true)
+  private Double grainSegmentsLength;
+
+  @Column(name = "grain_segments", nullable = true)
+  private Double grainSegments;
+
+  @Column(name = "nozzle_throat_diameter", nullable = true)
+  private Double nozzleThroatDiameter;
+
+  @Column(name = "nozzle_exit_diameter", nullable = true)
+  private Double nozzleConvergenceAngle;
+
+  @Column(name = "nozzle_divergence_angle", nullable = true)
+  private Double nozzleDivergenceAngle;
+
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
@@ -70,4 +97,7 @@ public class Project {
   @LastModifiedDate
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  @Column(name = "last_opened_at")
+  private LocalDateTime lastOpenedAt;
 }

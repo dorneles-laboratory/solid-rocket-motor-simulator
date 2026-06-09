@@ -4,6 +4,8 @@
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-store": "^2.4.3",
     "i18next": "^26.3.0",
@@ -13,6 +15,7 @@
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
     "remark-math": "^6.0.0",
-    "tauri-plugin-store-api": "^0.0.0"
+    "tauri-plugin-store-api": "^0.0.0",
+    "three": "^0.184.0"
   }
 }

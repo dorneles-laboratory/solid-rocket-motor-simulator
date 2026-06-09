@@ -86,86 +86,85 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void seedPropellants() {
         if (propellantRepository.count() == 0) {
             logger.info("Semeando tabela de Propelentes (Propellant)...");
+
+            List<Propellant> propellants = new ArrayList<>();
             
             Propellant knsbFine = new Propellant();
             knsbFine.setName("KNSB Fine");
-            knsbFine.setDensity(1.841);
-            knsbFine.setBurnRateA(8.26);
+            knsbFine.setDensity(1841.0);
+            knsbFine.setBurnRateA(0.000100688);
             knsbFine.setBurnRateN(0.319);
-            knsbFine.setTheoreticalIsp(164);
+            knsbFine.setTheoreticalIsp(164.0);
             knsbFine.setType("Sugar");
-
-            propellantRepository.save(knsbFine);
+            propellants.add(knsbFine);
 
             Propellant kndxCoarse = new Propellant();
             kndxCoarse.setName("KNDX Coarse");
-            kndxCoarse.setDensity(1.879);
-            kndxCoarse.setBurnRateA(5.13);
+            kndxCoarse.setDensity(1879.0);
+            kndxCoarse.setBurnRateA(0.000245537);
             kndxCoarse.setBurnRateN(0.220);
-            kndxCoarse.setTheoreticalIsp(177);
+            kndxCoarse.setTheoreticalIsp(177.0);
             kndxCoarse.setType("Sugar");
-
-            propellantRepository.save(kndxCoarse);
+            propellants.add(kndxCoarse);
 
             Propellant knsu = new Propellant();
             knsu.setName("KNSU");
-            knsu.setDensity(1.889);
-            knsu.setBurnRateA(8.26);
+            knsu.setDensity(1889.0);
+            knsu.setBurnRateA(0.000100688);
             knsu.setBurnRateN(0.319);
-            knsu.setTheoreticalIsp(166);
+            knsu.setTheoreticalIsp(166.0);
             knsu.setType("Sugar");
-
-            propellantRepository.save(knsu);
+            propellants.add(knsu);
 
             Propellant kner = new Propellant();
             kner.setName("KNER");
-            kner.setDensity(1.820);
-            kner.setBurnRateA(7.55);
+            kner.setDensity(1820.0);
+            kner.setBurnRateA(0.000111672);
             kner.setBurnRateN(0.305);
-            kner.setTheoreticalIsp(158);
+            kner.setTheoreticalIsp(158.0);
             kner.setType("Sugar");
-
-            propellantRepository.save(kner);
+            propellants.add(kner);
 
             Propellant apcp701515 = new Propellant();
             apcp701515.setName("APCP 70/15/15");
-            apcp701515.setDensity(1.750);
-            apcp701515.setBurnRateA(3.84);
+            apcp701515.setDensity(1750.0);
+            apcp701515.setBurnRateA(0.000020152);
             apcp701515.setBurnRateN(0.380);
-            apcp701515.setTheoreticalIsp(265);
+            apcp701515.setTheoreticalIsp(265.0);
             apcp701515.setType("Composite");
-
-            propellantRepository.save(apcp701515);
+            propellants.add(apcp701515);
 
             Propellant apcp801010 = new Propellant();
             apcp801010.setName("APCP 80/10/10");
-            apcp801010.setDensity(1.820);
-            apcp801010.setBurnRateA(4.21);
+            apcp801010.setDensity(1820.0);
+            apcp801010.setBurnRateA(0.000014597);
             apcp801010.setBurnRateN(0.410);
-            apcp801010.setTheoreticalIsp(275);
+            apcp801010.setTheoreticalIsp(275.0);
             apcp801010.setType("Composite");
-
-            propellantRepository.save(apcp801010);
+            propellants.add(apcp801010);
 
             Propellant apcpBlueThunder = new Propellant();
             apcpBlueThunder.setName("APCP Blue Thunder");
-            apcpBlueThunder.setDensity(1.790);
-            apcpBlueThunder.setBurnRateA(5.10);
+            apcpBlueThunder.setDensity(1790.0);
+            apcpBlueThunder.setBurnRateA(0.000040510);
             apcpBlueThunder.setBurnRateN(0.350);
-            apcpBlueThunder.setTheoreticalIsp(260);
+            apcpBlueThunder.setTheoreticalIsp(260.0);
             apcpBlueThunder.setType("Composite");
-            
-            propellantRepository.save(apcpBlueThunder);
+            propellants.add(apcpBlueThunder);
 
             Propellant knsbCoarse = new Propellant();
             knsbCoarse.setName("KNSB Coarse");
-            knsbCoarse.setDensity(1.750);
-            knsbCoarse.setBurnRateA(5.13);
+            knsbCoarse.setDensity(1750.0);
+            knsbCoarse.setBurnRateA(0.000245537);
             knsbCoarse.setBurnRateN(0.220);
-            knsbCoarse.setTheoreticalIsp(164);
+            knsbCoarse.setTheoreticalIsp(164.0);
             knsbCoarse.setType("Sugar");
+            propellants.add(knsbCoarse);
 
-            propellantRepository.save(knsbCoarse);
+            propellantRepository.saveAll(propellants);
+            logger.info("Catálogo de Propelentes populado com sucesso!");
+        } else {
+            logger.info("Propelentes já existem. Pulando...");
         }
     }
 

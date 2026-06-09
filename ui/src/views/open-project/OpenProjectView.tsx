@@ -15,12 +15,12 @@ export interface Project {
   name: string;
   author: string;
   missionObjective: string;
-  maxDiameter: string;
-  maxLength: string;
+  maxDiameter: number;
+  maxLength: number;
   propellantId: string;
-  targetImpulse: string;
-  targetBurnTime: string;
-  maxThrust: string;
+  targetImpulse: number;
+  targetBurnTime: number;
+  maxThrust: number;
   impulseClass: ImpulseClass;
   status: ProjectStatus;
   createdAt: string;

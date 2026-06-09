@@ -18,28 +18,11 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ImpulseClass, ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
 
-type impulseClass =
-  | "A"
-  | "B"
-  | "C"
-  | "D"
-  | "E"
-  | "F"
-  | "G"
-  | "H"
-  | "I"
-  | "J"
-  | "K"
-  | "L"
-  | "M"
-  | "N"
-  | "O"
-  | "-";
-
-// Função auxiliar para calcular a classe do motor baseada no impulso
-const getImpulseClass = (impulseValue: string): impulseClass => {
+const getImpulseClass = (impulseValue: string): ImpulseClass => {
   const i = parseFloat(impulseValue);
+
   if (isNaN(i) || i <= 0) return "-";
   if (i <= 2.5) return "A";
   if (i <= 5.0) return "B";
@@ -55,6 +38,7 @@ const getImpulseClass = (impulseValue: string): impulseClass => {
   if (i <= 5120.0) return "L";
   if (i <= 10240.0) return "M";
   if (i <= 20480.0) return "N";
+
   return "O";
 };
 
@@ -68,7 +52,7 @@ interface Propellant {
   type: string;
 }
 
-const initialFormData = {
+const initialFormData: ProjectData = {
   name: "",
   author: "",
   missionObjective: "",
@@ -78,7 +62,21 @@ const initialFormData = {
   targetImpulse: "",
   targetBurnTime: "",
   maxThrust: "",
+  status: "draft",
 };
+
+export interface ProjectData {
+  name: string;
+  author?: string;
+  missionObjective?: string;
+  maxDiameter: string;
+  maxLength?: string;
+  propellantId: string;
+  targetImpulse?: string;
+  targetBurnTime?: string;
+  maxThrust?: string;
+  status: ProjectStatus;
+}
 
 interface NewProjectViewProps {
   onNavigate: (view: string) => void;
@@ -95,7 +93,7 @@ export default function NewProjectView({
   const [propellants, setPropellants] = useState<Propellant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<ProjectData>(initialFormData);
 
   useEffect(() => {
     setFooter({
@@ -142,10 +140,15 @@ export default function NewProjectView({
     e.preventDefault();
 
     try {
+      const payload = {
+        ...formData,
+        impulseClass: getImpulseClass(formData.targetImpulse ?? ""),
+      };
+
       const response = await fetch("http://localhost:8080/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -156,7 +159,9 @@ export default function NewProjectView({
         });
 
         setFormData(initialFormData);
-        onNavigate("dashboard");
+
+        const createdProject = await response.json();
+        onNavigate(`/dashboard?projectId=${createdProject.id}`);
       } else if (response.status === 409) {
         const errorMsg = await response.text();
         showToast({
@@ -175,7 +180,7 @@ export default function NewProjectView({
     }
   };
 
-  const impulseClass = getImpulseClass(formData.targetImpulse);
+  const impulseClass = getImpulseClass(formData.targetImpulse ?? "");
 
   return (
     <div className={styles.newProjectView}>

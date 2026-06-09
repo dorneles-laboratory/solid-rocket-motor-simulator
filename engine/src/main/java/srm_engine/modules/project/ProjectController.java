@@ -31,14 +31,23 @@ public class ProjectController {
         .orElse(ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/{id}/open")
+  public ResponseEntity<Project> openProject(@PathVariable UUID id) {
+    return service.openProject(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
   @PostMapping
   public ResponseEntity<Object> create(@RequestBody Project project) {
     try {
       Project created = service.create(project);
       return ResponseEntity.status(HttpStatus.CREATED).body(created);
     } catch (DataIntegrityViolationException e) {
+      e.printStackTrace();
+
       return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body("Já existe um projeto com este nome.");
+          .body(e.getMostSpecificCause().getMessage());
     }
   }
 
@@ -55,5 +64,10 @@ public class ProjectController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  @GetMapping("/recent")
+  public ResponseEntity<List<Project>> getRecentProjects() {
+      return ResponseEntity.ok(service.getRecentProjects());
   }
 }
