@@ -5,9 +5,9 @@ export type SimulationStatus = "SUCCESS" | "CATO" | "ERROR" | "TIMEOUT";
 export type IntegrationMethod = "EULER" | "RK4";
 
 export interface SimulationConfig {
-  timeStep: number;         // Passo de integração em segundos (ex: 0.001 para 1ms)
+  timeStep: number; // Passo de integração em segundos (ex: 0.001 para 1ms)
   method: IntegrationMethod; // Método matemático ("EULER" ou "RK4")
-  pointsCount: number;      // Quantidade de pontos no gráfico (ex: 100, 500, 1000)
+  pointsCount: number; // Quantidade de pontos no gráfico (ex: 100, 500, 1000)
 }
 
 export interface SimulationResult {
@@ -31,21 +31,25 @@ export interface SimulationResult {
 // Função auxiliar para subamostragem (downsampling) dos arrays de dados
 function downsample<T>(data: T[], targetCount: number): T[] {
   if (data.length <= targetCount || targetCount <= 0) return data;
-  
+
   const step = (data.length - 1) / (targetCount - 1);
   const result: T[] = [];
-  
+
   for (let i = 0; i < targetCount; i++) {
     result.push(data[Math.round(i * step)]);
   }
-  
+
   return result;
 }
 
 export function runMotorSimulation(
   project: ProjectData,
   propellant: Propellant,
-  config: SimulationConfig = { timeStep: 0.001, method: "EULER", pointsCount: 500 }
+  config: SimulationConfig = {
+    timeStep: 0.001,
+    method: "EULER",
+    pointsCount: 500,
+  },
 ): SimulationResult | null {
   if (!project || !propellant) return null;
 
@@ -92,14 +96,14 @@ export function runMotorSimulation(
     const expansionTerm = Math.pow(2 / (gamma + 1), (gamma + 1) / (gamma - 1));
 
     // 3. Configurações de Integração
-    const dt = config.timeStep; 
+    const dt = config.timeStep;
     let t = 0;
-    let Pc = pa * 1.5; 
-    
+    let Pc = pa * 1.5;
+
     // Arrays temporários de alta resolução
     const rawThrustData: { x: number; y: number }[] = [];
     const rawPressureData: { x: number; y: number }[] = [];
-    
+
     let totalImpulse = 0;
     let maxThrust = 0;
     let maxPressureBar = 0;
@@ -115,11 +119,15 @@ export function runMotorSimulation(
     let simulationStatus: SimulationStatus = "SUCCESS";
     let statusMessage = "Simulação concluída com sucesso.";
 
-    const MAX_TIME = 30; 
-    const CATO_PRESSURE_BAR = 200; 
+    const MAX_TIME = 30;
+    const CATO_PRESSURE_BAR = 200;
 
     // Função interna para calcular dPc/dt (Taxa de variação da pressão)
-    const calculateDPcDt = (currentPc: number, currentVc: number, currentAb: number) => {
+    const calculateDPcDt = (
+      currentPc: number,
+      currentVc: number,
+      currentAb: number,
+    ) => {
       const burnRate = a * Math.pow(currentPc, n);
       const m_in_rate = rho * currentAb * burnRate;
       const m_out_rate = currentPc > pa ? (currentPc * At) / cStar : 0;
@@ -134,7 +142,8 @@ export function runMotorSimulation(
 
       if (isBurning) {
         const coreArea = 2 * Math.PI * rCore * Lseg;
-        const endsArea = 2 * Math.PI * (Math.pow(rOuter, 2) - Math.pow(rCore, 2));
+        const endsArea =
+          2 * Math.PI * (Math.pow(rOuter, 2) - Math.pow(rCore, 2));
         Ab = (coreArea + endsArea) * segments;
         burnRate = a * Math.pow(Pc, n);
         m_in = rho * Ab * burnRate;
@@ -146,16 +155,16 @@ export function runMotorSimulation(
         const k2 = calculateDPcDt(Pc + 0.5 * dt * k1, Vc, Ab);
         const k3 = calculateDPcDt(Pc + 0.5 * dt * k2, Vc, Ab);
         const k4 = calculateDPcDt(Pc + dt * k3, Vc, Ab);
-        
+
         Pc += (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
       } else {
         // Método de Euler Padrão
         const dPc = calculateDPcDt(Pc, Vc, Ab) * dt;
         Pc += dPc;
       }
-      
-      if (Pc < pa) Pc = pa; 
-      
+
+      if (Pc < pa) Pc = pa;
+
       const currentPressureBar = Pc / 100000;
 
       // CHECAGEM DE FALHA CATASTRÓFICA (CATO)
@@ -196,8 +205,14 @@ export function runMotorSimulation(
         maxPressureBar = currentPressureBar;
 
       // Salvamos todos os dados para subamostragem posterior
-      rawThrustData.push({ x: Number(t.toFixed(4)), y: Number(thrust.toFixed(2)) });
-      rawPressureData.push({ x: Number(t.toFixed(4)), y: Number(currentPressureBar.toFixed(2)) });
+      rawThrustData.push({
+        x: Number(t.toFixed(4)),
+        y: Number(thrust.toFixed(2)),
+      });
+      rawPressureData.push({
+        x: Number(t.toFixed(4)),
+        y: Number(currentPressureBar.toFixed(2)),
+      });
 
       t += dt;
     }
@@ -245,7 +260,7 @@ export function runMotorSimulation(
     return {
       status: simulationStatus,
       message: statusMessage,
-      timeData: finalThrustData.map(d => d.x),
+      timeData: finalThrustData.map((d) => d.x),
       thrustData: finalThrustData,
       pressureData: finalPressureData,
       pointsCount: finalThrustData.length,
@@ -260,6 +275,7 @@ export function runMotorSimulation(
       },
     };
   } catch (error) {
+    console.error("Erro durante a simulação:", error);
     return generateErrorResult("Erro interno no cálculo termodinâmico.");
   }
 }

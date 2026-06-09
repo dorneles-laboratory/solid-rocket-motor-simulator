@@ -36,7 +36,7 @@ interface AppearanceSettings {
   language: string;
 }
 
-interface SettingsData {
+export interface SettingsData {
   theme: Theme;
   unitSystem: UnitSystemMode;
   preferences: UnitPreferences;
