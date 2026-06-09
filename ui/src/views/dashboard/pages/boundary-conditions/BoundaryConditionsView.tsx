@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Cloud, Thermometer, Mountain, Flame, Save } from "lucide-react"
 import styles from "./BoundaryConditionsView.module.css"
