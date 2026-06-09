@@ -1,14 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Cloud, Thermometer, Mountain, Flame, Save } from "lucide-react"
 import styles from "./BoundaryConditionsView.module.css"
+import { FooterProps } from "../../../../components/layout/footer/footer";
 
-export default function BoundaryConditionsView() {
+interface BoundaryConditionsViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function BoundaryConditionsView({ setFooter }: BoundaryConditionsViewProps) {
   const [ambientPressure, setAmbientPressure] = useState("1.0")
   const [ambientTemperature, setAmbientTemperature] = useState("25")
   const [launchElevation, setLaunchElevation] = useState("0")
   const [grainTemperature, setGrainTemperature] = useState("20")
+
+  useEffect(() => {
+    setFooter({
+      description: "Configuração de condições de contorno para simulações",
+      rightText: "Em breve uma nova funcionalidade."
+    });
+  }, [setFooter]);
 
   const handleSave = () => {
     console.log({
@@ -193,17 +205,7 @@ export default function BoundaryConditionsView() {
 // import { FooterProps } from '../../../../components/layout/footer/footer';
 // import styles from './BoundaryConditionsView.module.css';
 
-// interface BoundaryConditionsViewProps {
-//   setFooter: (data: FooterProps) => void;
-// }
 
-// export default function BoundaryConditionsView({ setFooter }: BoundaryConditionsViewProps) {
-//   useEffect(() => {
-//     setFooter({
-//       description: "Configuração de condições de contorno para simulações",
-//       rightText: "Em breve uma nova funcionalidade."
-//     });
-//   }, [setFooter]);
 
 //   return (
 //     <section className={styles.boundary_conditions_view}>
