@@ -5,9 +5,9 @@ import {
   FolderPlus as IconPlus, 
   FolderOpen as IconFolder, 
   LayoutDashboard as IconDashboard,
-  Shapes as IconGeometry,
-  Gauge as IconBoundary,
-  FileText as IconReports,
+  // Shapes as IconGeometry,
+  // Gauge as IconBoundary,
+  // FileText as IconReports,
   Layers as IconStructural,
   Cog as IconMotors,
   Flame as IconThermal,
@@ -81,15 +81,15 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             onClick={() => onNavigate("dashboard")}
             active={activeView === "dashboard"}
           />
-          <NavItem
+          {/* <NavItem
             icon={<IconGeometry className={styles.icon} strokeWidth={1.5} />}
             label="Editor de Geometria"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard/geometry-editor")}
             active={activeView === "dashboard/geometry-editor"}
             indent
-          />
-          <NavItem
+          /> */}
+          {/* <NavItem
             icon={<IconBoundary className={styles.icon} strokeWidth={1.5} />}
             label="Condições de Contorno"
             collapsed={collapsed}
@@ -104,7 +104,7 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             onClick={() => onNavigate("dashboard/reports")}
             active={activeView === "dashboard/reports"}
             indent
-          />
+          /> */}
         </NavGroup>
 
         {/* BIBLIOTECA Section */}

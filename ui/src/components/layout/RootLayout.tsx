@@ -125,13 +125,11 @@ export default function RootLayout() {
           )}
           
           {activeView === "dashboard/boundary-conditions" && (
-            // <BoundaryConditionsView setFooter={setFooterData} />
-            <BoundaryConditionsView />
+            <BoundaryConditionsView setFooter={setFooterData} />
           )}
           
           {activeView === "dashboard/reports" && (
-          // <ReportsView setFooter={setFooterData} />
-            <ReportsView />
+            <ReportsView setFooter={setFooterData} />
           )}
 
           {activeView === "propellants" && (
