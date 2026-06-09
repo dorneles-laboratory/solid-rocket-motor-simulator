@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import RootLayout from "./components/layout/RootLayout";
 
+const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
 function App() {
   const [isBackendReady, setIsBackendReady] = useState(false);
   const [hasError, setHasError] = useState(false);
   
   useEffect(() => {
+    if (!isTauri) {
+      setIsBackendReady(true);
+      return;
+    }
+
     const pingBackend = async (retries = 8) => {
       try {
         const response = await fetch("http://localhost:8080/api/health");
