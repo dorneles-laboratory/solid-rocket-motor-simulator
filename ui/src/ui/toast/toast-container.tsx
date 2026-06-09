@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Toast, ToastType } from './toast';
-import styles from './toast-container.module.css'; 
+import { useEffect, useState } from "react";
+import { Toast, ToastType } from "./toast";
+import styles from "./toast-container.module.css";
 
 interface ToastMessage {
   id: string;
@@ -14,17 +14,23 @@ export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   useEffect(() => {
-    const handleAddToast = (event: CustomEvent<Omit<ToastMessage, 'id'>>) => {
+    const handleAddToast = (e: Event) => {
+      const customEvent = e as CustomEvent<Omit<ToastMessage, "id">>;
+
       const newToast = {
-        ...event.detail,
+        ...customEvent.detail,
         id: Math.random().toString(36).substring(2, 9),
-        duration: event.detail.duration || 4000,
+        duration: customEvent.detail.duration || 4000,
       };
+
       setToasts((prev) => [...prev, newToast]);
     };
 
-    window.addEventListener('add-toast' as any, handleAddToast as any);
-    return () => window.removeEventListener('add-toast' as any, handleAddToast as any);
+    window.addEventListener("add-toast", handleAddToast);
+
+    return () => {
+      window.removeEventListener("add-toast", handleAddToast);
+    };
   }, []);
 
   const removeToast = (id: string) => {
@@ -34,22 +40,22 @@ export function ToastContainer() {
   return (
     <div
       style={{
-        position: 'fixed',
-        top: '2rem',
-        right: '2rem',
+        position: "fixed",
+        top: "2rem",
+        right: "2rem",
         zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        pointerEvents: 'none',
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        pointerEvents: "none",
       }}
     >
       {toasts.map((toast) => (
-        <div key={toast.id} style={{ pointerEvents: 'auto' }}>
-           <AutoDismissToast 
-              toast={toast} 
-              onRemove={() => removeToast(toast.id)} 
-           />
+        <div key={toast.id} style={{ pointerEvents: "auto" }}>
+          <AutoDismissToast
+            toast={toast}
+            onRemove={() => removeToast(toast.id)}
+          />
         </div>
       ))}
     </div>
@@ -57,7 +63,13 @@ export function ToastContainer() {
 }
 
 // Subcomponente atualizado com animação
-function AutoDismissToast({ toast, onRemove }: { toast: ToastMessage, onRemove: () => void }) {
+function AutoDismissToast({
+  toast,
+  onRemove,
+}: {
+  toast: ToastMessage;
+  onRemove: () => void;
+}) {
   const [isLeaving, setIsLeaving] = useState(false);
 
   // Função que engatilha a animação e depois remove o componente
@@ -66,7 +78,7 @@ function AutoDismissToast({ toast, onRemove }: { toast: ToastMessage, onRemove: 
     // Aguarda o tempo exato da animação CSS (300ms) antes de desmontar
     setTimeout(() => {
       onRemove();
-    }, 300); 
+    }, 300);
   };
 
   useEffect(() => {
@@ -90,7 +102,7 @@ function AutoDismissToast({ toast, onRemove }: { toast: ToastMessage, onRemove: 
   );
 }
 
-export const showToast = (toast: Omit<ToastMessage, 'id'>) => {
-  const event = new CustomEvent('add-toast', { detail: toast });
+export const showToast = (toast: Omit<ToastMessage, "id">) => {
+  const event = new CustomEvent("add-toast", { detail: toast });
   window.dispatchEvent(event);
 };

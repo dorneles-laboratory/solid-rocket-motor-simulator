@@ -1,12 +1,10 @@
-import styles from "./text-area.module.css"
+import styles from "./text-area.module.css";
 
-interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  className?: string;
+};
 
-export default function Textarea({
-  className = "",
-  ...props
-}: TextareaProps) {
+export default function Textarea({ className = "", ...props }: TextareaProps) {
   return (
     <textarea
       data-slot="textarea"
@@ -16,5 +14,5 @@ export default function Textarea({
       `}
       {...props}
     />
-  )
+  );
 }

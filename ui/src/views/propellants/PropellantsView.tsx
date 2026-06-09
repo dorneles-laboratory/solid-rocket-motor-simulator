@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import PropellantsHeader from "./components/propellants-header/prop-header";
 import PropellantsModal from "./components/propellants-modal/prop-modal";
 import { showToast } from "../../ui/toast/toast-container";
-import image from "../../assets/propellant.png"
+import image from "../../assets/propellant.png";
 import { useShortcut } from "../../hooks/use-shortcut";
 
 export interface Propellant {
@@ -35,7 +35,10 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
   useEffect(() => {
     setFooter({
       index: propellants.length || 0,
-      description: propellants.length === 1 ? "Propelente encontrado" : "Propelentes encontrados",
+      description:
+        propellants.length === 1
+          ? "Propelente encontrado"
+          : "Propelentes encontrados",
       legends: [
         {
           label: "Composite",
@@ -45,8 +48,8 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
           label: "Sugar",
           color: "#22c55e",
         },
-      ]
-    })
+      ],
+    });
   }, [propellants, setFooter]);
 
   useEffect(() => {
@@ -66,6 +69,7 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
         title: "Fetch Failed",
         message: "Failed to fetch propellants.",
       });
+      console.error("Error fetching propellants:", error);
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +80,7 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
     setIsModalOpen(true);
   };
 
-  useShortcut('q', handleAddNew, { ctrl: true });
+  useShortcut("q", handleAddNew, { ctrl: true });
 
   const handleEdit = (propellant: Propellant) => {
     setEditingPropellant(propellant);
@@ -111,6 +115,7 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
         title: "Deletion Failed",
         message: "Failed to delete propellant.",
       });
+      console.error("Error deleting propellant:", error);
     }
   };
 
@@ -233,8 +238,13 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
                 </h1>
 
                 <p className={styles.noItensSubtitle}>
-                  Crie um novo propelente para começar a desenvolver seu motor sólido. 
-                  Aperte <strong className={styles.keyboard_shortcut}> Ctrl + Q </strong> para criar um novo propelente. 
+                  Crie um novo propelente para começar a desenvolver seu motor
+                  sólido. Aperte{" "}
+                  <strong className={styles.keyboard_shortcut}>
+                    {" "}
+                    Ctrl + Q{" "}
+                  </strong>{" "}
+                  para criar um novo propelente.
                 </p>
               </div>
             </div>
