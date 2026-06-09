@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Layers, ChevronDown } from "lucide-react"
 import styles from "./GeometryEditorView.module.css"
+import { FooterProps } from "../../../../components/layout/footer/footer"
 
 const coreTypes = [
   { value: "bates", label: "BATES", description: "Cylindrical with central core" },
@@ -12,7 +13,11 @@ const coreTypes = [
   { value: "c-slot", label: "C-Slot", description: "C-shaped slot pattern" },
 ]
 
-export default function GeometryEditorView() {
+interface GeometryEditorViewProps {
+  setFooter: (data: FooterProps) => void;
+}
+
+export default function GeometryEditorView({ setFooter }: GeometryEditorViewProps) {
   const [coreType, setCoreType] = useState("bates")
   const [outerDiameter, setOuterDiameter] = useState("75.0")
   const [innerDiameter, setInnerDiameter] = useState("20.0")
@@ -24,6 +29,13 @@ export default function GeometryEditorView() {
     dimensions: true,
     advanced: false,
   })
+
+  useEffect(() => {
+    setFooter({
+      description: "Edite a geometria do seu motor sólido de foguete com uma interface visual intuitiva.",
+      rightText: "Em breve uma nova funcionalidade."
+    });
+  }, [setFooter]);
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -353,31 +365,3 @@ function generateStarPoints(cx: number, cy: number, points: number, outerRadius:
   
   return coords.join(' ')
 }
-
-
-
-
-
-// import { useEffect } from 'react';
-// import ComingSoon from '../../../../components/cooming-soon/coming-soon';
-// import { FooterProps } from '../../../../components/layout/footer/footer';
-// import styles from './GeometryEditorView.module.css';
-
-// interface GeometryEditorViewProps {
-//   setFooter: (data: FooterProps) => void;
-// }
-
-// export default function GeometryEditorView({ setFooter }: GeometryEditorViewProps) {
-//   useEffect(() => {
-//     setFooter({
-//       description: "Edite a geometria do seu motor sólido de foguete com uma interface visual intuitiva.",
-//       rightText: "Em breve uma nova funcionalidade."
-//     });
-//   }, [setFooter]);
-
-//   return (
-//     <section className={styles.geometry_editor_view}>
-//       <ComingSoon />
-//     </section>
-//   )
-// }

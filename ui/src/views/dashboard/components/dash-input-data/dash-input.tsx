@@ -5,11 +5,14 @@ import PropertyField from "./dash-property-field"
 import DashboardInputHeader from "./dash-input-header/dash-input-header"
 import type { Propellant } from "../../../propellants/PropellantsView"
 import DashboardInputRunSimulation from "./dash-input-run-simulation/dash-input-run-simulation"
+import { SimulationConfig } from "../../../../utils/simulation"
 
 interface InputPanelProps {
   dimensions?: MotorDimensions
   propellant?: Propellant 
   isSimulating?: boolean
+  simConfig: SimulationConfig;
+  onSimConfigChange: (config: SimulationConfig) => void;
   onDimensionsChange?: (dimensions: MotorDimensions) => void
   onFocusChange?: (section: FocusedSection) => void
   onRunSimulation?: () => void
@@ -34,6 +37,8 @@ export default function DashboardInputPanel({
   onDimensionsChange,
   onFocusChange,
   onRunSimulation,
+  simConfig,
+  onSimConfigChange
 }: InputPanelProps) {
     const handleDimensionChange = (key: keyof MotorDimensions, rawValue: string | number) => {
     if (!onDimensionsChange) return
@@ -199,6 +204,46 @@ export default function DashboardInputPanel({
       </div>
 
       <footer className={styles.footer}>
+        <div className={styles.simSettingsWrapper}>
+          <div className={styles.simSettingItem}>
+            <label>Motor</label>
+            <select 
+              className={styles.simSettingSelect}
+              value={simConfig.method}
+              onChange={(e) => onSimConfigChange({...simConfig, method: e.target.value as "EULER" | "RK4"})}
+            >
+              <option value="RK4">RK4</option>
+              <option value="EULER">Euler</option>
+            </select>
+          </div>
+
+          <div className={styles.simSettingItem}>
+            <label>Passo (dt)</label>
+            <select 
+              className={styles.simSettingSelect}
+              value={simConfig.timeStep}
+              onChange={(e) => onSimConfigChange({...simConfig, timeStep: Number(e.target.value)})}
+            >
+              <option value={0.001}>1 ms</option>
+              <option value={0.005}>5 ms</option>
+              <option value={0.010}>10 ms</option>
+            </select>
+          </div>
+
+          <div className={styles.simSettingItem}>
+            <label>Resolução</label>
+            <select 
+              className={styles.simSettingSelect}
+              value={simConfig.pointsCount}
+              onChange={(e) => onSimConfigChange({...simConfig, pointsCount: Number(e.target.value)})}
+            >
+              <option value={100}>100 pts</option>
+              <option value={500}>500 pts</option>
+              <option value={1000}>1000 pts</option>
+            </select>
+          </div>
+        </div>
+
         <DashboardInputRunSimulation 
           onRunSimulation={onRunSimulation} 
           isLoading={isSimulating} 

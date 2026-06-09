@@ -27,7 +27,8 @@ import MetricCard from "./components/dash-metric-card/dash-metric-card";
 import ClassBadge from "./components/dash-class-badge/dash-class-badge";
 import { ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
 import { Propellant } from "../propellants/PropellantsView";
-import { runMotorSimulation, SimulationResult } from "../../utils/simulation";
+import { runMotorSimulation, SimulationResult, SimulationConfig } from "../../utils/simulation";
+import { SettingsData } from "../settings/SettingsView";
 
 export interface ProjectData {
   id: string;
@@ -105,6 +106,26 @@ export default function DashboardView({
   const [simulationRun, setSimulationRun] = useState(false);
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+    
+   const [simConfig, setSimConfig] = useState<SimulationConfig>({
+    timeStep: 0.001,
+    method: "RK4",
+    pointsCount: 500
+  });
+
+  const saveStatus: SaveStatus = useMemo(() => {
+    if (!projectLoaded || !project) return "saved";
+    if (isSaving) return "saving";
+
+    const hasManualChanges = !isEqual(projectLoaded, project);
+
+    const simClass = simulationData?.metrics?.class;
+    const hasSimulationChanges = simClass ? simClass !== projectLoaded.impulseClass : false;
+
+    return (hasManualChanges || hasSimulationChanges) ? "unsaved" : "saved";
+    
+  }, [projectLoaded, project, isSaving, simulationData]);
 
   // --- EFEITOS (LIFECYCLE) ---
   useEffect(() => {
@@ -117,6 +138,10 @@ export default function DashboardView({
   }, [projectId, setFooter]);
 
   useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
     fetchProjects();
   }, [projectId]);
 
@@ -125,6 +150,17 @@ export default function DashboardView({
       fetchPropellants(project.propellantId);
     }
   }, [project?.propellantId]);
+
+  useEffect(() => {
+    if (!settings?.autoSave || saveStatus !== "unsaved") return;
+
+    const delayTimer = setTimeout(() => {
+      handleSaveChanges();
+    }, 1000);
+
+    return () => clearTimeout(delayTimer);
+    
+  }, [saveStatus, settings?.autoSave]);
 
   // --- FUNÇÕES DE DADOS (FETCH) ---
   const fetchProjects = async () => {
@@ -196,6 +232,28 @@ export default function DashboardView({
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/settings`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setSettings(data);
+      } else {
+        throw new Error("Falha ao buscar dados do sistema");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast({
+        type: "error",
+        title: "Erro no Sistema",
+        message: "Falha na comunicação ao carregar as configurações.",
+      });
+      setSettings(null);
+    }
+  };
+
+  // --- FUNÇÕES DE AÇÃO (BUTTONS, INTERAÇÕES) ---
   const handleRunSimulation = () => {
     if (!project || !propellant) {
       showToast({
@@ -210,8 +268,8 @@ export default function DashboardView({
 
     setTimeout(() => {
       try {
-        const results = runMotorSimulation(project, propellant);
-
+        const results = runMotorSimulation(project, propellant, simConfig);
+        
         if (results) {
           setSimulationData(results);
 
@@ -314,12 +372,6 @@ export default function DashboardView({
             );
             return [...preservedAlerts, ...simAlerts];
           });
-
-          showToast({
-            type: "success",
-            title: "Simulação Concluída",
-            message: `${results.pointsCount} pontos calculados.`,
-          });
         }
       } catch (error) {
         showToast({
@@ -354,11 +406,7 @@ export default function DashboardView({
 
       setProject(structuredClone(payload));
       setProjectLoaded(structuredClone(payload));
-      showToast({
-        type: "success",
-        title: "Sucesso",
-        message: "Alterações salvas com sucesso.",
-      });
+      // showToast({ type: "success", title: "Sucesso", message: "Alterações salvas com sucesso." });
     } catch (error) {
       console.error(error);
       showToast({
@@ -370,20 +418,6 @@ export default function DashboardView({
       setIsSaving(false);
     }
   };
-
-  const saveStatus: SaveStatus = useMemo(() => {
-    if (!projectLoaded || !project) return "saved";
-    if (isSaving) return "saving";
-
-    const hasManualChanges = !isEqual(projectLoaded, project);
-
-    const simClass = simulationData?.metrics?.class;
-    const hasSimulationChanges = simClass
-      ? simClass !== projectLoaded.impulseClass
-      : false;
-
-    return hasManualChanges || hasSimulationChanges ? "unsaved" : "saved";
-  }, [projectLoaded, project, isSaving, simulationData]);
 
   const status = simulationData?.status?.toLowerCase() || "idle";
 
@@ -537,6 +571,9 @@ export default function DashboardView({
             onDimensionsChange={handleDimensionsChange}
             isSimulating={simulationRun}
             onRunSimulation={handleRunSimulation}
+
+            simConfig={simConfig}
+            onSimConfigChange={setSimConfig}
           />
 
           <div className={styles.divider}>
