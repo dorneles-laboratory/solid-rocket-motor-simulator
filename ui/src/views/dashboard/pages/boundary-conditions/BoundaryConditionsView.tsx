@@ -1,6 +1,4 @@
-"use client"
-
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { Cloud, Thermometer, Mountain, Flame, Save } from "lucide-react"
 import styles from "./BoundaryConditionsView.module.css"
 import { FooterProps } from "../../../../components/layout/footer/footer";

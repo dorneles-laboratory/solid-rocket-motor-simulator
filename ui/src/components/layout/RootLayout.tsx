@@ -120,8 +120,7 @@ export default function RootLayout() {
           )}
 
           {activeView === "dashboard/geometry-editor" && (
-            // <GeometryEditorView setFooter={setFooterData} />
-            <GeometryEditorView />
+            <GeometryEditorView setFooter={setFooterData} />
           )}
           
           {activeView === "dashboard/boundary-conditions" && (

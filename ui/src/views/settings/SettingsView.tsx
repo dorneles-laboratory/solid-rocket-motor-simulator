@@ -29,7 +29,7 @@ const UNIT_OPTIONS = {
   temperature: ["K", "C", "F", "R"],
 };
 
-interface SettingsData {
+export interface SettingsData {
   theme: string;
   unitSystem: UnitSystemMode;
   preferences: UnitPreferences;
