@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styles from "./ReportsView.module.css"
 import { 
   FileText, 
@@ -11,29 +9,15 @@ import {
   Check,
   ChevronDown
 } from "lucide-react"
+import ExportPDFButton from "./components/generate-pdf-button/generate-pdf-button"
+import ExportButton from "./components/export-button/export-button"
+import { FooterProps } from "../../../../components/layout/footer/footer"
 
-interface ExportButtonProps {
-  icon: React.ElementType
-  label: string
-  format: string
-  onClick?: () => void
+interface ReportsViewProps {
+  setFooter: (data: FooterProps) => void;
 }
 
-function ExportButton({ icon: Icon, label, format, onClick }: ExportButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={styles.exportBtn}
-    >
-      <Icon className={styles.exportIcon} strokeWidth={1.5} />
-      <span className={styles.exportLabel}>{label}</span>
-      <span className={styles.exportFormat}>{format}</span>
-    </button>
-  )
-}
-
-export default function ReportsView() {
+export default function ReportsView({ setFooter }: ReportsViewProps) {
   const [openSections, setOpenSections] = useState({
     document: true,
     export: true,
@@ -47,6 +31,13 @@ export default function ReportsView() {
     structuralAnalysis: false,
     thermalAnalysis: false,
   })
+
+  useEffect(() => {
+    setFooter({
+      description: "Gere relatórios detalhados sobre o desempenho do seu motor sólido de foguete, incluindo gráficos de impulso específico, tempo de queima e muito mais.",
+      rightText: "Em breve uma nova funcionalidade."
+    });
+  }, [setFooter]);
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -68,17 +59,7 @@ export default function ReportsView() {
   ]
 
   return (
-    <section className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerTitleWrapper}>
-          <FileText className={styles.headerIcon} strokeWidth={1.5} />
-          <h1 className={styles.headerTitle}>
-            Relatórios & Exportação
-          </h1>
-        </div>
-      </header>
-
+    <section className={styles.reports_view}>
       {/* Main Scrollable Content */}
       <div className={styles.scrollArea}>
         <div className={styles.contentPadding}>
@@ -183,17 +164,17 @@ export default function ReportsView() {
                   
                   <div className={styles.exportGrid}>
                     <ExportButton
-                      icon={FileSpreadsheet}
+                      icon={<FileSpreadsheet className={styles.icon} strokeWidth={1.5} />}
                       label="Thrust Curve"
                       format=".CSV"
                     />
                     <ExportButton
-                      icon={Box}
+                      icon={<Box className={styles.icon} strokeWidth={1.5} />}
                       label="Geometry"
                       format=".STEP / .DXF"
                     />
                     <ExportButton
-                      icon={Rocket}
+                      icon={<Rocket className={styles.icon} strokeWidth={1.5} />}
                       label="OpenRocket"
                       format=".ENG"
                     />
@@ -204,19 +185,7 @@ export default function ReportsView() {
           </div>
 
           {/* Generate PDF Button */}
-          <button
-            type="button"
-            className={styles.generatePdfBtn}
-            disabled={selectedCount === 0}
-          >
-            <FileText size={16} strokeWidth={1.5} />
-            Generate PDF Report
-            {selectedCount > 0 && (
-              <span className={styles.generatePdfBadge}>
-                {selectedCount}
-              </span>
-            )}
-          </button>
+          <ExportPDFButton selectedCount={selectedCount} />
 
           {/* Info Note */}
           <div className={styles.infoNote}>
@@ -232,29 +201,3 @@ export default function ReportsView() {
     </section>
   )
 }
-
-
-
-// import { useEffect } from 'react';
-// import ComingSoon from '../../../../components/cooming-soon/coming-soon';
-// import { FooterProps } from '../../../../components/layout/footer/footer';
-// import styles from './ReportsView.module.css';
-
-// interface ReportsViewProps {
-//   setFooter: (data: FooterProps) => void;
-// }
-
-// export default function ReportsView({ setFooter }: ReportsViewProps) {
-//   useEffect(() => {
-//     setFooter({
-//       description: "Gere relatórios detalhados sobre o desempenho do seu motor sólido de foguete, incluindo gráficos de impulso específico, tempo de queima e muito mais.",
-//       rightText: "Em breve uma nova funcionalidade."
-//     });
-//   }, [setFooter]);
-  
-//   return (
-//     <section className={styles.reports_view}>
-//       <ComingSoon />
-//     </section>
-//   );
-// }

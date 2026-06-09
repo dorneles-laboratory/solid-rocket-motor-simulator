@@ -22,7 +22,7 @@ import MetricCard from "./components/dash-metric-card/dash-metric-card";
 import ClassBadge from "./components/dash-class-badge/dash-class-badge";
 import { ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
 import { Propellant } from "../propellants/PropellantsView";
-import { runMotorSimulation, SimulationResult } from "../../utils/simulation";
+import { runMotorSimulation, SimulationResult, SimulationConfig } from "../../utils/simulation";
 import { SettingsData } from "../settings/SettingsView";
 
 export interface ProjectData {
@@ -94,6 +94,12 @@ export default function DashboardView({
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
   const [settings, setSettings] = useState<SettingsData | null>(null);
+    
+   const [simConfig, setSimConfig] = useState<SimulationConfig>({
+    timeStep: 0.001,
+    method: "RK4",
+    pointsCount: 500
+  });
 
   const saveStatus: SaveStatus = useMemo(() => {
     if (!projectLoaded || !project) return "saved";
@@ -238,7 +244,7 @@ export default function DashboardView({
     
     setTimeout(() => {
       try {
-        const results = runMotorSimulation(project, propellant);
+        const results = runMotorSimulation(project, propellant, simConfig);
         
         if (results) {
           setSimulationData(results);
@@ -316,8 +322,6 @@ export default function DashboardView({
             const preservedAlerts = prev.filter(alert => !alert.id.startsWith('sim-'));
             return [...preservedAlerts, ...simAlerts];
           });
-
-          showToast({ type: "success", title: "Simulação Concluída", message: `${results.pointsCount} pontos calculados.` });
         }
       } catch (error) {
         showToast({ type: "error", title: "Falha Matemática", message: "Os parâmetros atuais geraram um erro no cálculo iterativo." });
@@ -490,6 +494,9 @@ export default function DashboardView({
             onDimensionsChange={handleDimensionsChange}
             isSimulating={simulationRun}
             onRunSimulation={handleRunSimulation}
+
+            simConfig={simConfig}
+            onSimConfigChange={setSimConfig}
           />
 
           <div className={styles.divider}>
