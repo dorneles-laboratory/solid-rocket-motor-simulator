@@ -97,4 +97,7 @@ public class Project {
   @LastModifiedDate
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  @Column(name = "last_opened_at")
+  private LocalDateTime lastOpenedAt;
 }

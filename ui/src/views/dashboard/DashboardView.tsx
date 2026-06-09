@@ -24,11 +24,8 @@ import { ProjectStatus } from "../open-project/components/o-proj-card/o-proj-car
 import { Propellant } from "../propellants/PropellantsView";
 import { runMotorSimulation, SimulationResult } from "../../utils/simulation";
 
-// ==========================================
-// 1. TIPAGENS (INTERFACES)
-// ==========================================
-
 export interface ProjectData {
+  id: string;
   name: string;
   author?: string;
   missionObjective?: string;
@@ -40,6 +37,7 @@ export interface ProjectData {
   targetBurnTime?: number;
   maxThrust?: number;
   status: ProjectStatus;
+  lastOpenedAt: string;
 
   motorChamberDiameter: number;
   motorChamberLength: number;
@@ -67,10 +65,6 @@ interface DashboardViewProps {
   setFooter: (data: FooterProps) => void;
 }
 
-// ==========================================
-// 2. UTILITÁRIOS (FUNÇÕES PURAS)
-// ==========================================
-
 // Movidada para fora do componente para evitar recriação desnecessária a cada render
 const getPanelVariant = (type: string): 'Warning' | 'Info' | 'Success' | 'Critical' | undefined => {
   switch (type) {
@@ -82,10 +76,6 @@ const getPanelVariant = (type: string): 'Warning' | 'Info' | 'Success' | 'Critic
     default: return undefined;
   }
 };
-
-// ==========================================
-// 3. COMPONENTE PRINCIPAL
-// ==========================================
 
 export default function DashboardView({
   projectId,
@@ -132,7 +122,7 @@ export default function DashboardView({
 
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+      const response = await fetch(`http://localhost:8080/api/projects/${projectId}/open`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

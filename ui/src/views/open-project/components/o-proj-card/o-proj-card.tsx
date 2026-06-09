@@ -12,6 +12,7 @@ import {
 import { Button } from "../../../../ui/button/button";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { Project } from "../../OpenProjectView";
+import { formatDate } from "../../../../utils/formatDate";
 
 export type ImpulseClass =
   | "-"
@@ -116,7 +117,7 @@ export default function OpenProjectCard({
             <span className={styles.date}>
               <Clock className={styles.dateIcon} strokeWidth={1.5} />
 
-              {project.updatedAt.slice(0, 10)}
+              {formatDate(project.updatedAt)}
             </span>
           </div>
         </div>

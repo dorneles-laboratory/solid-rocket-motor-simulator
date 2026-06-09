@@ -31,6 +31,13 @@ public class ProjectController {
         .orElse(ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/{id}/open")
+  public ResponseEntity<Project> openProject(@PathVariable UUID id) {
+    return service.openProject(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
   @PostMapping
   public ResponseEntity<Object> create(@RequestBody Project project) {
     try {
@@ -57,5 +64,10 @@ public class ProjectController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  @GetMapping("/recent")
+  public ResponseEntity<List<Project>> getRecentProjects() {
+      return ResponseEntity.ok(service.getRecentProjects());
   }
 }

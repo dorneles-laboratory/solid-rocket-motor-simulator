@@ -103,9 +103,9 @@ export default function RootLayout() {
         />
 
         <main className={styles.main}>
-          {activeView === "home" && 
-            <HomeView setFooter={setFooterData}
-          />}
+          {activeView === "home" && ( 
+            <HomeView onNavigate={handleNavigate} setFooter={setFooterData} />
+          )}
 
           {activeView === "new-project" && (
             <NewProjectView onNavigate={handleNavigate} setFooter={setFooterData} />
