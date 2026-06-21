@@ -1,46 +1,71 @@
-import { useEffect, useState } from "react"
-import { Filter, GitCompare } from "lucide-react"
-import styles from "./CommercialMotorsView.module.css"
-import { FooterProps } from '../../components/layout/footer/footer';
+import { useEffect, useState } from "react";
+import { Filter, GitCompare } from "lucide-react";
+import styles from "./CommercialMotorsView.module.css";
+import { FooterProps } from "../../components/layout/footer/footer";
 import { showToast } from "../../ui/toast/toast-container";
 import image from "../../assets/commercial-motors.png";
 import CMotorsCard from "./components/cmotors-card/cmotors-card";
+import { getBaseUrl } from "../../api/api";
 
 export interface CommercialMotor {
-  id: string
-  manufacturer: string
-  designation: string
-  impulseClass: string
-  totalImpulse: number
-  maxThrust: number
-  burnTime: number
-  propellantMass: number
-  diameter: number
+  id: string;
+  manufacturer: string;
+  designation: string;
+  impulseClass: string;
+  totalImpulse: number;
+  maxThrust: number;
+  burnTime: number;
+  propellantMass: number;
+  diameter: number;
 }
 
-const impulseClasses = ["ALL", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"]
+const impulseClasses = [
+  "ALL",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+];
 
 interface CommercialMotorsViewProps {
   setFooter: (data: FooterProps) => void;
 }
 
-export default function CommercialMotorsView({ setFooter }: CommercialMotorsViewProps) {
-  const [filterClass, setFilterClass] = useState("ALL")
-  const [selectedMotors, setSelectedMotors] = useState<string[]>([])
-  const [commercialMotors, setCommercialMotors] = useState<CommercialMotor[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+export default function CommercialMotorsView({
+  setFooter,
+}: CommercialMotorsViewProps) {
+  const [filterClass, setFilterClass] = useState("ALL");
+  const [selectedMotors, setSelectedMotors] = useState<string[]>([]);
+  const [commercialMotors, setCommercialMotors] = useState<CommercialMotor[]>(
+    [],
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   const filteredMotors = commercialMotors.filter((motor) => {
-    return filterClass === "ALL" || motor.impulseClass === filterClass
-  })
+    return filterClass === "ALL" || motor.impulseClass === filterClass;
+  });
 
   useEffect(() => {
     setFooter({
       index: filteredMotors.length || 0,
-      description: filteredMotors.length === 1 ? "motor encontrado" : "motores encontrados",
-      rightText: "Dados: ThrustCurve.org"
+      description:
+        filteredMotors.length === 1
+          ? "motor encontrado"
+          : "motores encontrados",
+      rightText: "Dados: ThrustCurve.org",
     });
-  }, [filteredMotors.length, setFooter])
+  }, [filteredMotors.length, setFooter]);
 
   useEffect(() => {
     fetchCommercialMotors();
@@ -48,7 +73,8 @@ export default function CommercialMotorsView({ setFooter }: CommercialMotorsView
 
   const fetchCommercialMotors = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/commercial-motors");
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/commercial-motors`);
       if (response.ok) {
         const data = await response.json();
         setCommercialMotors(data);
@@ -67,9 +93,9 @@ export default function CommercialMotorsView({ setFooter }: CommercialMotorsView
 
   const toggleMotorSelection = (id: string) => {
     setSelectedMotors((prev) =>
-      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
-    )
-  }
+      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id],
+    );
+  };
 
   return (
     <section className={styles.commercialMotorsView}>
@@ -81,17 +107,20 @@ export default function CommercialMotorsView({ setFooter }: CommercialMotorsView
             Comparar ({selectedMotors.length})
           </button>
         )}
-        
+
         <div className={styles.filterWrapper}>
-          <Filter 
-              className={styles.filterIcon}
-              strokeWidth={1.5}
-              style={{
-                color: filterClass !== "ALL" ? "var(--primary)" : "var(--muted-foreground)",
-              }}
+          <Filter
+            className={styles.filterIcon}
+            strokeWidth={1.5}
+            style={{
+              color:
+                filterClass !== "ALL"
+                  ? "var(--primary)"
+                  : "var(--muted-foreground)",
+            }}
           />
-          <select 
-            value={filterClass} 
+          <select
+            value={filterClass}
             onChange={(e) => setFilterClass(e.target.value)}
             className={styles.select}
           >
@@ -118,11 +147,11 @@ export default function CommercialMotorsView({ setFooter }: CommercialMotorsView
         <div className={styles.grid}>
           {filteredMotors.map((motor) => (
             // CORREÇÃO: Passando as props corretamente e adicionando a key do React
-            <CMotorsCard 
-              key={motor.id} 
+            <CMotorsCard
+              key={motor.id}
               motor={motor}
-              isSelected={selectedMotors.includes(motor.id)} 
-              toggleMotorSelection={toggleMotorSelection} 
+              isSelected={selectedMotors.includes(motor.id)}
+              toggleMotorSelection={toggleMotorSelection}
             />
           ))}
         </div>
@@ -142,13 +171,17 @@ export default function CommercialMotorsView({ setFooter }: CommercialMotorsView
               </h1>
 
               <p className={styles.noItensSubtitle}>
-                Parece que não há motores comerciais disponíveis para a classe selecionada. 
-                Tente selecionar <span className={styles.keyboard_shortcut}>Todas as Classes</span> ou outra classe específica para ver os motores correspondentes.
+                Parece que não há motores comerciais disponíveis para a classe
+                selecionada. Tente selecionar{" "}
+                <span className={styles.keyboard_shortcut}>
+                  Todas as Classes
+                </span>{" "}
+                ou outra classe específica para ver os motores correspondentes.
               </p>
             </div>
           </div>
         </section>
       )}
     </section>
-  )
+  );
 }

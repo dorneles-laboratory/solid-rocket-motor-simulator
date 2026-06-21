@@ -6,7 +6,8 @@
   border-right: 1px solid var(--border);
   background-color: color-mix(in srgb, var(--card) 50%, transparent);
   backdrop-filter: blur(4px);
-  width: 22rem;
+  width: 100%;
+  max-width: 18rem;
 }
 
 /* ScrollArea wrapper */
@@ -17,9 +18,7 @@
   overflow-y: auto;
   height: 100%;
   scrollbar-width: thin;
-  scrollbar-color:
-    var(--border, #cbd5e1)
-    transparent;
+  scrollbar-color: var(--border, #cbd5e1) transparent;
 }
 
 .scrollContent::-webkit-scrollbar {
@@ -36,12 +35,7 @@
 }
 
 .scrollContent::-webkit-scrollbar-thumb:hover {
-  background:
-    color-mix(
-      in srgb,
-      var(--border),
-      var(--foreground) 20%
-    );
+  background: color-mix(in srgb, var(--border), var(--foreground) 20%);
 }
 
 /* Static Properties (Propelente info) */
@@ -125,7 +119,7 @@
   background-repeat: no-repeat;
   background-position: right 0.35rem center;
   background-size: 12px;
-  
+
   outline: none;
   cursor: pointer;
   transition: all 0.2s ease;

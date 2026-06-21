@@ -6,6 +6,7 @@ import { useTheme } from "../../hooks/use-theme";
 import { useTranslation } from "react-i18next";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { showToast } from "../../ui/toast/toast-container";
+import { getBaseUrl } from "../../api/api";
 
 const isTauri = "__TAURI_INTERNALS__" in window || "__TAURI_IPC__" in window;
 const store = new LazyStore(".user-settings.json");
@@ -83,7 +84,8 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
           }
         }
 
-        const response = await fetch("http://localhost:8080/api/settings");
+        const baseUrl = await getBaseUrl();
+        const response = await fetch(`${baseUrl}/api/settings`);
         let remoteData = null;
         if (response.ok) {
           remoteData = await response.json();
@@ -217,7 +219,8 @@ export default function SettingsView({ setFooter }: SettingsViewProps) {
         autoSave: settingsData.autoSave,
       };
 
-      const response = await fetch("http://localhost:8080/api/settings", {
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

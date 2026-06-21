@@ -18,7 +18,11 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ImpulseClass, ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
+import {
+  ImpulseClass,
+  ProjectStatus,
+} from "../open-project/components/o-proj-card/o-proj-card";
+import { getBaseUrl } from "../../api/api";
 
 const getImpulseClass = (impulseValue: string): ImpulseClass => {
   const i = parseFloat(impulseValue);
@@ -119,7 +123,8 @@ export default function NewProjectView({
 
   const fetchPropellants = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/propellants");
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/propellants`);
       if (response.ok) {
         const data = await response.json();
         setPropellants(data);
@@ -145,7 +150,8 @@ export default function NewProjectView({
         impulseClass: getImpulseClass(formData.targetImpulse ?? ""),
       };
 
-      const response = await fetch("http://localhost:8080/api/projects", {
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -206,7 +212,7 @@ export default function NewProjectView({
                   </Label>
                   <Input
                     id="project-name"
-                    placeholder="e.g., Motor SRM-TAU"
+                    placeholder="e.g., Motor SRM"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })

@@ -1,11 +1,11 @@
-import { SidebarHeader } from "./sidebar-header"
+import { SidebarHeader } from "./sidebar-header";
 
-import { 
-  Home as IconHome, 
-  FolderPlus as IconPlus, 
-  FolderOpen as IconFolder, 
+import {
+  Home as IconHome,
+  FolderPlus as IconPlus,
+  FolderOpen as IconFolder,
   LayoutDashboard as IconDashboard,
-  // Shapes as IconGeometry,
+  Shapes as IconGeometry,
   // Gauge as IconBoundary,
   // FileText as IconReports,
   Layers as IconStructural,
@@ -16,34 +16,38 @@ import {
   FlaskConical as IconPropellants,
 } from "lucide-react";
 
-import NavGroup from "./sidebar-group"
-import NavItem from "./sidebar-item"
-import SidebarThemeToggle from "./sidebar-theme-toggle"
-import SidebarCollapseButton from "./sidebar-collapse-button"
-import styles from "./sidebar.module.css"
+import NavGroup from "./sidebar-group";
+import NavItem from "./sidebar-item";
+import SidebarThemeToggle from "./sidebar-theme-toggle";
+import SidebarCollapseButton from "./sidebar-collapse-button";
+import styles from "./sidebar.module.css";
 
 interface SidebarProps {
-  collapsed: boolean
-  onToggle: () => void
-  onNavigate: (view: string) => void
-  activeView: string
+  collapsed: boolean;
+  onToggle: () => void;
+  onNavigate: (view: string) => void;
+  activeView: string;
 }
 
-export default function Sidebar({collapsed, onToggle, onNavigate, activeView="home"}: SidebarProps) {
+export default function Sidebar({
+  collapsed,
+  onToggle,
+  onNavigate,
+  activeView = "home",
+}: SidebarProps) {
   return (
-    <aside className={`
+    <aside
+      className={`
       ${styles.sidebar}
       ${collapsed ? styles.collapsed : styles.expanded}
-    `}>
+    `}
+    >
       <SidebarHeader collapsed={collapsed} />
 
       {/* Navigation Groups */}
-      <nav className={
-          collapsed
-            ? styles.navigationCollapsed
-            : styles.navigation
-        }>
-
+      <nav
+        className={collapsed ? styles.navigationCollapsed : styles.navigation}
+      >
         <NavGroup title="Geral" collapsed={collapsed}>
           <NavItem
             icon={<IconHome className={styles.icon} strokeWidth={1.5} />}
@@ -81,14 +85,14 @@ export default function Sidebar({collapsed, onToggle, onNavigate, activeView="ho
             onClick={() => onNavigate("dashboard")}
             active={activeView === "dashboard"}
           />
-          {/* <NavItem
+          <NavItem
             icon={<IconGeometry className={styles.icon} strokeWidth={1.5} />}
             label="Editor de Geometria"
             collapsed={collapsed}
             onClick={() => onNavigate("dashboard/geometry-editor")}
             active={activeView === "dashboard/geometry-editor"}
             indent
-          /> */}
+          />
           {/* <NavItem
             icon={<IconBoundary className={styles.icon} strokeWidth={1.5} />}
             label="Condições de Contorno"

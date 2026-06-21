@@ -1,335 +1,106 @@
-/* .geometry_editor_view {
+.geometryView {
   display: flex;
+  justify-content: center;
   flex-direction: column;
-  gap: 16px;
+  width: 100%;
   height: 100%;
-} */
+  background-color: var(--background);
+  overflow: hidden;
+}
 
-/* Container Principal */
-.container {
+.viewLayout {
   display: flex;
+  flex-direction: row;
   height: 100%;
   width: 100%;
+}
+
+/* Divisória da direita que empilha o Header no topo e o Canvas embaixo */
+.rightContainer {
+  display: flex;
   flex-direction: column;
-  background-color: var(--background);
+  flex: 1;
+  min-width: 0;
+  height: 100%;
 }
 
-/* Header */
-.header {
-  display: flex;
-  height: 3rem; /* h-12 */
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
-  padding: 0 1rem;
-}
-
-.headerTitleWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.headerIcon {
-  width: 1rem;
-  height: 1rem;
-  color: var(--muted-foreground);
-}
-
-.headerTitle {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.applyButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  height: 1.75rem; /* h-7 */
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  padding: 0 0.75rem;
-  font-family: monospace;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.applyButton:hover {
-  background-color: color-mix(in srgb, var(--primary) 90%, transparent);
-}
-
-/* Layout Principal em Duas Colunas */
-.mainLayout {
+/* Área de edição abaixo do Header que estica o blueprint completamente */
+.editorContent {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  flex-direction: column;
+  padding: 1rem;
+  min-height: 0; /* Essencial para o flexbox respeitar os limites da tela */
 }
 
-/* Coluna Esquerda (Controles) */
-.leftCol {
-  width: 18rem; /* w-72 */
-  flex-shrink: 0;
-  border-right: 1px solid var(--border);
-  background-color: color-mix(in srgb, var(--card) 50%, transparent);
-}
-
-.scrollArea {
+/* Força o DashboardPanel customizado interno a ocupar todo o espaço */
+.editorContent > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  overflow-y: auto;
 }
 
-.controlsPadding {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-}
-
-/* Collapsible */
-.collapsibleTrigger {
-  display: flex;
-  width: 100%;
-  height: 2rem; /* h-8 */
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.75rem;
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 600;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.collapsibleTrigger:hover {
-  background-color: var(--muted);
-}
-
-.collapsibleTitle {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted-foreground);
-}
-
-.chevron {
-  width: 1rem;
-  height: 1rem;
-  color: var(--muted-foreground);
-  transition: transform 0.2s ease-in-out;
-}
-
-.chevronOpen {
-  transform: rotate(180deg);
-}
-
-.collapsibleContent {
-  padding: 0 0.75rem 0.75rem 0.75rem;
-  overflow: hidden;
-  transition: all 0.2s ease-in-out;
-}
-
-.contentOpen {
-  max-height: 500px;
-  opacity: 1;
-}
-
-.contentClosed {
-  max-height: 0;
-  opacity: 0;
-  padding-bottom: 0; /* Anula o padding inferior quando fechado para não dar salto visual */
-}
-
-/* Formulário (Inputs, Selects, Labels) */
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
-}
-
-.fieldWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.label {
-  font-size: 10px;
-  color: var(--muted-foreground);
-}
-
-.inputContainer {
+/* Garante que o wrapper interno do motor se estique de ponta a ponta */
+.editorContent > div > div:last-child {
+  flex: 1;
   position: relative;
+  height: 100%;
 }
 
-.input, .select {
-  width: 100%;
-  height: 2rem; /* h-8 para input, h-9 no original para select mas padronizado aqui */
-  border: 1px solid var(--border);
-  background-color: var(--background);
-  font-size: 0.75rem;
-  color: var(--foreground);
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input {
-  font-family: monospace;
-  padding: 0 2.5rem 0 0.5rem; /* pr-10 */
-}
-
-.select {
-  padding: 0 0.5rem;
-  appearance: auto; /* Mantém a setinha nativa do select do SO para não precisar de SVGs customizados */
-}
-
-.input:focus, .select:focus {
-  border-color: var(--primary);
-}
-
-.inputUnit {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: monospace;
-  font-size: 10px;
+.panelIcon {
+  width: 0.875rem;
+  height: 0.875rem;
   color: var(--muted-foreground);
+}
+
+/* --- ESTADOS SEM PROJETO (NO ITEMS) --- */
+.noItemsGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  height: 100%;
+  color: var(--muted-foreground);
+}
+
+.rocketImage {
+  width: 18rem;
+  height: auto;
   pointer-events: none;
 }
 
-.helperText {
-  font-size: 10px;
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-/* Advanced Stats */
-.advancedStats {
+.noItemsMessage {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 10px;
+  gap: 1rem;
+  max-width: 38rem;
+}
+
+.noItemsTitle {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
   color: var(--muted-foreground);
 }
 
-.statValue {
-  font-family: monospace;
-  color: var(--foreground);
+.noItemsSubtitle {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
 }
 
-/* Coluna Direita (Visualização) */
-.rightCol {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.canvasHeader {
-  display: flex;
-  height: 2.5rem; /* h-10 */
-  flex-shrink: 0;
+.keyboardShortcut {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  background-color: color-mix(in srgb, var(--muted) 20%, transparent);
-  padding: 0 1rem;
-}
-
-.canvasTitle {
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted-foreground);
-}
-
-.canvasScale {
-  font-family: monospace;
-  font-size: 10px;
-  color: var(--muted-foreground);
-}
-
-.canvasArea {
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-  background-color: #0a0a0f;
-}
-
-.canvasGrid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-  background-size: 10px 10px, 10px 10px, 50px 50px, 50px 50px;
-}
-
-.crosshairV {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  height: 100%;
-  width: 1px;
-  background-color: color-mix(in srgb, #3b82f6 20%, transparent); /* blue-500/20 */
-}
-
-.crosshairH {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  height: 1px;
-  width: 100%;
-  background-color: color-mix(in srgb, #3b82f6 20%, transparent);
-}
-
-.svgCanvas {
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  width: 100%;
-}
-
-.svgOuterRing {
-  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.3));
-}
-
-.cornerInfo {
-  position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-  display: flex;
-  flex-direction: column;
   gap: 0.25rem;
-  font-size: 10px;
-}
-
-.cornerLabel {
-  color: var(--muted-foreground);
-}
-
-.cornerValue {
+  font-size: 0.9rem;
   font-family: monospace;
-  color: var(--foreground);
-}
-
-.cornerValuePrimary {
-  font-family: monospace;
+  background-color: var(--muted);
   color: var(--primary);
+  padding: 0.15rem 0.4rem;
+  margin: 0 0.25rem;
+  border-radius: 4px;
 }

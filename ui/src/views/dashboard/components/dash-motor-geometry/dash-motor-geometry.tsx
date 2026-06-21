@@ -1,37 +1,41 @@
-import { useState } from 'react'
-import styles from './dash-motor-geometry.module.css'
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
-import Motor3D from './dash-motor-3d';
+import { useState } from "react";
+import styles from "./dash-motor-geometry.module.css";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
+import Motor3D from "./dash-motor-3d";
 
 export interface MotorDimensions {
-  chamberDiameter: number
-  chamberLength: number
-  grainOuterDiameter: number
-  grainCoreDiameter: number
-  grainLength: number
-  grainSegments: number
-  throatDiameter: number
-  convergenceAngle: number
-  divergenceAngle: number
+  chamberDiameter: number;
+  chamberLength: number;
+  grainCoreType: string;
+  grainStarPoints?: number;
+  grainOuterDiameter: number;
+  grainCoreDiameter: number;
+  grainLength: number;
+  grainSegments: number;
+  throatDiameter: number;
+  convergenceAngle: number;
+  divergenceAngle: number;
 }
 
-export type FocusedSection = 
-  | "chamber-diameter" 
-  | "chamber-length" 
-  | "grain-outer" 
-  | "grain-core" 
-  | "grain-length" 
+export type FocusedSection =
+  | "chamber-diameter"
+  | "chamber-length"
+  | "grain-core-type"
+  | "grain-star-points"
+  | "grain-outer"
+  | "grain-core"
+  | "grain-length"
   | "grain-segments"
-  | "nozzle-throat" 
-  | "nozzle-convergence" 
-  | "nozzle-divergence" 
-  | null
+  | "nozzle-throat"
+  | "nozzle-convergence"
+  | "nozzle-divergence"
+  | null;
 
 interface MotorGeometryProps {
-  dimensions?: MotorDimensions
-  focusedSection: FocusedSection
-  className?: string
+  dimensions?: MotorDimensions;
+  focusedSection: FocusedSection;
+  className?: string;
 }
 
 const defaultDimensions: MotorDimensions = {
@@ -44,7 +48,9 @@ const defaultDimensions: MotorDimensions = {
   throatDiameter: 0,
   convergenceAngle: 0,
   divergenceAngle: 0,
-}
+  grainCoreType: "circular",
+  grainStarPoints: 5,
+};
 
 export default function MotorGeometry({
   dimensions = defaultDimensions,
@@ -52,51 +58,101 @@ export default function MotorGeometry({
   className = "",
 }: MotorGeometryProps) {
   // Scale factors for visualization
-  const scale = 0.8
-  const baseWidth = 500
-  const baseHeight = 200
+  const scale = 0.8;
+  const baseWidth = 500;
+  const baseHeight = 200;
 
-  const [viewMode, setViewMode] = useState<'2D' | '3D'>('2D');
-  
+  const [viewMode, setViewMode] = useState<"2D" | "3D">("2D");
+
   // Calculate visual dimensions (normalized to fit viewport)
-  const chamberVisualLength = Math.min(300, Math.max(150, dimensions.chamberLength * scale));
-  const chamberVisualDiameter = Math.min(120, Math.max(60, dimensions.chamberDiameter * scale));
-  const grainVisualLength = Math.min(chamberVisualLength - 20, Math.max(100, dimensions.grainLength * scale));
-  const grainOuterVisualDiameter = Math.min(chamberVisualDiameter - 10, Math.max(50, dimensions.grainOuterDiameter * scale));
-  const grainCoreVisualDiameter = Math.min(grainOuterVisualDiameter - 20, Math.max(15, dimensions.grainCoreDiameter * scale * 0.8));
-  const throatVisualDiameter = Math.min(40, Math.max(10, dimensions.throatDiameter * scale * 0.6));
+  const chamberVisualLength = Math.min(
+    300,
+    Math.max(150, dimensions.chamberLength * scale),
+  );
+  const chamberVisualDiameter = Math.min(
+    120,
+    Math.max(60, dimensions.chamberDiameter * scale),
+  );
+  const grainVisualLength = Math.min(
+    chamberVisualLength - 20,
+    Math.max(100, dimensions.grainLength * scale),
+  );
+  const grainOuterVisualDiameter = Math.min(
+    chamberVisualDiameter - 10,
+    Math.max(50, dimensions.grainOuterDiameter * scale),
+  );
+  const grainCoreVisualDiameter = Math.min(
+    grainOuterVisualDiameter - 20,
+    Math.max(15, dimensions.grainCoreDiameter * scale * 0.8),
+  );
+  const throatVisualDiameter = Math.min(
+    40,
+    Math.max(10, dimensions.throatDiameter * scale * 0.6),
+  );
   const nozzleLength = 60;
   const nozzleExitDiameter = throatVisualDiameter * 2.5;
 
   // Positions
-  const startX = 160
-  const centerY = baseHeight / 2
-  const chamberEndX = startX + chamberVisualLength
-  const nozzleEndX = chamberEndX + nozzleLength
+  const startX = 160;
+  const centerY = baseHeight / 2;
+  const chamberEndX = startX + chamberVisualLength;
+  const nozzleEndX = chamberEndX + nozzleLength;
 
   // Colors - engineering style
-  const highlightStroke = "var(--primary)"
-  const defaultStroke = "var(--foreground)"
+  const highlightStroke = "var(--primary)";
+  const defaultStroke = "var(--foreground)";
 
   return (
-    <div className={`${styles.container} ${className}`.trim()} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className={`${styles.container} ${className}`.trim()}
+      style={{ position: "relative", display: "flex", flexDirection: "column" }}
+    >
       {/* TOGGLE 2D / 3D */}
-      <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, display: 'flex', gap: '0.5rem' }}>
-        <button 
-          onClick={() => setViewMode('2D')}
-          style={{ padding: '4px 12px', fontSize: '10px', cursor: 'pointer', backgroundColor: viewMode === '2D' ? 'var(--primary)' : 'var(--card)', color: viewMode === '2D' ? 'var(--background)' : 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '4px' }}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          zIndex: 10,
+          display: "flex",
+          gap: "0.5rem",
+        }}
+      >
+        <button
+          onClick={() => setViewMode("2D")}
+          style={{
+            padding: "4px 12px",
+            fontSize: "10px",
+            cursor: "pointer",
+            backgroundColor:
+              viewMode === "2D" ? "var(--primary)" : "var(--card)",
+            color:
+              viewMode === "2D" ? "var(--background)" : "var(--foreground)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+          }}
         >
           2D PLAN
         </button>
-        <button 
-          onClick={() => setViewMode('3D')}
-          style={{ padding: '4px 12px', fontSize: '10px', cursor: 'pointer', backgroundColor: viewMode === '3D' ? 'var(--primary)' : 'var(--card)', color: viewMode === '3D' ? 'var(--background)' : 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '4px' }}
+        <button
+          onClick={() => setViewMode("3D")}
+          style={{
+            padding: "4px 12px",
+            fontSize: "10px",
+            cursor: "pointer",
+            backgroundColor:
+              viewMode === "3D" ? "var(--primary)" : "var(--card)",
+            color:
+              viewMode === "3D" ? "var(--background)" : "var(--foreground)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+          }}
         >
           3D ORBIT
         </button>
       </div>
-      
-      {viewMode === '2D' ? (
+
+      {viewMode === "2D" ? (
         <>
           {/* Engineering Graph Paper Background - Light Blue Grid */}
           <div className={styles.bgWrapper}>
@@ -121,7 +177,11 @@ export default function MotorGeometry({
                   height="50"
                   patternUnits="userSpaceOnUse"
                 >
-                  <rect width="50" height="50" fill="url(#grid-small-engineering)" />
+                  <rect
+                    width="50"
+                    height="50"
+                    fill="url(#grid-small-engineering)"
+                  />
                   <path
                     d="M 50 0 L 0 0 0 50"
                     className={styles.gridLargePath}
@@ -172,7 +232,12 @@ export default function MotorGeometry({
             {/* CHAMBER CASING - Outer walls */}
             <g
               className={`${styles.sectionGroup} ${focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? styles.sectionUnfiltered : ""}`.trim()}
-              filter={focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? "url(#glow)" : undefined}
+              filter={
+                focusedSection === "chamber-diameter" ||
+                focusedSection === "chamber-length"
+                  ? "url(#glow)"
+                  : undefined
+              }
             >
               {/* Top wall */}
               <line
@@ -180,7 +245,11 @@ export default function MotorGeometry({
                 y1={centerY - chamberVisualDiameter / 2}
                 x2={chamberEndX}
                 y2={centerY - chamberVisualDiameter / 2}
-                stroke={focusedSection === "chamber-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "chamber-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "chamber-length" ? 2.5 : 1.5}
               />
               {/* Bottom wall */}
@@ -189,7 +258,11 @@ export default function MotorGeometry({
                 y1={centerY + chamberVisualDiameter / 2}
                 x2={chamberEndX}
                 y2={centerY + chamberVisualDiameter / 2}
-                stroke={focusedSection === "chamber-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "chamber-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "chamber-length" ? 2.5 : 1.5}
               />
               {/* Head end cap */}
@@ -198,7 +271,11 @@ export default function MotorGeometry({
                 y1={centerY - chamberVisualDiameter / 2}
                 x2={startX}
                 y2={centerY + chamberVisualDiameter / 2}
-                stroke={focusedSection === "chamber-diameter" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "chamber-diameter"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "chamber-diameter" ? 2.5 : 1.5}
               />
 
@@ -209,17 +286,29 @@ export default function MotorGeometry({
                   y1={centerY - chamberVisualDiameter / 2 - 18}
                   x2={chamberEndX}
                   y2={centerY - chamberVisualDiameter / 2 - 18}
-                  stroke={focusedSection === "chamber-length" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "chamber-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 {/* Dimension arrows */}
                 <polygon
                   points={`${startX},${centerY - chamberVisualDiameter / 2 - 18} ${startX + 6},${centerY - chamberVisualDiameter / 2 - 15} ${startX + 6},${centerY - chamberVisualDiameter / 2 - 21}`}
-                  fill={focusedSection === "chamber-length" ? highlightStroke : "var(--muted-foreground)"}
+                  fill={
+                    focusedSection === "chamber-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                 />
                 <polygon
                   points={`${chamberEndX},${centerY - chamberVisualDiameter / 2 - 18} ${chamberEndX - 6},${centerY - chamberVisualDiameter / 2 - 15} ${chamberEndX - 6},${centerY - chamberVisualDiameter / 2 - 21}`}
-                  fill={focusedSection === "chamber-length" ? highlightStroke : "var(--muted-foreground)"}
+                  fill={
+                    focusedSection === "chamber-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                 />
                 <text
                   x={(startX + chamberEndX) / 2}
@@ -238,17 +327,29 @@ export default function MotorGeometry({
                   y1={centerY - chamberVisualDiameter / 2}
                   x2={startX - 18}
                   y2={centerY + chamberVisualDiameter / 2}
-                  stroke={focusedSection === "chamber-diameter" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "chamber-diameter"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 {/* Dimension arrows */}
                 <polygon
                   points={`${startX - 18},${centerY - chamberVisualDiameter / 2} ${startX - 15},${centerY - chamberVisualDiameter / 2 + 6} ${startX - 21},${centerY - chamberVisualDiameter / 2 + 6}`}
-                  fill={focusedSection === "chamber-diameter" ? highlightStroke : "var(--muted-foreground)"}
+                  fill={
+                    focusedSection === "chamber-diameter"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                 />
                 <polygon
                   points={`${startX - 18},${centerY + chamberVisualDiameter / 2} ${startX - 15},${centerY + chamberVisualDiameter / 2 - 6} ${startX - 21},${centerY + chamberVisualDiameter / 2 - 6}`}
-                  fill={focusedSection === "chamber-diameter" ? highlightStroke : "var(--muted-foreground)"}
+                  fill={
+                    focusedSection === "chamber-diameter"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                 />
                 <text
                   x={startX - 40}
@@ -263,8 +364,15 @@ export default function MotorGeometry({
 
             {/* PROPELLANT GRAIN */}
             <g
-              className={`${styles.sectionGroup} ${focusedSection === "grain-length" || focusedSection === 'grain-outer' || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.sectionUnfiltered : ""}`.trim()}
-              filter={focusedSection === "grain-length" ||  focusedSection === 'grain-outer' || focusedSection === "grain-core" || focusedSection === "grain-segments" ? "url(#glow)" : undefined}
+              className={`${styles.sectionGroup} ${focusedSection === "grain-length" || focusedSection === "grain-outer" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.sectionUnfiltered : ""}`.trim()}
+              filter={
+                focusedSection === "grain-length" ||
+                focusedSection === "grain-outer" ||
+                focusedSection === "grain-core" ||
+                focusedSection === "grain-segments"
+                  ? "url(#glow)"
+                  : undefined
+              }
             >
               {/* Outer grain surface (with hatch fill) */}
               <rect
@@ -296,11 +404,7 @@ export default function MotorGeometry({
                         ? highlightStroke
                         : "var(--muted-foreground)"
                     }
-                    strokeWidth={
-                      focusedSection === "grain-segments"
-                        ? 2
-                        : 1
-                    }
+                    strokeWidth={focusedSection === "grain-segments" ? 2 : 1}
                     strokeDasharray="4,3"
                     opacity={0.7}
                   />
@@ -313,7 +417,11 @@ export default function MotorGeometry({
                 y1={centerY - grainOuterVisualDiameter / 2}
                 x2={startX + grainVisualLength + 10}
                 y2={centerY - grainOuterVisualDiameter / 2}
-                stroke={focusedSection === "grain-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-length" ? 2.5 : 1.5}
               />
               {/* Bottom wall */}
@@ -322,7 +430,11 @@ export default function MotorGeometry({
                 y1={centerY + grainOuterVisualDiameter / 2}
                 x2={startX + grainVisualLength + 10}
                 y2={centerY + grainOuterVisualDiameter / 2}
-                stroke={focusedSection === "grain-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-length" ? 2.5 : 1.5}
               />
               {/* Top core wall */}
@@ -331,7 +443,11 @@ export default function MotorGeometry({
                 y1={centerY + grainCoreVisualDiameter / 2}
                 x2={startX + grainVisualLength + 10}
                 y2={centerY + grainCoreVisualDiameter / 2}
-                stroke={focusedSection === "grain-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-length" ? 2.5 : 1.5}
               />
               {/* Bottom core wall */}
@@ -340,17 +456,25 @@ export default function MotorGeometry({
                 y1={centerY - grainCoreVisualDiameter / 2}
                 x2={startX + grainVisualLength + 10}
                 y2={centerY - grainCoreVisualDiameter / 2}
-                stroke={focusedSection === "grain-length" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-length"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-length" ? 2.5 : 1.5}
               />
-              
+
               {/* Head end cap */}
               <line
                 x1={startX + 10}
                 y1={centerY - grainOuterVisualDiameter / 2}
                 x2={startX + 10}
                 y2={centerY + grainOuterVisualDiameter / 2}
-                stroke={focusedSection === "grain-outer" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-outer"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-outer" ? 2.5 : 1.5}
               />
               <line
@@ -358,7 +482,11 @@ export default function MotorGeometry({
                 y1={centerY - grainOuterVisualDiameter / 2}
                 x2={startX + 10 + grainVisualLength}
                 y2={centerY + grainOuterVisualDiameter / 2}
-                stroke={focusedSection === "grain-outer" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-outer"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-outer" ? 2.5 : 1.5}
               />
 
@@ -376,7 +504,11 @@ export default function MotorGeometry({
                 y1={centerY - grainCoreVisualDiameter / 2}
                 x2={startX + 10}
                 y2={centerY + grainCoreVisualDiameter / 2}
-                stroke={focusedSection === "grain-core" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-core"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-core" ? 2.5 : 1.5}
               />
               <line
@@ -384,7 +516,11 @@ export default function MotorGeometry({
                 y1={centerY - grainCoreVisualDiameter / 2}
                 x2={startX + 10 + grainVisualLength}
                 y2={centerY + grainCoreVisualDiameter / 2}
-                stroke={focusedSection === "grain-core" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "grain-core"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "grain-core" ? 2.5 : 1.5}
               />
 
@@ -395,7 +531,11 @@ export default function MotorGeometry({
                   y1={centerY - grainOuterVisualDiameter / 2}
                   x2={startX + 10 + grainVisualLength + 12}
                   y2={centerY + grainOuterVisualDiameter / 2}
-                  stroke={focusedSection === "grain-outer" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-outer"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 <line
@@ -403,7 +543,11 @@ export default function MotorGeometry({
                   y1={centerY - grainOuterVisualDiameter / 2}
                   x2={startX + 10 + grainVisualLength + 12 - 4}
                   y2={centerY - grainOuterVisualDiameter / 2}
-                  stroke={focusedSection === "grain-outer" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-outer"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 <line
@@ -411,7 +555,11 @@ export default function MotorGeometry({
                   y1={centerY + grainOuterVisualDiameter / 2}
                   x2={startX + 10 + grainVisualLength + 12 - 4}
                   y2={centerY + grainOuterVisualDiameter / 2}
-                  stroke={focusedSection === "grain-outer" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-outer"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 <text
@@ -429,7 +577,11 @@ export default function MotorGeometry({
                   y1={centerY + grainOuterVisualDiameter / 2 + 20}
                   x2={startX + grainVisualLength + 10}
                   y2={centerY + grainOuterVisualDiameter / 2 + 20}
-                  stroke={focusedSection === "grain-length" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 <line
@@ -437,7 +589,11 @@ export default function MotorGeometry({
                   y1={centerY + grainOuterVisualDiameter / 2 + 16}
                   x2={startX + 10}
                   y2={centerY + grainOuterVisualDiameter / 2 + 24}
-                  stroke={focusedSection === "grain-length" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="1"
                 />
                 <line
@@ -445,15 +601,18 @@ export default function MotorGeometry({
                   y1={centerY + grainOuterVisualDiameter / 2 + 16}
                   x2={startX + grainVisualLength + 10}
                   y2={centerY + grainOuterVisualDiameter / 2 + 24}
-                  stroke={focusedSection === "grain-length" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "grain-length"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="1"
                 />
                 <text
-                  x={startX + 10 + (grainVisualLength / 2)}
+                  x={startX + 10 + grainVisualLength / 2}
                   y={centerY + grainOuterVisualDiameter / 2 + 34}
                   textAnchor="middle"
                   className={`${styles.dimensionText} ${styles.text8}`}
-                  
                 >
                   L{(dimensions.grainLength || 0).toFixed(0)} mm
                 </text>
@@ -463,7 +622,13 @@ export default function MotorGeometry({
             {/* NOZZLE */}
             <g
               className={`${styles.sectionGroup} ${focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? styles.sectionUnfiltered : ""}`.trim()}
-              filter={focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? "url(#glow)" : undefined}
+              filter={
+                focusedSection === "nozzle-throat" ||
+                focusedSection === "nozzle-convergence" ||
+                focusedSection === "nozzle-divergence"
+                  ? "url(#glow)"
+                  : undefined
+              }
             >
               {/* Convergent section - Top */}
               <line
@@ -471,8 +636,14 @@ export default function MotorGeometry({
                 y1={centerY - chamberVisualDiameter / 2}
                 x2={chamberEndX + nozzleLength * 0.4}
                 y2={centerY - throatVisualDiameter / 2}
-                stroke={focusedSection === "nozzle-convergence" ? highlightStroke : defaultStroke}
-                strokeWidth={focusedSection === "nozzle-convergence" ? 2.5 : 1.5}
+                stroke={
+                  focusedSection === "nozzle-convergence"
+                    ? highlightStroke
+                    : defaultStroke
+                }
+                strokeWidth={
+                  focusedSection === "nozzle-convergence" ? 2.5 : 1.5
+                }
               />
               {/* Convergent section - Bottom */}
               <line
@@ -480,8 +651,14 @@ export default function MotorGeometry({
                 y1={centerY + chamberVisualDiameter / 2}
                 x2={chamberEndX + nozzleLength * 0.4}
                 y2={centerY + throatVisualDiameter / 2}
-                stroke={focusedSection === "nozzle-convergence" ? highlightStroke : defaultStroke}
-                strokeWidth={focusedSection === "nozzle-convergence" ? 2.5 : 1.5}
+                stroke={
+                  focusedSection === "nozzle-convergence"
+                    ? highlightStroke
+                    : defaultStroke
+                }
+                strokeWidth={
+                  focusedSection === "nozzle-convergence" ? 2.5 : 1.5
+                }
               />
 
               {/* Throat (narrowest point) */}
@@ -490,7 +667,11 @@ export default function MotorGeometry({
                 y1={centerY - throatVisualDiameter / 2}
                 x2={chamberEndX + nozzleLength * 0.4}
                 y2={centerY + throatVisualDiameter / 2}
-                stroke={focusedSection === "nozzle-throat" ? highlightStroke : "var(--muted-foreground)"}
+                stroke={
+                  focusedSection === "nozzle-throat"
+                    ? highlightStroke
+                    : "var(--muted-foreground)"
+                }
                 strokeWidth={focusedSection === "nozzle-throat" ? 1.5 : 0.5}
                 strokeDasharray="3,2"
               />
@@ -501,7 +682,11 @@ export default function MotorGeometry({
                 y1={centerY - throatVisualDiameter / 2}
                 x2={nozzleEndX}
                 y2={centerY - nozzleExitDiameter / 2}
-                stroke={focusedSection === "nozzle-divergence" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "nozzle-divergence"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "nozzle-divergence" ? 2.5 : 1.5}
               />
               {/* Divergent section - Bottom */}
@@ -510,7 +695,11 @@ export default function MotorGeometry({
                 y1={centerY + throatVisualDiameter / 2}
                 x2={nozzleEndX}
                 y2={centerY + nozzleExitDiameter / 2}
-                stroke={focusedSection === "nozzle-divergence" ? highlightStroke : defaultStroke}
+                stroke={
+                  focusedSection === "nozzle-divergence"
+                    ? highlightStroke
+                    : defaultStroke
+                }
                 strokeWidth={focusedSection === "nozzle-divergence" ? 2.5 : 1.5}
               />
 
@@ -521,7 +710,13 @@ export default function MotorGeometry({
                   y1={centerY - throatVisualDiameter / 2 - 8}
                   x2={chamberEndX + nozzleLength * 0.4 + 5}
                   y2={centerY - throatVisualDiameter / 2 - 8}
-                  stroke={focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? highlightStroke : "var(--muted-foreground)"}
+                  stroke={
+                    focusedSection === "nozzle-throat" ||
+                    focusedSection === "nozzle-convergence" ||
+                    focusedSection === "nozzle-divergence"
+                      ? highlightStroke
+                      : "var(--muted-foreground)"
+                  }
                   strokeWidth="0.75"
                 />
                 <text
@@ -557,10 +752,24 @@ export default function MotorGeometry({
                 stroke="var(--chart-1)"
                 strokeWidth="1"
               />
-              <line x1={0} y1={-4} x2={0} y2={4} stroke="var(--chart-1)" strokeWidth="1" />
-              <line x1={50} y1={-4} x2={50} y2={4} stroke="var(--chart-1)" strokeWidth="1" />
+              <line
+                x1={0}
+                y1={-4}
+                x2={0}
+                y2={4}
+                stroke="var(--chart-1)"
+                strokeWidth="1"
+              />
+              <line
+                x1={50}
+                y1={-4}
+                x2={50}
+                y2={4}
+                stroke="var(--chart-1)"
+                strokeWidth="1"
+              />
 
-              <line 
+              <line
                 x1={50}
                 x2={50}
                 y1={0}
@@ -568,10 +777,23 @@ export default function MotorGeometry({
                 stroke="var(--chart-2)"
                 strokeWidth="1"
               />
-              <line x1={54} y1={-50} x2={46} y2={-50} stroke="var(--chart-2)" strokeWidth="1" />
-              <line x1={54} y1={0} x2={50} y2={0} stroke="var(--chart-2)" strokeWidth="1" />
+              <line
+                x1={54}
+                y1={-50}
+                x2={46}
+                y2={-50}
+                stroke="var(--chart-2)"
+                strokeWidth="1"
+              />
+              <line
+                x1={54}
+                y1={0}
+                x2={50}
+                y2={0}
+                stroke="var(--chart-2)"
+                strokeWidth="1"
+              />
 
-              
               <text
                 x={20}
                 y={-8}
@@ -582,23 +804,39 @@ export default function MotorGeometry({
               </text>
             </g>
           </svg>
-      </>
+        </>
       ) : (
-        <div style={{ height: '240px', width: '100%', backgroundColor: 'var(--card)' }}>
+        <div
+          style={{
+            height: "240px",
+            width: "100%",
+            backgroundColor: "var(--card)",
+          }}
+        >
           <Canvas camera={{ position: [0, 0, 350], fov: 50 }}>
             {/* Luzes para dar aspecto metálico/realista */}
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 10]} intensity={1.5} />
-            <Environment preset="city" /> 
+            <Environment preset="city" />
 
             {/* O Motor gerado em 3D */}
             <Motor3D dimensions={dimensions} />
-            
+
             {/* Sombras no chão */}
-            <ContactShadows position={[0, -100, 0]} opacity={0.4} scale={400} blur={2} far={150} />
+            <ContactShadows
+              position={[0, -100, 0]}
+              opacity={0.4}
+              scale={400}
+              blur={2}
+              far={150}
+            />
 
             {/* Controles para o usuário girar, aproximar e afastar o motor */}
-            <OrbitControls enablePan={false} maxDistance={600} minDistance={100} />
+            <OrbitControls
+              enablePan={false}
+              maxDistance={600}
+              minDistance={100}
+            />
           </Canvas>
         </div>
       )}
@@ -607,28 +845,40 @@ export default function MotorGeometry({
       <div className={styles.legendContainer}>
         {/* Casing Label */}
         <div className={styles.legendItem}>
-          <div className={`${styles.legendBox} ${focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? styles.legendBoxActive : styles.legendBoxInactive}`} />
-          <span className={`${styles.legendText} ${focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? styles.legendTextActive : styles.legendTextInactive}`}>
+          <div
+            className={`${styles.legendBox} ${focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? styles.legendBoxActive : styles.legendBoxInactive}`}
+          />
+          <span
+            className={`${styles.legendText} ${focusedSection === "chamber-diameter" || focusedSection === "chamber-length" ? styles.legendTextActive : styles.legendTextInactive}`}
+          >
             Casing
           </span>
         </div>
-        
+
         {/* Propelente Label */}
         <div className={styles.legendItem}>
-          <div className={`${styles.legendBox} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendBoxActive : styles.legendBoxGrainInactive}`} />
-          <span className={`${styles.legendText} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendTextActive : styles.legendTextInactive}`}>
+          <div
+            className={`${styles.legendBox} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendBoxActive : styles.legendBoxGrainInactive}`}
+          />
+          <span
+            className={`${styles.legendText} ${focusedSection === "grain-outer" || focusedSection === "grain-length" || focusedSection === "grain-core" || focusedSection === "grain-segments" ? styles.legendTextActive : styles.legendTextInactive}`}
+          >
             Propelente
           </span>
         </div>
-        
+
         {/* Bocal Label */}
         <div className={styles.legendItem}>
-          <div className={`${styles.legendBox} ${focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? styles.legendBoxActive : styles.legendBoxInactive}`} />
-          <span className={`${styles.legendText} ${focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? styles.legendTextActive : styles.legendTextInactive}`}>
+          <div
+            className={`${styles.legendBox} ${focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? styles.legendBoxActive : styles.legendBoxInactive}`}
+          />
+          <span
+            className={`${styles.legendText} ${focusedSection === "nozzle-throat" || focusedSection === "nozzle-convergence" || focusedSection === "nozzle-divergence" ? styles.legendTextActive : styles.legendTextInactive}`}
+          >
             Bocal
           </span>
         </div>
       </div>
     </div>
-  )
+  );
 }

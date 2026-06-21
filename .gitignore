@@ -32,3 +32,4 @@ __exemples__
 
 # Prisma / Generated files
 generated/
+srm-backend.log

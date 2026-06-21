@@ -1,4 +1,4 @@
-package srm_tau_engine;
+package srm_engine;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,9 +10,9 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@ComponentScan(basePackages = {"com.tau.engine", "srm_engine"})
-@EnableJpaRepositories(basePackages = {"com.tau.engine", "srm_engine"})
-@EntityScan(basePackages = {"com.tau.engine", "srm_engine"})
+@ComponentScan(basePackages = {"com.srm.engine", "srm_engine"})
+@EnableJpaRepositories(basePackages = {"com.srm.engine", "srm_engine"})
+@EntityScan(basePackages = {"com.srm.engine", "srm_engine"})
 public class EngineApplication {
 
 	public static void main(String[] args) {
