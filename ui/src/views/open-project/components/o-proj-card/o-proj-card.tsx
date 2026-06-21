@@ -13,6 +13,7 @@ import { Button } from "../../../../ui/button/button";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { Project } from "../../OpenProjectView";
 import { formatDate } from "../../../../utils/formatDate";
+import { getBaseUrl } from "../../../../api/api";
 
 export type ImpulseClass =
   | "-"
@@ -70,7 +71,8 @@ export default function OpenProjectCard({
 }: OpenProjectCardProps) {
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/projects/${id}`, {
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/projects/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {

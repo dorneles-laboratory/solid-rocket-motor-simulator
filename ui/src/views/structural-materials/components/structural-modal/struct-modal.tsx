@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { StructuralMaterial } from "../../StructuralMaterialsView";
+import { getBaseUrl } from "../../../../api/api";
 
 interface StructuralMaterialsModalProps {
   isOpen: boolean;
@@ -39,10 +40,11 @@ export default function StructuralMaterialsModal({
   const handleSaveStructuralMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const baseUrl = await getBaseUrl();
     const isEdit = !!materialToEdit;
     const url = isEdit
-      ? `http://localhost:8080/api/structural-materials/${materialToEdit.id}`
-      : "http://localhost:8080/api/structural-materials";
+      ? `${baseUrl}/api/structural-materials/${materialToEdit.id}`
+      : `${baseUrl}/api/structural-materials`;
     const method = isEdit ? "PUT" : "POST";
 
     try {

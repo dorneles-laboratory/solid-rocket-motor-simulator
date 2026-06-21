@@ -69,6 +69,12 @@ public class Project {
   @Column(name = "motor_chamber_length", nullable = true)
   private Double motorChamberLength;
 
+  @Column(name = "grain_core_type", nullable = false, length = 50)
+  private String coreType = "bates";
+
+  @Column(name = "star_points", nullable = false, columnDefinition = "integer default 5")
+  private Integer starPoints = 5;
+
   @Column(name = "grain_outer_diameter", nullable = true)
   private Double grainOuterDiameter;
 

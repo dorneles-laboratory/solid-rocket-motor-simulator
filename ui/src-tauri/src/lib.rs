@@ -1,13 +1,23 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fs;
-#[cfg(not(debug_assertions))]
-use std::process::Command;
 use std::sync::Mutex;
 use tauri::{Manager, RunEvent};
+use tauri_plugin_shell::process::CommandChild;
+#[cfg(not(debug_assertions))]
+use std::net::TcpListener;
+#[cfg(not(debug_assertions))]
+use tauri_plugin_shell::ShellExt;
+#[cfg(not(debug_assertions))]
+use std::fs::OpenOptions;
+#[cfg(not(debug_assertions))]
+use std::io::Write;
+#[cfg(not(debug_assertions))]
+use tauri_plugin_shell::process::CommandEvent;
+
+#[cfg(target_os = "windows")]
 
 // --- ESTRUTURAS DE DADOS (Markdown/MDX) ---
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IndexItem {
     title: String,
@@ -48,6 +58,7 @@ struct Frontmatter {
     version: Option<String>,
     #[serde(rename = "readingTime")]
     reading_time: Option<String>,
+    #[serde(default)]
     tags: Option<Vec<String>>,
     #[serde(default)]
     index: Vec<IndexItem>,
@@ -59,14 +70,33 @@ pub struct DocumentCount {
 }
 
 // --- ESTRUTURA DO BACKEND JAVA ---
-struct BackendProcess(Mutex<Option<std::process::Child>>);
+struct BackendProcess(Mutex<Option<CommandChild>>);
 
+// Estrutura para guardar a porta na memória do Tauri
+struct AppConfig {
+    api_port: u16,
+}
 
 // --- COMANDOS NATIVOS (IPC) ---
-
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+// Acha uma porta vazia no SO
+#[cfg(not(debug_assertions))]
+fn get_available_port() -> u16 {
+    // Ao pedir a porta 0, o Windows devolve a primeira porta livre que encontrar
+    TcpListener::bind("127.0.0.1:0")
+        .expect("Falha ao buscar uma porta livre no sistema")
+        .local_addr()
+        .unwrap()
+        .port()
+}
+
+#[tauri::command]
+fn get_api_port(state: tauri::State<AppConfig>) -> u16 {
+    state.api_port
 }
 
 #[tauri::command]
@@ -186,37 +216,80 @@ fn count_documents() -> Result<DocumentCount, String> {
 // --- INICIALIZAÇÃO DO TAURI ---
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Em DEV: Usa a 8080 fixa para rodar o Spring Boot manualmente
+    #[cfg(debug_assertions)]
+    let api_port = 8080;
+
+    // Em PROD: Busca a porta dinâmica no sistema do usuário
+    #[cfg(not(debug_assertions))]
+    let api_port = get_available_port();
+
     tauri::Builder::default()
-        // Registra os Plugins Originais
+        // Inicializa obrigatoriamente os plugins da v2
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         
-        // Registra os seus comandos IPC do MDX
         .invoke_handler(tauri::generate_handler![
             greet, 
             get_document, 
             list_documents, 
-            count_documents
+            count_documents,
+            get_api_port
         ])
         
-        // Injeta o Backend na inicialização (Spring Boot)
-        .setup(|app| {
+        .setup(move |app| {
+            // Salva a porta no estado do aplicativo para o frontend consultar
+            app.manage(AppConfig { api_port });
+
             #[cfg(not(debug_assertions))]
             {
-                // MODO PRODUÇÃO: O cliente abriu o .exe
-                let jar_path = app
-                    .path()
-                    .resource_dir()
-                    .expect("Falha ao encontrar a pasta de recursos")
-                    .join("engine.jar");
+                let sidecar_command = app
+                    .shell()
+                    .sidecar("engine")
+                    .expect("Falha ao carregar a configuração do sidecar 'engine'")
+                    .arg(format!("--server.port={}", api_port))
+                    .arg("--spring.profiles.active=prod");
 
-                //Inicia o Java apontando exatamente para esse caminho
-                let child = Command::new("java")
-                    .arg("-jar")
-                    .arg(jar_path)
-                    .arg("--spring.profiles.active=prod")
+                // Aqui captura o "rx" (Receiver) que ouve o terminal do Java
+                let (mut rx, child) = sidecar_command
                     .spawn()
-                    .expect("Falha ao iniciar o Spring Boot. O Java está instalado?");
+                    .expect("Falha ao iniciar o executável nativo do Spring Boot");
+
+                // --- SISTEMA DE LOGS DO SIDECAR ---
+                tauri::async_runtime::spawn(async move {
+                    // Cria o arquivo de log direto na raiz do projeto
+                    let log_path = std::path::Path::new("C:\\projects\\srm\\srm-backend.log");
+
+                    let mut file = OpenOptions::new()
+                        .create(true)
+                        .write(true)
+                        .truncate(true)
+                        .open(&log_path)
+                        .expect("Falha ao abrir/criar arquivo de log");
+
+                    let _ = writeln!(file, "\n\n=== INICIANDO EXECUTÁVEL (PORTA {}) ===", api_port);
+
+                    // Ouvindo o processo enquanto ele estiver vivo
+                    while let Some(event) = rx.recv().await {
+                        match event {
+                            CommandEvent::Stdout(line) => {
+                                let _ = writeln!(file, "[INFO] {}", String::from_utf8_lossy(&line));
+                            }
+                            CommandEvent::Stderr(line) => {
+                                let _ = writeln!(file, "[ERRO] {}", String::from_utf8_lossy(&line));
+                            }
+                            CommandEvent::Terminated(payload) => {
+                                let _ = writeln!(file, "[FIM] Processo morreu. Código de saída: {:?}", payload.code);
+                            }
+                            CommandEvent::Error(err) => {
+                                let _ = writeln!(file, "[CRASH] Falha ao executar o comando: {}", err);
+                            }
+                            _ => {}
+                        }
+                    }
+                });
+                // ----------------------------------
 
                 app.manage(BackendProcess(Mutex::new(Some(child))));
             }
@@ -229,21 +302,18 @@ pub fn run() {
             Ok(())
         })
         
-        // Constrói e gerencia o ciclo de vida da aplicação
         .build(tauri::generate_context!())
         .expect("Erro ao construir o aplicativo Tauri")
         .run(|app_handle, event| {
             if let RunEvent::Exit = event {
-                // Pega o estado encapsulado do Tauri
                 let state = app_handle.state::<BackendProcess>();
-                // Cria um escopo isolado para o MutexGuard viver e morrer em paz
                 let mut process_guard = match state.inner().0.lock() {
                     Ok(guard) => guard,
-                    Err(poisoned) => poisoned.into_inner(), // Resolve caso a thread tenha morrido antes
+                    Err(poisoned) => poisoned.into_inner(),
                 };
 
-                // Se houver um processo rodando, nós o matamos e retiramos da memória
-                if let Some(mut process) = process_guard.take() {
+                if let Some(process) = process_guard.take() {
+                    // Encerra o processo nativo imediatamente ao fechar a janela principal
                     let _ = process.kill();
                 }
             }

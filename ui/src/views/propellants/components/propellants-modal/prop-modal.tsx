@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { Propellant } from "../../PropellantsView";
+import { getBaseUrl } from "../../../../api/api";
 
 interface PropellantsModalProps {
   isOpen: boolean;
@@ -40,10 +41,11 @@ export default function PropellantsModal({
   const handleSavePropellant = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const baseUrl = await getBaseUrl();
     const isEdit = !!propellantToEdit;
     const url = isEdit
-      ? `http://localhost:8080/api/propellants/${propellantToEdit.id}`
-      : "http://localhost:8080/api/propellants";
+      ? `${baseUrl}/api/propellants/${propellantToEdit.id}`
+      : `${baseUrl}/api/propellants`;
     const method = isEdit ? "PUT" : "POST";
 
     try {

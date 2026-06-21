@@ -6,6 +6,7 @@ import { showToast } from "../../ui/toast/toast-container";
 import { ProjectData } from "../dashboard/DashboardView";
 import { HomeCardLastProject } from "./components/home-card-last-project";
 import { formatDate } from "../../utils/formatDate";
+import { getBaseUrl } from "../../api/api";
 
 const isTauri =
   typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -39,15 +40,13 @@ export default function HomeView({ setFooter, onNavigate }: HomeViewProps) {
 
     const fetchLastProject = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8080/api/projects/recent`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+        const baseUrl = await getBaseUrl();
+        const response = await fetch(`${baseUrl}/api/projects/recent`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         if (!response.ok) {
           throw new Error("Falha ao buscar dados da API");

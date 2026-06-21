@@ -27,8 +27,14 @@ import MetricCard from "./components/dash-metric-card/dash-metric-card";
 import ClassBadge from "./components/dash-class-badge/dash-class-badge";
 import { ProjectStatus } from "../open-project/components/o-proj-card/o-proj-card";
 import { Propellant } from "../propellants/PropellantsView";
-import { runMotorSimulation, SimulationResult, SimulationConfig } from "../../utils/simulation";
+import {
+  runMotorSimulation,
+  SimulationResult,
+  SimulationConfig,
+} from "../../utils/simulation";
 import { SettingsData } from "../settings/SettingsView";
+import GrainGeometry from "./components/dash-grain-geometry/dash-grain-geometry";
+import { getBaseUrl } from "../../api/api";
 
 export interface ProjectData {
   id: string;
@@ -47,6 +53,8 @@ export interface ProjectData {
 
   motorChamberDiameter: number;
   motorChamberLength: number;
+  grainCoreType: string;
+  grainStarPoints?: number;
   grainOuterDiameter: number;
   grainInnerDiameter: number;
   grainSegmentsLength: number;
@@ -107,11 +115,14 @@ export default function DashboardView({
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
   const [settings, setSettings] = useState<SettingsData | null>(null);
-    
-   const [simConfig, setSimConfig] = useState<SimulationConfig>({
+  const [geometryViewType, setGeometryViewType] = useState<"motor" | "grain">(
+    "motor",
+  );
+
+  const [simConfig, setSimConfig] = useState<SimulationConfig>({
     timeStep: 0.001,
     method: "RK4",
-    pointsCount: 500
+    pointsCount: 500,
   });
 
   const saveStatus: SaveStatus = useMemo(() => {
@@ -121,10 +132,11 @@ export default function DashboardView({
     const hasManualChanges = !isEqual(projectLoaded, project);
 
     const simClass = simulationData?.metrics?.class;
-    const hasSimulationChanges = simClass ? simClass !== projectLoaded.impulseClass : false;
+    const hasSimulationChanges = simClass
+      ? simClass !== projectLoaded.impulseClass
+      : false;
 
-    return (hasManualChanges || hasSimulationChanges) ? "unsaved" : "saved";
-    
+    return hasManualChanges || hasSimulationChanges ? "unsaved" : "saved";
   }, [projectLoaded, project, isSaving, simulationData]);
 
   // --- EFEITOS (LIFECYCLE) ---
@@ -159,32 +171,51 @@ export default function DashboardView({
     }, 1000);
 
     return () => clearTimeout(delayTimer);
-    
   }, [saveStatus, settings?.autoSave]);
+
+  useEffect(() => {
+    if (project && saveStatus === "unsaved") {
+      const draftKey = `srm_draft_${project.id}`;
+      sessionStorage.setItem(draftKey, JSON.stringify(project));
+    }
+  }, [project, saveStatus]);
 
   // --- FUNÇÕES DE DADOS (FETCH) ---
   const fetchProjects = async () => {
-    if (!projectId) {
+    // Busca o ID das props ou da sessão
+    let activeId = projectId;
+    if (!activeId) {
+      activeId = sessionStorage.getItem("srm_active_project_id");
+    }
+
+    if (!activeId) {
       setIsLoading(false);
       return;
     }
 
+    sessionStorage.setItem("srm_active_project_id", activeId);
+
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `http://localhost:8080/api/projects/${projectId}/open`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/projects/${activeId}/open`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (response.ok) {
-        const data = await response.json();
-        setProject(data);
-        setProjectLoaded(data);
+        const dbData = await response.json();
+        setProjectLoaded(dbData);
+
+        const draftKey = `srm_draft_${activeId}`;
+        const draftString = sessionStorage.getItem(draftKey);
+
+        if (draftString) {
+          const draftData = JSON.parse(draftString);
+          setProject(draftData);
+        } else {
+          setProject(dbData);
+        }
       } else {
         throw new Error("Falha ao buscar dados");
       }
@@ -202,11 +233,11 @@ export default function DashboardView({
 
   const fetchPropellants = async (propellantId: string) => {
     try {
+      const baseUrl = await getBaseUrl();
       const response = await fetch(
-        `http://localhost:8080/api/propellants/${propellantId}`,
+        `${baseUrl}/api/propellants/${propellantId}`,
       );
 
-      // Se o banco de dados não achar o ID (404 Not Found)
       if (response.status === 404) {
         console.warn(
           `Aviso: Propelente ${propellantId} não existe mais no banco de dados.`,
@@ -234,7 +265,8 @@ export default function DashboardView({
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/settings`);
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/settings`);
 
       if (response.ok) {
         const data = await response.json();
@@ -269,7 +301,7 @@ export default function DashboardView({
     setTimeout(() => {
       try {
         const results = runMotorSimulation(project, propellant, simConfig);
-        
+
         if (results) {
           setSimulationData(results);
 
@@ -388,6 +420,8 @@ export default function DashboardView({
 
   const handleSaveChanges = async () => {
     if (saveStatus !== "unsaved" || !project) return;
+    const activeId =
+      projectId || sessionStorage.getItem("srm_active_project_id");
 
     const payload = {
       ...project,
@@ -396,17 +430,16 @@ export default function DashboardView({
 
     setIsSaving(true);
     try {
-      await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+      const baseUrl = await getBaseUrl();
+      await fetch(`${baseUrl}/api/projects/${activeId}`, {
         method: "PUT",
         body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       setProject(structuredClone(payload));
       setProjectLoaded(structuredClone(payload));
-      // showToast({ type: "success", title: "Sucesso", message: "Alterações salvas com sucesso." });
+      sessionStorage.removeItem(`srm_draft_${activeId}`);
     } catch (error) {
       console.error(error);
       showToast({
@@ -418,7 +451,6 @@ export default function DashboardView({
       setIsSaving(false);
     }
   };
-
   const status = simulationData?.status?.toLowerCase() || "idle";
 
   const handleDimensionsChange = (newDims: MotorDimensions) => {
@@ -556,6 +588,8 @@ export default function DashboardView({
                 ? {
                     chamberDiameter: project.motorChamberDiameter,
                     chamberLength: project.motorChamberLength,
+                    grainCoreType: project.grainCoreType,
+                    grainStarPoints: project.grainStarPoints,
                     grainOuterDiameter: project.grainOuterDiameter,
                     grainCoreDiameter: project.grainInnerDiameter,
                     grainLength: project.grainSegmentsLength,
@@ -569,9 +603,9 @@ export default function DashboardView({
             onFocusChange={setFocusedSection}
             propellant={propellant || undefined}
             onDimensionsChange={handleDimensionsChange}
+            showSimulationFooter={true}
             isSimulating={simulationRun}
             onRunSimulation={handleRunSimulation}
-
             simConfig={simConfig}
             onSimConfigChange={setSimConfig}
           />
@@ -588,7 +622,11 @@ export default function DashboardView({
               {/* Painel com o Esquema do Motor */}
               <DashboardPanel
                 type="custom"
-                panelTitle="Motor Geometry"
+                panelTitle={
+                  geometryViewType === "motor"
+                    ? "MOTOR LONGITUDINAL VIEW"
+                    : "GRAIN CROSS-SECTION & 3D"
+                }
                 icon={
                   <Settings
                     className={styles.panelIcon}
@@ -596,25 +634,81 @@ export default function DashboardView({
                     style={{ color: "var(--chart-1)" }}
                   />
                 }
+                headerActions={
+                  <>
+                    <button
+                      onClick={() => setGeometryViewType("motor")}
+                      style={{
+                        padding: "4px 12px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          geometryViewType === "motor"
+                            ? "var(--primary)"
+                            : "var(--card)",
+                        color:
+                          geometryViewType === "motor"
+                            ? "var(--background)"
+                            : "var(--foreground)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      MOTOR VIEW
+                    </button>
+                    <button
+                      onClick={() => setGeometryViewType("grain")}
+                      style={{
+                        padding: "4px 12px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          geometryViewType === "grain"
+                            ? "var(--primary)"
+                            : "var(--card)",
+                        color:
+                          geometryViewType === "grain"
+                            ? "var(--background)"
+                            : "var(--foreground)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      GRAIN VIEW
+                    </button>
+                  </>
+                }
               >
-                <MotorGeometry
-                  dimensions={
-                    project
-                      ? {
-                          chamberDiameter: project.motorChamberDiameter || 0,
-                          chamberLength: project.motorChamberLength || 0,
-                          grainOuterDiameter: project.grainOuterDiameter || 0,
-                          grainCoreDiameter: project.grainInnerDiameter || 0,
-                          grainLength: project.grainSegmentsLength || 0,
-                          grainSegments: project.grainSegments || 0,
-                          throatDiameter: project.nozzleThroatDiameter || 0,
-                          convergenceAngle: project.nozzleConvergenceAngle || 0,
-                          divergenceAngle: project.nozzleDivergenceAngle || 0,
-                        }
-                      : undefined
-                  }
-                  focusedSection={focusedSection}
-                />
+                {geometryViewType === "motor" ? (
+                  <MotorGeometry
+                    dimensions={{
+                      chamberDiameter: project.motorChamberDiameter || 0,
+                      chamberLength: project.motorChamberLength || 0,
+                      grainOuterDiameter: project.grainOuterDiameter || 0,
+                      grainCoreDiameter: project.grainInnerDiameter || 0,
+                      grainLength: project.grainSegmentsLength || 0,
+                      grainSegments: project.grainSegments || 0,
+                      throatDiameter: project.nozzleThroatDiameter || 0,
+                      convergenceAngle: project.nozzleConvergenceAngle || 0,
+                      divergenceAngle: project.nozzleDivergenceAngle || 0,
+                      grainCoreType: project.grainCoreType || "bates",
+                      grainStarPoints: project.grainStarPoints || 5,
+                    }}
+                    focusedSection={focusedSection}
+                  />
+                ) : (
+                  <GrainGeometry
+                    dimensions={{
+                      grainOuterDiameter: project.grainOuterDiameter || 0,
+                      grainCoreDiameter: project.grainInnerDiameter || 0,
+                      grainLength: project.grainSegmentsLength || 0,
+                      grainSegments: project.grainSegments || 0,
+                      grainCoreType: project.grainCoreType || "bates",
+                      grainStarPoints: project.grainStarPoints || 5,
+                    }}
+                    focusedSection={focusedSection}
+                  />
+                )}
               </DashboardPanel>
 
               <div className={styles.resultsStatus}>
@@ -792,11 +886,10 @@ export default function DashboardView({
                     />
                   }
                   dataItems={[
-                    // {
-                    //   label: "Core Type",
-                    // value: project?.geometry?.coreType || "N/A",
-                    // value: project?. || "N/A",
-                    // },
+                    {
+                      label: "Core Type",
+                      value: project?.grainCoreType || "N/A",
+                    },
                     {
                       label: "Segments",
                       value: `${project?.grainSegments || 0} un`,

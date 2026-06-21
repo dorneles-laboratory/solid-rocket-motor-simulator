@@ -8,6 +8,7 @@ import image from "../../assets/structural-materials.png";
 import { showToast } from "../../ui/toast/toast-container";
 import StructuralMaterialsModal from "./components/structural-modal/struct-modal";
 import { useShortcut } from "../../hooks/use-shortcut";
+import { getBaseUrl } from "../../api/api";
 
 export interface StructuralMaterial {
   id: string;
@@ -51,9 +52,8 @@ export default function StructuralMaterialsView({
 
   const fetchStructuralMaterials = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/structural-materials",
-      );
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/structural-materials`);
       if (response.ok) {
         const data = await response.json();
         setStructuralMaterials(data);
@@ -84,8 +84,9 @@ export default function StructuralMaterialsView({
 
   const handleDelete = async (id: string) => {
     try {
+      const baseUrl = await getBaseUrl();
       const response = await fetch(
-        `http://localhost:8080/api/structural-materials/${id}`,
+        `${baseUrl}/api/structural-materials/${id}`,
         {
           method: "DELETE",
         },

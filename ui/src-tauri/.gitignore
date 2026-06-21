@@ -8,3 +8,4 @@
 
 # Ignorar o backend embutido
 engine.jar
+bin/*.exe

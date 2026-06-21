@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "SRM",
-  "version": "0.1.10",
-  "identifier": "com.tau.srm",
+  "version": "0.2.0",
+  "identifier": "com.srm",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -25,6 +25,6 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/rocket.ico"],
-    "resources": [ "engine.jar" ]
+    "externalBin": ["bin/engine"]
   }
 }

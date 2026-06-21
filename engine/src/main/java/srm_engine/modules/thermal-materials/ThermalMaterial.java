@@ -1,17 +1,16 @@
 package srm_engine.modules.thermal_material;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.util.UUID;
+import srm_engine.modules.material.Material;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import java.time.LocalDateTime;
+import srm_engine.modules.material.interfaces.AnalyzableMaterial;
+import srm_engine.modules.material.interfaces.Searchable;
 
 @Entity
 @Table(name = "thermal_materials")
@@ -19,36 +18,38 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class ThermalMaterial {
+public class ThermalMaterial extends Material implements AnalyzableMaterial, Searchable {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Column(name = "thermal_conductivity", nullable = false)
+    private double thermalConductivity;
 
-  @Column(name = "name", nullable = false, unique = true)
-  private String name;
-  
-  @Column(name = "density", nullable = false)
-  private double density;
-  
-  @Column(name = "thermal_conductivity", nullable = false)
-  private double thermalConductivity;
-  
-  @Column(name = "specific_heat", nullable = false)
-  private double specificHeat;
+    @Column(name = "specific_heat", nullable = false)
+    private double specificHeat;
 
-  @Column(name = "max_service_temperature", nullable = false)
-  private double maxServiceTemperature;
+    @Column(name = "max_service_temperature", nullable = false)
+    private double maxServiceTemperature;
 
-  @Column(name = "application", nullable = true)
-  private String application;
+    @Column(name = "application")
+    private String application;
 
-  @CreatedDate
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+    /* implementation abstract method */
+    @Override
+    public String getMaterialType() {
+      return "Thermal";
+    }
 
-  @LastModifiedDate
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+    @Override
+    public double getSafetyLimit() {
+      return maxServiceTemperature;
+    }
+
+    @Override
+    public String getAnalysisSummary() {
+      return "Max temperature: " + maxServiceTemperature + " °C";
+    }
+
+    @Override
+    public String getSearchKey() {
+      return getName();
+    }
 }

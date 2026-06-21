@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { showToast } from "../../../../ui/toast/toast-container";
 import { ThermalMaterial } from "../../ThermalMaterialsView";
+import { getBaseUrl } from "../../../../api/api";
 
 interface ThermalMaterialsModalProps {
   isOpen: boolean;
@@ -40,10 +41,11 @@ export default function ThermalMaterialsModal({
   const handleSaveThermalMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const baseUrl = await getBaseUrl();
     const isEdit = !!materialToEdit;
     const url = isEdit
-      ? `http://localhost:8080/api/thermal-materials/${materialToEdit.id}`
-      : "http://localhost:8080/api/thermal-materials";
+      ? `${baseUrl}/api/thermal-materials/${materialToEdit.id}`
+      : `${baseUrl}/api/thermal-materials`;
     const method = isEdit ? "PUT" : "POST";
 
     try {

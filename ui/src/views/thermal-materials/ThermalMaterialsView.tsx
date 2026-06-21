@@ -8,6 +8,7 @@ import { useShortcut } from "../../hooks/use-shortcut";
 import ThermalHeader from "./components/thermal-header/therm-header";
 import ThermalMaterialsModal from "./components/therm-modal/therm-modal";
 import image from "../../assets/thermal-materials.png";
+import { getBaseUrl } from "../../api/api";
 export interface ThermalMaterial {
   id: string;
   name: string;
@@ -59,9 +60,8 @@ export default function ThermalMaterialsView({
 
   const fetchThermalMaterials = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/thermal-materials",
-      );
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/thermal-materials`);
       if (response.ok) {
         const data = await response.json();
         setThermalMaterials(data);
@@ -92,12 +92,10 @@ export default function ThermalMaterialsView({
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/thermal-materials/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/thermal-materials/${id}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
         showToast({
           type: "success",

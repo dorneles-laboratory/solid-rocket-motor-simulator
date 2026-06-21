@@ -9,6 +9,7 @@ import { ArrowUpDown, Plus } from "lucide-react";
 import { showToast } from "../../ui/toast/toast-container";
 import rocket from "../../assets/rocket-base.png";
 import { Button } from "../../ui/button/button";
+import { getBaseUrl } from "../../api/api";
 
 export interface Project {
   id: string;
@@ -56,7 +57,8 @@ export default function OpenProjectView({
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/projects");
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/projects`);
       if (response.ok) {
         const data = await response.json();
         setProjects(data);

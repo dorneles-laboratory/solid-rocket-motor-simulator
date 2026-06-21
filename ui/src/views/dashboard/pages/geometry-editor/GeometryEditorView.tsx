@@ -1,367 +1,483 @@
-"use client"
+import { useEffect, useMemo, useState } from "react";
+import isEqual from "fast-deep-equal";
+import styles from "./GeometryEditorView.module.css";
+import iconDashboard from "../../../../assets/dashboard.png";
+import { FooterProps } from "../../../../components/layout/footer/footer";
+import { showToast } from "../../../../ui/toast/toast-container";
+import { Settings } from "lucide-react";
+import DashboardPanel from "../../components/dash-panel/dash-panel";
+import MotorGeometry, {
+  FocusedSection,
+  MotorDimensions,
+} from "../../components/dash-motor-geometry/dash-motor-geometry";
+import GrainGeometry from "../../components/dash-grain-geometry/dash-grain-geometry";
+import DashboardHeader, {
+  SaveStatus,
+} from "../../components/dash-header/dash-header";
+import { ProjectStatus } from "../../../open-project/components/o-proj-card/o-proj-card";
+import { Propellant } from "../../../propellants/PropellantsView";
+import { SettingsData } from "../../../settings/SettingsView";
+import DashboardInputPanel from "../../components/dash-input-data/dash-input";
+import { getBaseUrl } from "../../../../api/api";
 
-import { useEffect, useState } from "react"
-import { Layers, ChevronDown } from "lucide-react"
-import styles from "./GeometryEditorView.module.css"
-import { FooterProps } from "../../../../components/layout/footer/footer"
+export interface ProjectData {
+  id: string;
+  name: string;
+  author?: string;
+  missionObjective?: string;
+  maxDiameter: number;
+  maxLength?: number;
+  propellantId: string;
+  targetImpulse?: number;
+  impulseClass?: string;
+  targetBurnTime?: number;
+  maxThrust?: number;
+  status: ProjectStatus;
+  lastOpenedAt: string;
 
-const coreTypes = [
-  { value: "bates", label: "BATES", description: "Cylindrical with central core" },
-  { value: "finocyl", label: "Finocyl", description: "Fin-cylinder hybrid" },
-  { value: "star", label: "Star", description: "Multi-point star core" },
-  { value: "moon", label: "Moon Burner", description: "Offset circular core" },
-  { value: "c-slot", label: "C-Slot", description: "C-shaped slot pattern" },
-]
+  motorChamberDiameter: number;
+  motorChamberLength: number;
+  grainCoreType?: string;
+  grainStarPoints?: number;
+  grainOuterDiameter: number;
+  grainInnerDiameter: number;
+  grainSegmentsLength: number;
+  grainSegments: number;
+  nozzleThroatDiameter: number;
+  nozzleConvergenceAngle: number;
+  nozzleDivergenceAngle: number;
+}
+
+type AlertType = "error" | "warning" | "note" | "info";
+
+export interface AlertMessage {
+  id: string;
+  title?: string;
+  message: string;
+  type: AlertType;
+  time: string;
+}
 
 interface GeometryEditorViewProps {
+  projectId?: string | null;
   setFooter: (data: FooterProps) => void;
 }
 
-export default function GeometryEditorView({ setFooter }: GeometryEditorViewProps) {
-  const [coreType, setCoreType] = useState("bates")
-  const [outerDiameter, setOuterDiameter] = useState("75.0")
-  const [innerDiameter, setInnerDiameter] = useState("20.0")
-  const [grainLength, setGrainLength] = useState("50.0")
-  const [segments, setSegments] = useState("4")
-  const [starPoints, setStarPoints] = useState("5")
-  const [openSections, setOpenSections] = useState({
-    core: true,
-    dimensions: true,
-    advanced: false,
-  })
+export default function GeometryEditorView({
+  projectId,
+  setFooter,
+}: GeometryEditorViewProps) {
+  // --- ESTADOS ---
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [projectLoaded, setProjectLoaded] = useState<ProjectData | null>(null);
+  const [propellant, setPropellant] = useState<Propellant | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [alerts, setAlerts] = useState<AlertMessage[]>([]);
+  const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const saveStatus: SaveStatus = useMemo(() => {
+    if (!projectLoaded || !project) return "saved";
+    if (isSaving) return "saving";
 
+    const hasManualChanges = !isEqual(projectLoaded, project);
+
+    return hasManualChanges ? "unsaved" : "saved";
+  }, [projectLoaded, project, isSaving]);
+  const [geometryViewType, setGeometryViewType] = useState<"motor" | "grain">(
+    "motor",
+  );
+
+  // --- EFEITOS (LIFECYCLE) ---
   useEffect(() => {
     setFooter({
-      description: "Edite a geometria do seu motor sólido de foguete com uma interface visual intuitiva.",
-      rightText: "Em breve uma nova funcionalidade."
+      description: projectId
+        ? "Edite a geometria do seu motor sólido de foguete com uma interface visual intuitiva."
+        : "Crie ou abra um projeto para acessar o editor de geometria.",
+      rightText: "Modo de Edição Ativo",
     });
-  }, [setFooter]);
+  }, [projectId, setFooter]);
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
-  // Calculate derived values
-  const outerRadius = parseFloat(outerDiameter) / 2 || 37.5
-  const innerRadius = parseFloat(innerDiameter) / 2 || 10
+  useEffect(() => {
+    fetchProjects();
+  }, [projectId]);
+
+  useEffect(() => {
+    if (project?.propellantId) {
+      fetchPropellants(project.propellantId);
+    }
+  }, [project?.propellantId]);
+
+  useEffect(() => {
+    if (!settings?.autoSave || saveStatus !== "unsaved") return;
+
+    const delayTimer = setTimeout(() => {
+      handleSaveChanges();
+    }, 1000);
+
+    return () => clearTimeout(delayTimer);
+  }, [saveStatus, settings?.autoSave]);
+
+  useEffect(() => {
+    if (project && saveStatus === "unsaved") {
+      const draftKey = `srm_draft_${project.id}`;
+      sessionStorage.setItem(draftKey, JSON.stringify(project));
+    }
+  }, [project, saveStatus]);
+
+  // --- FUNÇÕES DE DADOS (FETCH) ---
+  const fetchProjects = async () => {
+    let activeId = projectId;
+    if (!activeId) {
+      activeId = sessionStorage.getItem("srm_active_project_id");
+    }
+
+    if (!activeId) {
+      setIsLoading(false);
+      return;
+    }
+
+    sessionStorage.setItem("srm_active_project_id", activeId);
+
+    try {
+      setIsLoading(true);
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/projects/${activeId}/open`);
+
+      if (response.ok) {
+        const dbData = await response.json();
+        setProjectLoaded(dbData);
+
+        const draftKey = `srm_draft_${activeId}`;
+        const draftString = sessionStorage.getItem(draftKey);
+
+        if (draftString) {
+          const draftData = JSON.parse(draftString);
+          setProject(draftData);
+        } else {
+          setProject(dbData);
+        }
+      } else {
+        throw new Error("Falha ao buscar dados do banco de dados");
+      }
+    } catch (error) {
+      showToast({
+        type: "error",
+        title: "Erro de Comunicação",
+        message: "Não foi possível carregar o projeto.",
+      });
+      console.error("Erro ao carregar projeto:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchPropellants = async (propellantId: string) => {
+    try {
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(
+        `${baseUrl}/api/propellants/${propellantId}`,
+      );
+      if (response.status === 404) {
+        setPropellant(null);
+        return;
+      }
+      if (response.ok) {
+        const data = await response.json();
+        setPropellant(data);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar propelente:", error);
+      showToast({
+        type: "error",
+        title: "Erro no Propelente",
+        message: "Falha na comunicação.",
+      });
+      setPropellant(null);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/settings`);
+      if (response.ok) {
+        const data = await response.json();
+        setSettings(data);
+      }
+    } catch (error) {
+      setSettings(null);
+      console.error("Erro ao carregar configurações:", error);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (saveStatus !== "unsaved" || !project) return;
+    const activeId =
+      projectId || sessionStorage.getItem("srm_active_project_id");
+
+    const payload = {
+      ...project,
+    };
+
+    setIsSaving(true);
+    try {
+      const baseUrl = await getBaseUrl();
+      await fetch(`${baseUrl}/api/projects/${activeId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      setProject(structuredClone(payload));
+      setProjectLoaded(structuredClone(payload));
+
+      sessionStorage.removeItem(`srm_draft_${activeId}`);
+    } catch (error) {
+      showToast({
+        type: "error",
+        title: "Erro no Salvamento",
+        message: "Falha na comunicação.",
+      });
+      console.error("Erro ao salvar projeto:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDimensionsChange = (newDims: MotorDimensions) => {
+    if (!project) return;
+
+    const limitDiameter = project.maxDiameter || 0;
+    const limitLength = project.maxLength ? project.maxLength : Infinity;
+    const currentActiveAlerts: AlertMessage[] = [];
+
+    if (limitDiameter > 0 && newDims.chamberDiameter > limitDiameter) {
+      currentActiveAlerts.push({
+        id: "diameter-limit",
+        title: "Diâmetro Excedido",
+        message: `Limite: ${limitDiameter}mm`,
+        type: "warning",
+        time: new Date().toLocaleTimeString(),
+      });
+    }
+    if (limitLength > 0 && newDims.chamberLength > limitLength) {
+      currentActiveAlerts.push({
+        id: "length-limit",
+        title: "Comprimento Excedido",
+        message: `Limite: ${limitLength}mm`,
+        type: "warning",
+        time: new Date().toLocaleTimeString(),
+      });
+    }
+    if (
+      newDims.chamberDiameter > 0 &&
+      newDims.grainOuterDiameter > newDims.chamberDiameter
+    ) {
+      currentActiveAlerts.push({
+        id: "diameter-grain-limit",
+        title: "Diâmetro do Grão Excedido",
+        message: `Maior que a carcaça.`,
+        type: "error",
+        time: new Date().toLocaleTimeString(),
+      });
+    }
+
+    currentActiveAlerts.forEach((newAlert) => {
+      if (!alerts.some((existingAlert) => existingAlert.id === newAlert.id)) {
+        showToast({
+          type: newAlert.type === "error" ? "error" : "warning",
+          title: newAlert.title || "",
+          message: newAlert.message,
+        });
+      }
+    });
+
+    setAlerts(currentActiveAlerts);
+
+    setProject({
+      ...project,
+      motorChamberDiameter: newDims.chamberDiameter,
+      motorChamberLength: newDims.chamberLength,
+      grainOuterDiameter: newDims.grainOuterDiameter,
+      grainInnerDiameter: newDims.grainCoreDiameter,
+      grainSegmentsLength: newDims.grainLength,
+      grainSegments: newDims.grainSegments,
+      nozzleThroatDiameter: newDims.throatDiameter,
+      nozzleConvergenceAngle: newDims.convergenceAngle,
+      nozzleDivergenceAngle: newDims.divergenceAngle,
+    });
+  };
 
   return (
-    <section className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerTitleWrapper}>
-          <Layers className={styles.headerIcon} strokeWidth={1.5} />
-          <h1 className={styles.headerTitle}>
-            Editor de Geometria
-          </h1>
+    <section className={styles.geometryView}>
+      {isLoading ? (
+        <div
+          style={{
+            padding: "1rem",
+            textAlign: "center",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          Carregando dados do servidor...
         </div>
-        <button type="button" className={styles.applyButton}>
-          Apply Changes
-        </button>
-      </header>
+      ) : project ? (
+        <div className={styles.viewLayout}>
+          {/* BARRA LATERAL (INPUT DATA) */}
+          <DashboardInputPanel
+            dimensions={
+              project
+                ? {
+                    chamberDiameter: project.motorChamberDiameter || 0,
+                    chamberLength: project.motorChamberLength || 0,
+                    grainCoreType: project.grainCoreType || "bates",
+                    grainStarPoints: project.grainStarPoints || 5,
+                    grainOuterDiameter: project.grainOuterDiameter || 0,
+                    grainCoreDiameter: project.grainInnerDiameter || 0,
+                    grainLength: project.grainSegmentsLength || 0,
+                    grainSegments: project.grainSegments || 0,
+                    throatDiameter: project.nozzleThroatDiameter || 0,
+                    convergenceAngle: project.nozzleConvergenceAngle || 0,
+                    divergenceAngle: project.nozzleDivergenceAngle || 0,
+                  }
+                : undefined
+            }
+            onFocusChange={setFocusedSection}
+            propellant={propellant || undefined}
+            onDimensionsChange={handleDimensionsChange}
+          />
 
-      {/* Two Column Layout */}
-      <div className={styles.mainLayout}>
-        {/* Left Column - Controls */}
-        <div className={styles.leftCol}>
-          <div className={styles.scrollArea}>
-            <div className={styles.controlsPadding}>
-              
-              {/* Core Type Section */}
-              <div>
-                <button 
-                  type="button"
-                  onClick={() => toggleSection("core")}
-                  className={styles.collapsibleTrigger}
-                >
-                  <span className={styles.collapsibleTitle}>Core Type</span>
-                  <ChevronDown 
-                    className={`${styles.chevron} ${openSections.core ? styles.chevronOpen : ""}`} 
-                    strokeWidth={1.5} 
+          {/* PAINEL DA DIREITA (HEADER + GEOMETRIA) */}
+          <div className={styles.rightContainer}>
+            <DashboardHeader
+              project_name={project.name}
+              project_class={project?.impulseClass || "-"}
+              saveStatus={saveStatus}
+              onSave={handleSaveChanges}
+            />
+
+            {/* CONTEÚDO PRINCIPAL ABAIXO DO HEADER */}
+            <div className={styles.editorContent}>
+              <DashboardPanel
+                type="custom"
+                panelTitle={
+                  geometryViewType === "motor"
+                    ? "MOTOR LONGITUDINAL VIEW"
+                    : "GRAIN CROSS-SECTION & 3D"
+                }
+                icon={
+                  <Settings
+                    className={styles.panelIcon}
+                    strokeWidth={1.5}
+                    style={{ color: "var(--chart-1)" }}
                   />
-                </button>
-                <div className={`${styles.collapsibleContent} ${openSections.core ? styles.contentOpen : styles.contentClosed}`}>
-                  <div className={styles.formGroup}>
-                    {/* Native Select substitution */}
-                    <select 
-                      value={coreType} 
-                      onChange={(e) => setCoreType(e.target.value)}
-                      className={styles.select}
+                }
+                headerActions={
+                  <>
+                    <button
+                      onClick={() => setGeometryViewType("motor")}
+                      style={{
+                        padding: "4px 12px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          geometryViewType === "motor"
+                            ? "var(--primary)"
+                            : "var(--card)",
+                        color:
+                          geometryViewType === "motor"
+                            ? "var(--background)"
+                            : "var(--foreground)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "4px",
+                      }}
                     >
-                      {coreTypes.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    <p className={styles.helperText}>
-                      {coreTypes.find(t => t.value === coreType)?.description}
-                    </p>
-
-                    {coreType === "star" && (
-                      <div className={styles.fieldWrapper}>
-                        <label className={styles.label}>Star Points</label>
-                        <div className={styles.inputContainer}>
-                          <input
-                            type="number"
-                            value={starPoints}
-                            onChange={(e) => setStarPoints(e.target.value)}
-                            className={styles.input}
-                            style={{ paddingRight: '2rem' }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Dimensions Section */}
-              <div>
-                <button 
-                  type="button"
-                  onClick={() => toggleSection("dimensions")}
-                  className={styles.collapsibleTrigger}
-                >
-                  <span className={styles.collapsibleTitle}>Dimensions</span>
-                  <ChevronDown 
-                    className={`${styles.chevron} ${openSections.dimensions ? styles.chevronOpen : ""}`} 
-                    strokeWidth={1.5} 
+                      MOTOR VIEW
+                    </button>
+                    <button
+                      onClick={() => setGeometryViewType("grain")}
+                      style={{
+                        padding: "4px 12px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          geometryViewType === "grain"
+                            ? "var(--primary)"
+                            : "var(--card)",
+                        color:
+                          geometryViewType === "grain"
+                            ? "var(--background)"
+                            : "var(--foreground)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      GRAIN VIEW
+                    </button>
+                  </>
+                }
+              >
+                {geometryViewType === "motor" ? (
+                  <MotorGeometry
+                    dimensions={{
+                      chamberDiameter: project.motorChamberDiameter || 0,
+                      chamberLength: project.motorChamberLength || 0,
+                      grainOuterDiameter: project.grainOuterDiameter || 0,
+                      grainCoreDiameter: project.grainInnerDiameter || 0,
+                      grainLength: project.grainSegmentsLength || 0,
+                      grainSegments: project.grainSegments || 0,
+                      throatDiameter: project.nozzleThroatDiameter || 0,
+                      convergenceAngle: project.nozzleConvergenceAngle || 0,
+                      divergenceAngle: project.nozzleDivergenceAngle || 0,
+                      grainCoreType: project.grainCoreType || "bates",
+                      grainStarPoints: project.grainStarPoints || 5,
+                    }}
+                    focusedSection={focusedSection}
                   />
-                </button>
-                <div className={`${styles.collapsibleContent} ${openSections.dimensions ? styles.contentOpen : styles.contentClosed}`}>
-                  <div className={styles.formGroup}>
-                    
-                    <div className={styles.fieldWrapper}>
-                      <label className={styles.label}>Outer Diameter</label>
-                      <div className={styles.inputContainer}>
-                        <input
-                          type="number"
-                          value={outerDiameter}
-                          onChange={(e) => setOuterDiameter(e.target.value)}
-                          className={styles.input}
-                        />
-                        <span className={styles.inputUnit}>mm</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.fieldWrapper}>
-                      <label className={styles.label}>Inner Port Diameter</label>
-                      <div className={styles.inputContainer}>
-                        <input
-                          type="number"
-                          value={innerDiameter}
-                          onChange={(e) => setInnerDiameter(e.target.value)}
-                          className={styles.input}
-                        />
-                        <span className={styles.inputUnit}>mm</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.fieldWrapper}>
-                      <label className={styles.label}>Segment Length</label>
-                      <div className={styles.inputContainer}>
-                        <input
-                          type="number"
-                          value={grainLength}
-                          onChange={(e) => setGrainLength(e.target.value)}
-                          className={styles.input}
-                        />
-                        <span className={styles.inputUnit}>mm</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.fieldWrapper}>
-                      <label className={styles.label}>Number of Segments</label>
-                      <input
-                        type="number"
-                        value={segments}
-                        onChange={(e) => setSegments(e.target.value)}
-                        className={styles.input}
-                        style={{ paddingRight: '0.5rem' }} /* Removes right padding since no unit */
-                      />
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-
-              {/* Advanced Section */}
-              <div>
-                <button 
-                  type="button"
-                  onClick={() => toggleSection("advanced")}
-                  className={styles.collapsibleTrigger}
-                >
-                  <span className={styles.collapsibleTitle}>Advanced</span>
-                  <ChevronDown 
-                    className={`${styles.chevron} ${openSections.advanced ? styles.chevronOpen : ""}`} 
-                    strokeWidth={1.5} 
+                ) : (
+                  <GrainGeometry
+                    dimensions={{
+                      grainOuterDiameter: project.grainOuterDiameter || 0,
+                      grainCoreDiameter: project.grainInnerDiameter || 0,
+                      grainLength: project.grainSegmentsLength || 0,
+                      grainSegments: project.grainSegments || 0,
+                      grainCoreType: project.grainCoreType || "bates",
+                      grainStarPoints: project.grainStarPoints || 5,
+                    }}
+                    focusedSection={focusedSection}
                   />
-                </button>
-                <div className={`${styles.collapsibleContent} ${openSections.advanced ? styles.contentOpen : styles.contentClosed}`}>
-                  <div className={styles.formGroup}>
-                    <div className={styles.advancedStats}>
-                      <span>Web Thickness: <span className={styles.statValue}>{((parseFloat(outerDiameter) - parseFloat(innerDiameter)) / 2).toFixed(1)} mm</span></span>
-                      <span>Port/Throat Ratio: <span className={styles.statValue}>2.8</span></span>
-                      <span>L/D Ratio: <span className={styles.statValue}>{(parseFloat(grainLength) / parseFloat(outerDiameter)).toFixed(2)}</span></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+                )}
+              </DashboardPanel>
             </div>
           </div>
         </div>
-
-        {/* Right Column - Visualization Canvas */}
-        <div className={styles.rightCol}>
-          {/* Canvas Header */}
-          <div className={styles.canvasHeader}>
-            <span className={styles.canvasTitle}>
-              2D Cross-Section Preview
-            </span>
-            <span className={styles.canvasScale}>Scale: 1:1</span>
-          </div>
-
-          {/* Canvas Area */}
-          <div className={styles.canvasArea}>
-            {/* Grid Background */}
-            <div className={styles.canvasGrid} />
-
-            {/* Center Crosshairs */}
-            <div className={styles.crosshairV} />
-            <div className={styles.crosshairH} />
-
-            {/* SVG Grain Cross-Section */}
-            <svg className={styles.svgCanvas} viewBox="-100 -100 200 200">
-              {/* Outer Circle (Grain) */}
-              <circle
-                cx="0"
-                cy="0"
-                r={outerRadius}
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="2"
-                className={styles.svgOuterRing}
-              />
-              <circle
-                cx="0"
-                cy="0"
-                r={outerRadius}
-                fill="var(--primary)"
-                fillOpacity="0.1"
-              />
-
-              {/* Inner Core based on type */}
-              {coreType === "bates" && (
-                <>
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={innerRadius}
-                    fill="#0a0a0f"
-                    stroke="var(--primary)"
-                    strokeWidth="1.5"
-                  />
-                </>
-              )}
-
-              {coreType === "star" && (
-                <polygon
-                  points={generateStarPoints(0, 0, parseInt(starPoints) || 5, innerRadius * 1.5, innerRadius * 0.6)}
-                  fill="#0a0a0f"
-                  stroke="var(--primary)"
-                  strokeWidth="1.5"
-                />
-              )}
-
-              {coreType === "finocyl" && (
-                <>
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={innerRadius}
-                    fill="#0a0a0f"
-                    stroke="var(--primary)"
-                    strokeWidth="1.5"
-                  />
-                  {[0, 60, 120, 180, 240, 300].map((angle) => (
-                    <rect
-                      key={angle}
-                      x={-2}
-                      y={-outerRadius * 0.75}
-                      width={4}
-                      height={outerRadius * 0.75 - innerRadius}
-                      fill="#0a0a0f"
-                      stroke="var(--primary)"
-                      strokeWidth="1"
-                      transform={`rotate(${angle})`}
-                    />
-                  ))}
-                </>
-              )}
-
-              {coreType === "moon" && (
-                <circle
-                  cx={innerRadius * 0.8}
-                  cy="0"
-                  r={innerRadius}
-                  fill="#0a0a0f"
-                  stroke="var(--primary)"
-                  strokeWidth="1.5"
-                />
-              )}
-
-              {coreType === "c-slot" && (
-                <path
-                  d={`M ${-innerRadius * 0.5} ${-innerRadius} 
-                      L ${innerRadius * 1.5} ${-innerRadius} 
-                      L ${innerRadius * 1.5} ${-innerRadius * 0.3}
-                      L ${innerRadius * 0.5} ${-innerRadius * 0.3}
-                      A ${innerRadius * 0.3} ${innerRadius * 0.3} 0 1 0 ${innerRadius * 0.5} ${innerRadius * 0.3}
-                      L ${innerRadius * 1.5} ${innerRadius * 0.3}
-                      L ${innerRadius * 1.5} ${innerRadius}
-                      L ${-innerRadius * 0.5} ${innerRadius}
-                      Z`}
-                  fill="#0a0a0f"
-                  stroke="var(--primary)"
-                  strokeWidth="1.5"
-                />
-              )}
-
-              {/* Dimension Lines */}
-              <line x1={-outerRadius - 15} y1={-outerRadius} x2={-outerRadius - 15} y2={outerRadius} stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-              <line x1={-outerRadius - 18} y1={-outerRadius} x2={-outerRadius - 12} y2={-outerRadius} stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-              <line x1={-outerRadius - 18} y1={outerRadius} x2={-outerRadius - 12} y2={outerRadius} stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-              <text x={-outerRadius - 20} y="4" fill="rgba(255,255,255,0.5)" fontSize="6" textAnchor="end" fontFamily="monospace">
-                {outerDiameter}mm
-              </text>
-            </svg>
-
-            {/* Corner Info */}
-            <div className={styles.cornerInfo}>
-              <span className={styles.cornerLabel}>Type: <span className={styles.cornerValuePrimary}>{coreTypes.find(t => t.value === coreType)?.label}</span></span>
-              <span className={styles.cornerLabel}>OD: <span className={styles.cornerValue}>{outerDiameter} mm</span></span>
-              <span className={styles.cornerLabel}>ID: <span className={styles.cornerValue}>{innerDiameter} mm</span></span>
+      ) : (
+        <section className={styles.noItemsGrid}>
+          <div>
+            <img
+              src={iconDashboard}
+              alt="Solid rocket motor"
+              className={styles.rocketImage}
+            />
+            <div className={styles.noItemsMessage}>
+              <h1 className={styles.noItemsTitle}>
+                Nenhum projeto aberto no momento!
+              </h1>
+              <p className={styles.noItemsSubtitle}>
+                Abra um projeto existente ou crie um novo. Aperte{" "}
+                <strong className={styles.keyboardShortcut}>Ctrl + N</strong>{" "}
+                para criar ou{" "}
+                <strong className={styles.keyboardShortcut}>Ctrl + O</strong>{" "}
+                para abrir.
+              </p>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      )}
     </section>
-  )
-}
-
-function generateStarPoints(cx: number, cy: number, points: number, outerRadius: number, innerRadius: number): string {
-  const angle = Math.PI / points
-  const coords: string[] = []
-  
-  for (let i = 0; i < 2 * points; i++) {
-    const r = i % 2 === 0 ? outerRadius : innerRadius
-    const a = i * angle - Math.PI / 2
-    coords.push(`${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`)
-  }
-  
-  return coords.join(' ')
+  );
 }

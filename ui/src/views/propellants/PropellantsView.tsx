@@ -8,6 +8,7 @@ import PropellantsModal from "./components/propellants-modal/prop-modal";
 import { showToast } from "../../ui/toast/toast-container";
 import image from "../../assets/propellant.png";
 import { useShortcut } from "../../hooks/use-shortcut";
+import { getBaseUrl } from "../../api/api";
 
 export interface Propellant {
   id: string;
@@ -58,7 +59,8 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
 
   const fetchPropellants = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/propellants");
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/propellants`);
       if (response.ok) {
         const data = await response.json();
         setPropellants(data);
@@ -89,12 +91,10 @@ export default function PropellantsView({ setFooter }: PropellantsViewProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/propellants/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const baseUrl = await getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/propellants/${id}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
         showToast({
           type: "success",
